@@ -29,16 +29,20 @@ export function FilingPack({ api, c }: { api: Api; c: CalcResult }) {
         </p>
       </div>
       <hr className="hr" />
+      <p className="text-muted" style={{ fontSize: 11.5, margin: '10px 0 0' }}>
+        Enter amounts in RM without sen — LHDN&apos;s forms drop the sen rather than rounding (RM 125,955.67 is entered as 125,955). Your sen-accurate records stay in the receipts column.{' '}
+        <span lang="ms">Isi amaun tanpa sen mengikut kehendak borang LHDN — sen digugurkan, bukan dibundarkan.</span>
+      </p>
 
       <h6 style={{ margin: '18px 0 6px' }}>1 · Income to declare · Pendapatan</h6>
       <div style={{ overflowX: 'auto' }}>
       <table className="table" style={{ fontSize: 13 }}>
         <tbody>
-          <tr><td>Employment (salary + bonus) · Penggajian</td><td style={right} className="mono">{fmt((+c.inc.salary || 0) + (+c.inc.bonus || 0))}</td></tr>
-          <tr><td>Net rental · Sewaan bersih</td><td style={right} className="mono">{fmt(c.netRent)}</td></tr>
-          <tr><td>Business (net) · Perniagaan</td><td style={right} className="mono">{fmt(c.inc.biz || 0)}</td></tr>
-          <tr><td>Other · Lain-lain</td><td style={right} className="mono">{fmt(c.inc.other || 0)}</td></tr>
-          <tr><td style={heading800}>Total · Jumlah</td><td style={{ ...right, ...heading800 }} className="mono">{fmt(c.totalIncome)}</td></tr>
+          <tr><td>Employment (salary + bonus) · Penggajian</td><td style={right} className="mono">{fmt(Math.floor((+c.inc.salary || 0) + (+c.inc.bonus || 0)))}</td></tr>
+          <tr><td>Net rental · Sewaan bersih</td><td style={right} className="mono">{fmt(Math.floor(c.netRent))}</td></tr>
+          <tr><td>Business (net) · Perniagaan</td><td style={right} className="mono">{fmt(Math.floor(c.inc.biz || 0))}</td></tr>
+          <tr><td>Other · Lain-lain</td><td style={right} className="mono">{fmt(Math.floor(c.inc.other || 0))}</td></tr>
+          <tr><td style={heading800}>Total · Jumlah</td><td style={{ ...right, ...heading800 }} className="mono">{fmt(Math.floor((+c.inc.salary || 0) + (+c.inc.bonus || 0)) + Math.floor(c.netRent) + Math.floor(c.inc.biz || 0) + Math.floor(c.inc.other || 0))}</td></tr>
         </tbody>
       </table>
       </div>
@@ -55,7 +59,7 @@ export function FilingPack({ api, c }: { api: Api; c: CalcResult }) {
             return (
               <tr key={r.id}>
                 <td>{r.en} <span className="bm">· {r.bm}</span></td>
-                <td style={{ ...right, ...heading800 }} className="mono">{fmt(r.allowed)}</td>
+                <td style={{ ...right, ...heading800 }} className="mono">{fmt(Math.floor(r.allowed))}</td>
                 <td style={right} className="mono">{fmt(r.claimed)}</td>
                 <td className="text-muted" style={{ fontSize: 11.5 }}>{evid.length ? evid.join(', ') : r.id === 'individual' ? 'automatic — none needed' : 'no receipts linked'}</td>
               </tr>

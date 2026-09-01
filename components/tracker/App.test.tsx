@@ -130,6 +130,38 @@ describe('TrackerApp smoke', () => {
     expect(JSON.parse(localStorage.getItem(KEY)!).income.YA2026.salary).toBe(210);
   });
 
+  it('decimals can be typed keystroke by keystroke — the dot survives', async () => {
+    await completeSetup();
+    fireEvent.click(screen.getByText('Skip tour'));
+    fireEvent.click(screen.getByText('Income'));
+    await screen.findByText(/Computation · Pengiraan/);
+    const salary = () => document.querySelectorAll('input[inputmode="decimal"]')[0] as HTMLInputElement;
+    salary().focus();
+    fireEvent.change(salary(), { target: { value: '5' } });
+    fireEvent.change(salary(), { target: { value: '5.' } });
+    expect(salary().value).toBe('5.'); // the dot must not be eaten mid-entry
+    fireEvent.change(salary(), { target: { value: '5.5' } });
+    expect(salary().value).toBe('5.5');
+    expect(JSON.parse(localStorage.getItem(KEY)!).income.YA2026.salary).toBe(5.5);
+    fireEvent.blur(salary());
+    expect(salary().value).toBe('5.50'); // grouped/2dp display on blur
+  });
+
+  it('filing pack truncates amounts-to-enter to whole RM per LHDN, keeps sen in evidence', async () => {
+    await completeSetup();
+    fireEvent.click(screen.getByText('Skip tour'));
+    fireEvent.click(screen.getByText('+ New claim'));
+    await screen.findByText('New claim · Tuntutan baharu');
+    fireEvent.change(screen.getByLabelText('Amount · Jumlah (RM)'), { target: { value: '89.90' } });
+    fireEvent.click(screen.getByText('Save claim · Simpan'));
+    await screen.findAllByText('RM 89.90');
+    fireEvent.click(screen.getByText('Filing pack'));
+    await screen.findByText(/form cheat-sheet/);
+    // amount to enter: truncated; receipts total: sen kept — both visible
+    expect(screen.getAllByText('RM 89').length).toBeGreaterThan(0);
+    expect(screen.getAllByText('RM 89.90').length).toBeGreaterThan(0);
+  });
+
   it('returning visitors skip setup and keep their data', async () => {
     await completeSetup('Aisyah');
     cleanup();

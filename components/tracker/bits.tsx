@@ -2,10 +2,12 @@ import { useRef, useState } from 'react';
 import type { CSSProperties, ReactNode } from 'react';
 import { TinPrefix, clamp2dpStr, composeTin, fmtAmountStr, parseTin } from '@/lib/tax';
 
-/** Money entry: raw digits while focused, thousands-grouped on blur
- *  (1000.5 → 1,000.50). Accepts at most two decimals as you type. */
+/** Money entry: raw string while editing (so a trailing "." survives each
+ *  keystroke), thousands-grouped on blur (1000.5 → 1,000.50). Accepts at
+ *  most two decimals as you type. */
 export function MoneyInput({ value, onChange, ariaLabel }: { value: string; onChange: (s: string) => void; ariaLabel?: string }) {
-  const [focused, setFocused] = useState(false);
+  const [draft, setDraft] = useState<string | null>(null);
+  const shown = draft !== null ? draft : value === '' ? '' : fmtAmountStr(value);
   return (
     <input
       className="input mono"
@@ -14,10 +16,14 @@ export function MoneyInput({ value, onChange, ariaLabel }: { value: string; onCh
       autoComplete="off"
       placeholder="0"
       aria-label={ariaLabel}
-      value={focused || value === '' ? value : fmtAmountStr(value)}
-      onFocus={() => setFocused(true)}
-      onBlur={() => setFocused(false)}
-      onChange={(e) => onChange(clamp2dpStr(e.target.value))}
+      value={shown}
+      onFocus={() => setDraft(value)}
+      onBlur={() => setDraft(null)}
+      onChange={(e) => {
+        const c = clamp2dpStr(e.target.value);
+        setDraft(c);
+        onChange(c);
+      }}
     />
   );
 }
