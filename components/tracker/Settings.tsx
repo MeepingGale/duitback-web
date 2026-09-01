@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Api } from './App';
-import { looksLikeTin } from '@/lib/tax';
+import { TinInput } from './bits';
 import { demoData, exportJson, getBackupMeta, parseImport } from '@/lib/data';
 import { Kick, pagepad } from './bits';
 
@@ -15,16 +15,11 @@ export function Settings({ api, lockNow }: { api: Api; lockNow: () => void }) {
 
       <div style={{ border: '2px solid var(--color-divider)', padding: 24 }}>
         <Kick>Profile · Profil</Kick>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(220px,1fr))', gap: 10, marginTop: 12, alignItems: 'end' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(220px,1fr))', gap: 10, marginTop: 12, alignItems: 'start' }}>
           <div className="field"><label>Name · Nama</label><input className="input" value={d.profile.name} onChange={pb('name')} /></div>
           <div className="field">
             <label>Income tax no. · No. cukai</label>
-            <input className="input" placeholder="e.g. IG845462070" value={d.profile.taxNo} onChange={pb('taxNo')} />
-            {!looksLikeTin(d.profile.taxNo) && (
-              <div style={{ fontSize: 11.5, marginTop: 4, color: 'var(--color-accent-700)' }}>
-                Doesn&apos;t look like an LHDN TIN — IG followed by 9–11 digits. <span lang="ms">Format: IG diikuti 9–11 digit.</span>
-              </div>
-            )}
+            <TinInput value={d.profile.taxNo} onChange={(v) => mut((x) => { x.profile.taxNo = v; })} />
           </div>
           <div className="field"><label>Refund bank account · Akaun bank</label><input className="input" placeholder="Maybank ···1234" value={d.profile.bank} onChange={pb('bank')} /></div>
         </div>

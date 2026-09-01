@@ -167,6 +167,20 @@ export function looksLikeTin(s: string): boolean {
   return t === '' || TIN_RE.test(t);
 }
 
+export type TinPrefix = 'IG' | 'SG' | 'OG';
+
+/** Split any stored/typed TIN into its prefix and up-to-11 digits. */
+export function parseTin(raw: string): { prefix: TinPrefix; digits: string } {
+  const m = raw.trim().toUpperCase().match(/^(IG|SG|OG)/);
+  return { prefix: (m?.[1] as TinPrefix) || 'IG', digits: raw.replace(/\D/g, '').slice(0, 11) };
+}
+
+/** Canonical stored form: prefix + digits, or empty when no digits (optional field). */
+export function composeTin(prefix: TinPrefix, digits: string): string {
+  const d = digits.replace(/\D/g, '').slice(0, 11);
+  return d ? prefix + d : '';
+}
+
 export function uid(): string {
   return Math.random().toString(36).slice(2, 9);
 }

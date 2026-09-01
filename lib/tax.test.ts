@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { blankInc, calc, capFor, Data, jointComparison, looksLikeTin, medSum, taxOn } from './tax';
+import { blankInc, calc, capFor, composeTin, Data, jointComparison, looksLikeTin, medSum, parseTin, taxOn } from './tax';
 import { demoData, parseImport, pruneEmptyFutureYears } from './data';
 
 describe('taxOn — YA2025 resident scale', () => {
@@ -165,6 +165,23 @@ describe('looksLikeTin — advisory Malaysian TIN check', () => {
     ['990101-14-5678', false], // that is a MyKad number
   ])('%s → %s', (input, ok) => {
     expect(looksLikeTin(input)).toBe(ok);
+  });
+});
+
+describe('parseTin / composeTin — the format-enforcing input', () => {
+  it('splits stored values into prefix + digits, stripping noise', () => {
+    expect(parseTin('IG845462070')).toEqual({ prefix: 'IG', digits: '845462070' });
+    expect(parseTin('SG 1234567-08')).toEqual({ prefix: 'SG', digits: '123456708' });
+    expect(parseTin('og 12345678901')).toEqual({ prefix: 'OG', digits: '12345678901' });
+    expect(parseTin('')).toEqual({ prefix: 'IG', digits: '' });
+  });
+  it('caps digits at 11 and drops every non-digit', () => {
+    expect(parseTin('IG 8454-62070abc99999').digits).toBe('84546207099');
+    expect(composeTin('IG', '845462070abc')).toBe('IG845462070');
+  });
+  it('composes empty when there are no digits — the field is optional', () => {
+    expect(composeTin('IG', '')).toBe('');
+    expect(composeTin('SG', ' - ')).toBe('');
   });
 });
 

@@ -1,4 +1,58 @@
+import { useRef } from 'react';
 import type { CSSProperties, ReactNode } from 'react';
+import { TinPrefix, composeTin, parseTin } from '@/lib/tax';
+
+/** Format-enforcing TIN input: prefix picker + digits-only box (max 11).
+ *  You can't type an invalid TIN — non-digits are stripped, pasting a full
+ *  "IG845462070" routes the prefix automatically, and a live counter shows
+ *  progress to the 9–11 digit LHDN format. */
+export function TinInput({ value, onChange }: { value: string; onChange: (v: string) => void }) {
+  const { prefix, digits } = parseTin(value);
+  const digitsRef = useRef<HTMLInputElement>(null);
+  const set = (p: TinPrefix, d: string) => onChange(composeTin(p, d));
+  const n = digits.length;
+  return (
+    <>
+      <div style={{ display: 'flex', gap: 8 }}>
+        <select
+          className="input"
+          aria-label="TIN prefix"
+          style={{ width: 86, flex: 'none' }}
+          value={prefix}
+          onChange={(e) => { set(e.target.value as TinPrefix, digits); digitsRef.current?.focus(); }}
+        >
+          <option value="IG">IG</option>
+          <option value="SG">SG</option>
+          <option value="OG">OG</option>
+        </select>
+        <input
+          ref={digitsRef}
+          className="input mono"
+          inputMode="numeric"
+          autoComplete="off"
+          placeholder="845462070"
+          aria-label="TIN digits"
+          maxLength={11}
+          value={digits}
+          onChange={(e) => {
+            const v = e.target.value;
+            const pasted = v.trim().toUpperCase().match(/^(IG|SG|OG)/);
+            set(pasted ? (pasted[1] as TinPrefix) : prefix, v);
+          }}
+        />
+      </div>
+      <div className="text-muted" style={{ fontSize: 11.5, marginTop: 4 }}>
+        {n === 0 ? (
+          <>Optional — IG + 9–11 digits, from MyTax · <span lang="ms">Pilihan — IG diikuti 9–11 digit</span></>
+        ) : n < 9 ? (
+          <>{n} of 9–11 digits · <span lang="ms">{9 - n} digit lagi minimum</span></>
+        ) : (
+          <>✓ Valid format · <span lang="ms">Format betul</span> ({n}/11)</>
+        )}
+      </div>
+    </>
+  );
+}
 
 export function Kick({ children, style }: { children: ReactNode; style?: CSSProperties }) {
   return <div className="kick" style={style}>{children}</div>;

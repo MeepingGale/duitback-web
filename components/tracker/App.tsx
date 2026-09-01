@@ -1,8 +1,8 @@
 'use client';
 import { useEffect, useState } from 'react';
-import { Data, calc, fmt, looksLikeTin, today, uid } from '@/lib/tax';
+import { Data, calc, fmt, today, uid } from '@/lib/tax';
 import { bumpChanges, demoData, emptyData, exportJson, isDemo, loadData, persist, pruneEmptyFutureYears, wipe } from '@/lib/data';
-import { Kick, Wordmark } from './bits';
+import { Kick, TinInput, Wordmark } from './bits';
 import { SiteFooter } from '@/components/ui';
 import { Dashboard } from './Dashboard';
 import { Claims } from './Claims';
@@ -117,15 +117,8 @@ export default function TrackerApp() {
               <input className="input" placeholder="e.g. Amirah" value={setup.name} onChange={(e) => setSetup({ ...setup, name: e.target.value })} />
             </div>
             <div className="field" style={{ marginTop: 14 }}>
-              <label>
-                Income tax no. · No. cukai <span className="bm">(optional — from MyTax)</span>
-              </label>
-              <input className="input" placeholder="e.g. IG845462070" value={setup.taxNo} onChange={(e) => setSetup({ ...setup, taxNo: e.target.value })} />
-              {!looksLikeTin(setup.taxNo) && (
-                <div style={{ fontSize: 11.5, marginTop: 4, color: 'var(--color-accent-700)' }}>
-                  Doesn&apos;t look like an LHDN TIN — IG followed by 9–11 digits (older numbers start SG/OG). Saved either way. <span lang="ms">Format: IG diikuti 9–11 digit.</span>
-                </div>
-              )}
+              <label>Income tax no. · No. cukai</label>
+              <TinInput value={setup.taxNo} onChange={(v) => setSetup({ ...setup, taxNo: v })} />
             </div>
             <div className="field" style={{ marginTop: 14 }}>
               <label>Marital status · Status perkahwinan</label>

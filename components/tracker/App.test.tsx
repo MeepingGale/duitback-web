@@ -66,6 +66,18 @@ describe('TrackerApp smoke', () => {
     expect(localStorage.getItem(KEY)).toBeNull();
   });
 
+  it('the TIN input physically rejects malformed entry', async () => {
+    render(<TrackerApp />);
+    await screen.findByText('Set up your tracker');
+    fireEvent.change(screen.getByPlaceholderText('e.g. Amirah'), { target: { value: 'Testy' } });
+    // junk typed into the digits box — letters stripped, canonical prefix kept
+    fireEvent.change(screen.getByLabelText('TIN digits'), { target: { value: '8454abc62070' } });
+    await screen.findByText(/Valid format/);
+    fireEvent.click(screen.getByText('Start tracking · Mula menjejak'));
+    await screen.findByText('Hello, Testy');
+    expect(JSON.parse(localStorage.getItem(KEY)!).profile.taxNo).toBe('IG845462070');
+  });
+
   it('returning visitors skip setup and keep their data', async () => {
     await completeSetup('Aisyah');
     cleanup();
