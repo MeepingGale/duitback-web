@@ -116,6 +116,20 @@ describe('TrackerApp smoke', () => {
     expect(localStorage.getItem(KEY)).toBeNull();
   });
 
+  it('income inputs keep focus while typing — no remount per keystroke', async () => {
+    await completeSetup();
+    fireEvent.click(screen.getByText('Skip tour'));
+    fireEvent.click(screen.getByText('Income'));
+    await screen.findByText(/Computation · Pengiraan/);
+    const salary = () => document.querySelectorAll('input[type="number"]')[0] as HTMLInputElement;
+    salary().focus();
+    fireEvent.change(salary(), { target: { value: '2' } });
+    fireEvent.change(salary(), { target: { value: '21' } });
+    fireEvent.change(salary(), { target: { value: '210' } });
+    expect(document.activeElement).toBe(salary());
+    expect(JSON.parse(localStorage.getItem(KEY)!).income.YA2026.salary).toBe(210);
+  });
+
   it('returning visitors skip setup and keep their data', async () => {
     await completeSetup('Aisyah');
     cleanup();
