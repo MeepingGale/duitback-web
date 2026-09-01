@@ -5,7 +5,7 @@ import { demoData, exportJson, getBackupMeta, parseImport } from '@/lib/data';
 import { Kick, pagepad } from './bits';
 
 export function Settings({ api, lockNow }: { api: Api; lockNow: () => void }) {
-  const { d, mut, save, clearAll, dataMsg, setDataMsg } = api;
+  const { d, mut, save, clearAll, ask, dataMsg, setDataMsg } = api;
   const [pinNew, setPinNew] = useState('');
   const [pinConfirm, setPinConfirm] = useState('');
   const [pinMsg, setPinMsg] = useState('');
@@ -105,7 +105,7 @@ export function Settings({ api, lockNow }: { api: Api; lockNow: () => void }) {
             }} />
           </label>
           <button className="btn btn-secondary" onClick={() => save(demoData(), 'Demo data loaded. · Data demo dimuatkan.')}>Load demo data · Muat demo</button>
-          <button className="btn btn-ghost" onClick={clearAll}>Clear everything · Padam semua</button>
+          <button className="btn btn-ghost" onClick={() => ask('Clear everything? All years, claims and receipts in this browser will be erased — export a JSON backup first. · Padam semua? Eksport sandaran JSON dahulu.', clearAll)}>Clear everything · Padam semua</button>
         </div>
         {(() => {
           const meta = getBackupMeta();

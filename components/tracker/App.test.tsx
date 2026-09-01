@@ -267,6 +267,21 @@ describe('TrackerApp smoke', () => {
     expect(Math.abs(expected - 18650)).toBeLessThan(3); // tax on RM137k chargeable
   });
 
+  it('clear everything asks for confirmation before wiping', async () => {
+    await completeSetup();
+    fireEvent.click(screen.getByText('Skip tour'));
+    fireEvent.click(screen.getByText('Settings'));
+    fireEvent.click(await screen.findByText('Clear everything · Padam semua'));
+    await screen.findByText(/Clear everything\? All years/);
+    fireEvent.click(screen.getByText('Cancel · Batal'));
+    expect(localStorage.getItem(KEY)).not.toBeNull();
+    fireEvent.click(screen.getByText('Clear everything · Padam semua'));
+    await screen.findByText(/Clear everything\? All years/);
+    fireEvent.click(screen.getByText('Delete · Padam'));
+    await screen.findByText('Set up your tracker');
+    expect(localStorage.getItem(KEY)).toBeNull();
+  });
+
   it('returning visitors skip setup and keep their data', async () => {
     await completeSetup('Aisyah');
     cleanup();
