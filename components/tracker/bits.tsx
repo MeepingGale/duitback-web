@@ -1,6 +1,26 @@
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
 import type { CSSProperties, ReactNode } from 'react';
-import { TinPrefix, composeTin, parseTin } from '@/lib/tax';
+import { TinPrefix, clamp2dpStr, composeTin, fmtAmountStr, parseTin } from '@/lib/tax';
+
+/** Money entry: raw digits while focused, thousands-grouped on blur
+ *  (1000.5 → 1,000.50). Accepts at most two decimals as you type. */
+export function MoneyInput({ value, onChange, ariaLabel }: { value: string; onChange: (s: string) => void; ariaLabel?: string }) {
+  const [focused, setFocused] = useState(false);
+  return (
+    <input
+      className="input mono"
+      type="text"
+      inputMode="decimal"
+      autoComplete="off"
+      placeholder="0"
+      aria-label={ariaLabel}
+      value={focused || value === '' ? value : fmtAmountStr(value)}
+      onFocus={() => setFocused(true)}
+      onBlur={() => setFocused(false)}
+      onChange={(e) => onChange(clamp2dpStr(e.target.value))}
+    />
+  );
+}
 
 /** Format-enforcing TIN input: prefix picker + digits-only box (max 11).
  *  You can't type an invalid TIN — non-digits are stripped, pasting a full

@@ -155,7 +155,15 @@ export function taxOn(ci: number): number {
 }
 
 export function fmt(n: number): string {
-  return 'RM ' + Math.round(n).toLocaleString('en-MY');
+  const v = to2dp(n);
+  return 'RM ' + v.toLocaleString('en-MY', Number.isInteger(v) ? {} : { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
+/** Group a typed amount string with thousands separators for display (blur state). */
+export function fmtAmountStr(s: string): string {
+  const n = +s;
+  if (!isFinite(n) || s === '') return s;
+  return n.toLocaleString('en-MY', s.includes('.') ? { minimumFractionDigits: 2, maximumFractionDigits: 2 } : { maximumFractionDigits: 0 });
 }
 
 // Malaysian individual TIN: "IG" + 9–11 digits since 2 Jan 2023 (legacy
@@ -186,10 +194,11 @@ export function to2dp(n: number): number {
   return Math.round(n * 100) / 100;
 }
 
-/** Constrain a typed amount string to digits with at most two decimals. */
+/** Constrain a typed amount string to digits with at most two decimals,
+ *  dropping stray leading zeros (0200 → 200; 0.50 stays). */
 export function clamp2dpStr(s: string): string {
   const m = s.replace(/[^\d.]/g, '').match(/^\d*(\.\d{0,2})?/);
-  return m ? m[0] : '';
+  return m ? m[0].replace(/^0+(?=\d)/, '') : '';
 }
 
 export function uid(): string {

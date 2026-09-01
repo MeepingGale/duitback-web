@@ -36,7 +36,7 @@ describe('TrackerApp smoke', () => {
     fireEvent.click(screen.getByText('+ New claim'));
     const dialog = await screen.findByText('New claim · Tuntutan baharu');
     expect(dialog).toBeTruthy();
-    fireEvent.change(screen.getByRole('spinbutton'), { target: { value: '688' } });
+    fireEvent.change(screen.getByLabelText('Amount · Jumlah (RM)'), { target: { value: '688' } });
     fireEvent.click(screen.getByText('Save claim · Simpan'));
     const totals = await screen.findAllByText('RM 688');
     expect(totals.length).toBeGreaterThan(0);
@@ -50,7 +50,7 @@ describe('TrackerApp smoke', () => {
     fireEvent.click(screen.getByText('Skip tour'));
     fireEvent.click(screen.getByText('+ New claim'));
     await screen.findByText('New claim · Tuntutan baharu');
-    fireEvent.change(screen.getByRole('spinbutton'), { target: { value: '3000' } });
+    fireEvent.change(screen.getByLabelText('Amount · Jumlah (RM)'), { target: { value: '3000' } });
     await screen.findByText(/over the RM 2,500 cap/);
     await screen.findByText(/Melebihi had RM 2,500/);
   });
@@ -121,7 +121,7 @@ describe('TrackerApp smoke', () => {
     fireEvent.click(screen.getByText('Skip tour'));
     fireEvent.click(screen.getByText('Income'));
     await screen.findByText(/Computation · Pengiraan/);
-    const salary = () => document.querySelectorAll('input[type="number"]')[0] as HTMLInputElement;
+    const salary = () => document.querySelectorAll('input[inputmode="decimal"]')[0] as HTMLInputElement;
     salary().focus();
     fireEvent.change(salary(), { target: { value: '2' } });
     fireEvent.change(salary(), { target: { value: '21' } });

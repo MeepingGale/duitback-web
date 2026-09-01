@@ -1,6 +1,7 @@
-import { CATS, CHILDSUB, MEDSUB, CalcResult, capFor, clamp2dpStr, fmt, to2dp, today, uid } from '@/lib/tax';
+import { CATS, CHILDSUB, MEDSUB, CalcResult, capFor, fmt, to2dp, today, uid } from '@/lib/tax';
 import { putFile, readFiles } from '@/lib/data';
 import { Api } from './App';
+import { MoneyInput } from './bits';
 
 export interface AddState {
   cat: string;
@@ -120,7 +121,7 @@ export function AddClaimDialog({ api, c, add, setAdd, onSaved }: { api: Api; c: 
         )}
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
           <div className="field"><label>Date · Tarikh</label><input className="input" type="date" value={add.date} onChange={(e) => setAdd({ ...add, date: e.target.value })} /></div>
-          <div className="field"><label>Amount · Jumlah (RM)</label><input className="input mono" type="number" min={0} step="0.01" value={add.amount} onChange={(e) => setAdd({ ...add, amount: clamp2dpStr(e.target.value) })} /></div>
+          <div className="field"><label>Amount · Jumlah (RM)</label><MoneyInput ariaLabel="Amount · Jumlah (RM)" value={add.amount} onChange={(v) => setAdd({ ...add, amount: v })} /></div>
         </div>
         <div className="field"><label>Description · Keterangan</label><input className="input" placeholder="e.g. broadband bill — Unifi" value={add.desc} onChange={(e) => setAdd({ ...add, desc: e.target.value })} /></div>
         <label className="radio">
@@ -181,7 +182,7 @@ export function TagDialog({ api, tag, setTag }: { api: Api; tag: TagState; setTa
         </div>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
           <div className="field"><label>Merchant · Kedai</label><input className="input" value={tag.merchant} onChange={(e) => setTag({ ...tag, merchant: e.target.value })} /></div>
-          <div className="field"><label>Amount · Jumlah (RM)</label><input className="input mono" type="number" min={0} step="0.01" value={tag.amount} onChange={(e) => setTag({ ...tag, amount: clamp2dpStr(e.target.value) })} /></div>
+          <div className="field"><label>Amount · Jumlah (RM)</label><MoneyInput ariaLabel="Amount · Jumlah (RM)" value={tag.amount} onChange={(v) => setTag({ ...tag, amount: v })} /></div>
         </div>
         <label className="radio" style={{ marginTop: 4 }}>
           <input type="checkbox" checked={tag.makeClaim} onChange={(e) => setTag({ ...tag, makeClaim: e.target.checked })} />

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { blankInc, calc, capFor, clamp2dpStr, composeTin, Data, jointComparison, looksLikeTin, medSum, parseTin, taxOn, to2dp } from './tax';
+import { blankInc, calc, capFor, clamp2dpStr, composeTin, Data, fmt, fmtAmountStr, jointComparison, looksLikeTin, medSum, parseTin, taxOn, to2dp } from './tax';
 import { demoData, parseImport, pruneEmptyFutureYears } from './data';
 
 describe('taxOn — YA2025 resident scale', () => {
@@ -165,6 +165,25 @@ describe('looksLikeTin — advisory Malaysian TIN check', () => {
     ['990101-14-5678', false], // that is a MyKad number
   ])('%s → %s', (input, ok) => {
     expect(looksLikeTin(input)).toBe(ok);
+  });
+});
+
+describe('money display formatting', () => {
+  it('fmt keeps sen when present, plain thousands otherwise', () => {
+    expect(fmt(1000)).toBe('RM 1,000');
+    expect(fmt(89.9)).toBe('RM 89.90');
+    expect(fmt(1000000.01)).toBe('RM 1,000,000.01');
+    expect(fmt(123.456)).toBe('RM 123.46');
+  });
+  it('fmtAmountStr groups typed values on blur', () => {
+    expect(fmtAmountStr('1000')).toBe('1,000');
+    expect(fmtAmountStr('1000.5')).toBe('1,000.50');
+    expect(fmtAmountStr('')).toBe('');
+  });
+  it('clamp2dpStr drops stray leading zeros', () => {
+    expect(clamp2dpStr('0200')).toBe('200');
+    expect(clamp2dpStr('0.50')).toBe('0.50');
+    expect(clamp2dpStr('000')).toBe('0');
   });
 });
 

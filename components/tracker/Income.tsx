@@ -1,17 +1,17 @@
 import { CalcResult, IncomeYear, blankInc, fmt, jointComparison, to2dp } from '@/lib/tax';
 import { Api } from './App';
-import { Kick, YaTabs, pagepad, yaHead, right, heading800 } from './bits';
+import { Kick, MoneyInput, YaTabs, pagepad, yaHead, right, heading800 } from './bits';
 import { deadlineInfo, yearsOf } from './derive';
 
 
 // Module-level so their component identity is stable across renders — defining
 // these inside Income() made React remount the inputs on every keystroke,
 // dropping focus after each digit.
-function NumField({ label, value, onChange }: { label: React.ReactNode; value: number; onChange: (e: React.ChangeEvent<HTMLInputElement>) => void }) {
+function NumField({ label, value, onCommit }: { label: React.ReactNode; value: number; onCommit: (n: number) => void }) {
   return (
     <div className="field">
       <label>{label}</label>
-      <input className="input mono" type="number" min={0} step="0.01" value={value} onChange={onChange} />
+      <MoneyInput value={value ? String(value) : ''} onChange={(str) => onCommit(to2dp(+str || 0))} />
     </div>
   );
 }
@@ -30,10 +30,10 @@ export function Income({ api, c }: { api: Api; c: CalcResult }) {
   const years = yearsOf(d);
   const dl = deadlineInfo(d, ya, c);
   const isMarried = d.profile.marital === 'married';
-  const bind = (k: keyof IncomeYear) => (e: React.ChangeEvent<HTMLInputElement>) =>
+  const bind = (k: keyof IncomeYear) => (n: number) =>
     mut((x) => {
       x.income[ya] = Object.assign(blankInc(), x.income[ya]);
-      (x.income[ya] as IncomeYear)[k] = to2dp(+e.target.value || 0);
+      (x.income[ya] as IncomeYear)[k] = n;
     });
 
   const jc = isMarried ? jointComparison(c) : null;
@@ -57,24 +57,24 @@ export function Income({ api, c }: { api: Api; c: CalcResult }) {
           <Kick>Sources · Punca pendapatan — editable</Kick>
           <h6 style={{ margin: '16px 0 8px' }}>Employment · Penggajian</h6>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
-            <NumField label="Salary / year · Gaji (RM)" value={c.inc.salary || 0} onChange={bind('salary')} />
-            <NumField label="Bonus (RM)" value={c.inc.bonus || 0} onChange={bind('bonus')} />
-            <NumField label="PCB / MTD withheld (RM)" value={c.inc.pcb || 0} onChange={bind('pcb')} />
-            <NumField label="Zakat paid · Zakat (RM)" value={c.inc.zakat || 0} onChange={bind('zakat')} />
+            <NumField label="Salary / year · Gaji (RM)" value={c.inc.salary || 0} onCommit={bind('salary')} />
+            <NumField label="Bonus (RM)" value={c.inc.bonus || 0} onCommit={bind('bonus')} />
+            <NumField label="PCB / MTD withheld (RM)" value={c.inc.pcb || 0} onCommit={bind('pcb')} />
+            <NumField label="Zakat paid · Zakat (RM)" value={c.inc.zakat || 0} onCommit={bind('zakat')} />
           </div>
           <h6 style={{ margin: '20px 0 8px' }}>Rental · Sewaan</h6>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
-            <NumField label="Gross rent / year (RM)" value={c.inc.rent || 0} onChange={bind('rent')} />
-            <NumField label="Allowable expenses (RM)" value={c.inc.rentExp || 0} onChange={bind('rentExp')} />
-            <NumField label="CP500 instalments paid (RM)" value={c.inc.cp500 || 0} onChange={bind('cp500')} />
+            <NumField label="Gross rent / year (RM)" value={c.inc.rent || 0} onCommit={bind('rent')} />
+            <NumField label="Allowable expenses (RM)" value={c.inc.rentExp || 0} onCommit={bind('rentExp')} />
+            <NumField label="CP500 instalments paid (RM)" value={c.inc.cp500 || 0} onCommit={bind('cp500')} />
           </div>
           <div style={{ fontSize: 11.5, marginTop: 8 }} className="text-muted">
             Allowable: repairs, management fees, assessment &amp; quit rent, loan interest. Net rental {fmt(c.netRent)}. CP500 = LHDN&apos;s bi-monthly instalment scheme for rental/business income; paid amounts offset the final bill.
           </div>
           <h6 style={{ margin: '20px 0 8px' }}>Business &amp; other · Perniagaan</h6>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
-            <NumField label="Business income, net (RM)" value={c.inc.biz || 0} onChange={bind('biz')} />
-            <NumField label="Other — dividends, freelance (RM)" value={c.inc.other || 0} onChange={bind('other')} />
+            <NumField label="Business income, net (RM)" value={c.inc.biz || 0} onCommit={bind('biz')} />
+            <NumField label="Other — dividends, freelance (RM)" value={c.inc.other || 0} onCommit={bind('other')} />
           </div>
           <div style={{ fontSize: 11.5, marginTop: 8 }} className="text-muted">
             Any business income switches the year to Form B (deadline 30 Jun). <span lang="ms">Pendapatan perniagaan menukar borang kepada B.</span>
@@ -83,8 +83,8 @@ export function Income({ api, c }: { api: Api; c: CalcResult }) {
             <>
               <h6 style={{ margin: '20px 0 8px' }}>Spouse · Pasangan (for joint comparison)</h6>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
-                <NumField label="Spouse income / year (RM)" value={c.inc.spInc || 0} onChange={bind('spInc')} />
-                <NumField label="Spouse reliefs, est. (RM)" value={c.inc.spRel || 0} onChange={bind('spRel')} />
+                <NumField label="Spouse income / year (RM)" value={c.inc.spInc || 0} onCommit={bind('spInc')} />
+                <NumField label="Spouse reliefs, est. (RM)" value={c.inc.spRel || 0} onCommit={bind('spRel')} />
               </div>
             </>
           )}
