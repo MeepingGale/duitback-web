@@ -1,4 +1,6 @@
+import { useState } from 'react';
 import { CalcResult, IncomeYear, blankInc, fmt, jointComparison, to2dp } from '@/lib/tax';
+import { estimatePcb } from '@/lib/pcb';
 import { Api } from './App';
 import { Kick, MoneyInput, YaTabs, pagepad, yaHead, right, heading800 } from './bits';
 import { deadlineInfo, yearsOf } from './derive';
@@ -36,6 +38,23 @@ export function Income({ api, c }: { api: Api; c: CalcResult }) {
       (x.income[ya] as IncomeYear)[k] = n;
     });
 
+  const [pcbNote, setPcbNote] = useState('');
+  const estimatePcbNow = () => {
+    const category = !isMarried ? 1 : (c.inc.spInc || 0) > 0 ? 3 : 2;
+    const children = c.claims.filter((x) => x.cat === 'child').length;
+    const est = estimatePcb({ salary: c.inc.salary || 0, bonus: c.inc.bonus || 0, category, children });
+    bind('pcb')(est.total);
+    const catLabel = category === 1 ? 'single · bujang' : category === 2 ? 'married, spouse not working' : 'married, spouse working';
+    setPcbNote(
+      'Estimated ' + fmt(est.total) + ' for the year — ' +
+      ((c.inc.bonus || 0) > 0 ? '≈ ' + fmt(est.monthly) + '/month + ' + fmt(est.december) + ' in the bonus month (Dec). ' : '≈ ' + fmt(est.monthly) + '/month. ') +
+      'LHDN computerised MTD formula, assuming equal monthly pay, bonus paid in December, EPF 11% (max RM 4,000), category ' + category + ' (' + catLabel + ')' +
+      (children && category !== 1 ? ', ' + children + ' children' : '') +
+      ', no TP1 deductions or payroll zakat. Replace with the exact figure from your EA form when you have it. ' +
+      '· Anggaran formula PCB berkomputer LHDN — gantikan dengan angka sebenar borang EA anda.'
+    );
+  };
+
   const jc = isMarried ? jointComparison(c) : null;
   const jointVerdict = jc
     ? jc.sep === jc.joint
@@ -62,6 +81,14 @@ export function Income({ api, c }: { api: Api; c: CalcResult }) {
             <NumField label="PCB / MTD withheld (RM)" value={c.inc.pcb || 0} onCommit={bind('pcb')} />
             <NumField label="Zakat paid · Zakat (RM)" value={c.inc.zakat || 0} onCommit={bind('zakat')} />
           </div>
+          {(c.inc.salary || 0) + (c.inc.bonus || 0) > 0 && (
+            <div style={{ fontSize: 11.5, marginTop: 8 }}>
+              <button className="navlink linkbtn" style={{ fontSize: 11.5 }} onClick={estimatePcbNow}>
+                Don&apos;t know your PCB? Estimate it from salary + bonus · Anggar PCB →
+              </button>
+              {pcbNote && <div className="text-muted" style={{ marginTop: 4 }}>{pcbNote}</div>}
+            </div>
+          )}
           <h6 style={{ margin: '20px 0 8px' }}>Rental · Sewaan</h6>
           <div className="fields2">
             <NumField label="Gross rent / year (RM)" value={c.inc.rent || 0} onCommit={bind('rent')} />

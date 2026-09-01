@@ -251,6 +251,22 @@ describe('TrackerApp smoke', () => {
     expect((screen.getByAltText('r.png') as HTMLImageElement).src).toContain('BBB');
   });
 
+  it('PCB can be estimated from salary + bonus with the LHDN computerised formula', async () => {
+    await completeSetup();
+    cleanup();
+    const d = JSON.parse(localStorage.getItem(KEY)!);
+    d.income[d.ya] = { salary: 100000, bonus: 50000 };
+    localStorage.setItem(KEY, JSON.stringify(d));
+    render(<TrackerApp />);
+    fireEvent.click(await screen.findByText('Income'));
+    fireEvent.click(await screen.findByText(/Estimate it from salary/));
+    await screen.findByText(/computerised MTD formula/);
+    const { estimatePcb } = await import('@/lib/pcb');
+    const expected = estimatePcb({ salary: 100000, bonus: 50000, category: 1, children: 0 }).total;
+    expect(JSON.parse(localStorage.getItem(KEY)!).income[d.ya].pcb).toBe(expected);
+    expect(Math.abs(expected - 18650)).toBeLessThan(3); // tax on RM137k chargeable
+  });
+
   it('returning visitors skip setup and keep their data', async () => {
     await completeSetup('Aisyah');
     cleanup();
