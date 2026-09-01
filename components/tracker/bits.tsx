@@ -14,6 +14,19 @@ export function BankInput({ value, onChange }: { value: string; onChange: (v: st
   return (
     <>
       <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+        <span
+          aria-hidden="true"
+          style={{
+            width: 42, height: 42, flex: 'none',
+            display: 'grid', placeItems: 'center',
+            background: meta?.color || 'var(--color-neutral-300)',
+            color: meta?.ink || 'var(--color-bg)',
+            fontFamily: 'var(--font-heading)', fontWeight: 800,
+            fontSize: meta && meta.abbr.length > 3 ? 10 : 13, letterSpacing: '.02em',
+          }}
+        >
+          {meta?.abbr || '?'}
+        </span>
         <select
           className="input"
           aria-label="Bank"

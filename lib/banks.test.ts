@@ -26,6 +26,14 @@ describe('bank picker model', () => {
     expect(maskBank('')).toBe('');
   });
 
+  it('every bank has a chip monogram (≤4 chars) and a colour', () => {
+    for (const b of BANKS) {
+      expect(b.abbr.length).toBeGreaterThan(0);
+      expect(b.abbr.length).toBeLessThanOrEqual(4);
+      expect(b.color).toMatch(/^#[0-9a-f]{6}$/);
+    }
+  });
+
   it('verified IBG lengths are present for the big banks', () => {
     const len = (n: string) => BANKS.find((b) => b.name === n)?.len;
     expect(len('Maybank')).toBe(12);
