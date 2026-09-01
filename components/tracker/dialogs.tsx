@@ -1,7 +1,51 @@
-import { CATS, CHILDSUB, Claim, MEDSUB, CalcResult, capFor, fmt, medSum, to2dp, today, uid } from '@/lib/tax';
-import { putFile, readFiles } from '@/lib/data';
+import { useEffect, useState } from 'react';
+import { CATS, CHILDSUB, Claim, MEDSUB, CalcResult, ReceiptItem, capFor, fmt, medSum, to2dp, today, uid } from '@/lib/tax';
+import { getFile, putFile, readFiles } from '@/lib/data';
 import { Api } from './App';
 import { MoneyInput } from './bits';
+
+/** Inline preview of the receipts linked to a claim — flips through them when
+ *  the same filename matches more than one vault item. */
+function ReceiptCarousel({ recs }: { recs: ReceiptItem[] }) {
+  const [idx, setIdx] = useState(0);
+  const [fulls, setFulls] = useState<Record<string, string>>({});
+  const i = Math.min(idx, recs.length - 1);
+  const r = recs[i];
+  const rid = r?.id;
+  const wantFull = !!r?.hasFull;
+  useEffect(() => {
+    let live = true;
+    if (rid && wantFull) getFile(rid).then((f) => { if (live && f) setFulls((p) => (p[rid] ? p : { ...p, [rid]: f })); });
+    return () => { live = false; };
+  }, [rid, wantFull]);
+  if (!r) return null;
+  const src = fulls[r.id] || r.thumb || '';
+  const isPdf = src.startsWith('data:application/pdf');
+  return (
+    <div style={{ border: '1px solid var(--color-divider)' }}>
+      <div style={{ background: 'var(--color-neutral-200)', display: 'grid', placeItems: 'center', height: 170, overflow: 'hidden' }}>
+        {isPdf ? (
+          <embed src={src} type="application/pdf" style={{ width: '100%', height: 170 }} />
+        ) : src ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={src} alt={r.name} style={{ maxWidth: '100%', maxHeight: 170, objectFit: 'contain', display: 'block' }} />
+        ) : (
+          <span className="text-muted" style={{ fontSize: 12, padding: 16 }}>No preview stored · Tiada pratonton</span>
+        )}
+      </div>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 8px', fontSize: 11.5 }}>
+        <span className="text-muted" style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', flex: 1 }}>{r.name} <span lang="ms">· dipaut</span></span>
+        {recs.length > 1 && (
+          <>
+            <button className="navlink linkbtn" aria-label="Previous receipt · Sebelum" style={{ fontSize: 16, padding: '0 6px' }} onClick={() => setIdx((i - 1 + recs.length) % recs.length)}>‹</button>
+            <span className="mono text-muted">{i + 1} / {recs.length}</span>
+            <button className="navlink linkbtn" aria-label="Next receipt · Seterusnya" style={{ fontSize: 16, padding: '0 6px' }} onClick={() => setIdx((i + 1) % recs.length)}>›</button>
+          </>
+        )}
+      </div>
+    </div>
+  );
+}
 
 export interface AddState {
   cat: string;
@@ -93,6 +137,7 @@ export function AddClaimDialog({ api, c, add, setAdd, onSaved }: { api: Api; c: 
   }
 
   const editTarget = add.editId ? api.d.claims.find((q) => q.id === add.editId) : undefined;
+  const linkedRecs = editTarget?.receipt ? api.d.receipts.filter((r) => r.ya === ya && r.name === editTarget.receipt) : [];
 
   const saveClaim = () => {
     const amt = to2dp(+add.amount || 0);
@@ -180,7 +225,11 @@ export function AddClaimDialog({ api, c, add, setAdd, onSaved }: { api: Api; c: 
         {add.editId && editTarget?.receipt ? (
           <div className="field">
             <label>Receipt · Resit</label>
-            <div style={{ fontSize: 12.5 }}><span className="tag tag-neutral">{editTarget.receipt}</span> <span className="text-muted">linked · dipaut</span></div>
+            {linkedRecs.length ? (
+              <ReceiptCarousel recs={linkedRecs} />
+            ) : (
+              <div style={{ fontSize: 12.5 }}><span className="tag tag-neutral">{editTarget.receipt}</span> <span className="text-muted">linked · dipaut</span></div>
+            )}
           </div>
         ) : (
         <div className="field">
@@ -188,6 +237,10 @@ export function AddClaimDialog({ api, c, add, setAdd, onSaved }: { api: Api; c: 
           <label style={{ border: '2px dashed var(--color-divider)', padding: 14, display: 'block', cursor: 'pointer', background: 'var(--color-bg)' }}>
             <span style={{ fontFamily: 'var(--font-heading)', fontWeight: 800, fontSize: 13 }}>{add.fileName ? 'Attached: ' + add.fileName : 'Attach receipt · Lampirkan resit'}</span>
             <span style={{ display: 'block', fontSize: 11.5 }} className="text-muted">JPG, PNG or PDF — saved to the vault, linked to this claim · Disimpan ke peti resit</span>
+            {add.fileThumb && (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={add.fileThumb} alt="" style={{ display: 'block', marginTop: 8, maxHeight: 90 }} />
+            )}
             <input type="file" accept="image/*,.pdf" style={{ display: 'none' }} onChange={(e) => {
               const f = e.target.files?.[0];
               if (!f) return;

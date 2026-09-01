@@ -230,6 +230,27 @@ describe('TrackerApp smoke', () => {
     await waitFor(() => expect(JSON.parse(localStorage.getItem(KEY)!).claims).toHaveLength(0));
   });
 
+  it('editing a receipt-linked claim previews the image, with a carousel for multiple matches', async () => {
+    await completeSetup();
+    cleanup();
+    const d = JSON.parse(localStorage.getItem(KEY)!);
+    d.claims.unshift({ id: 'c1', ya: d.ya, cat: 'lifestyle', date: '2026-09-01', desc: 'iPhone 16', amount: 3500, receipt: 'r.png' });
+    d.receipts.unshift(
+      { id: 'ra', ya: d.ya, cat: 'lifestyle', name: 'r.png', sub: 'a', thumb: 'data:image/png;base64,AAA', hasFull: false },
+      { id: 'rb', ya: d.ya, cat: 'lifestyle', name: 'r.png', sub: 'b', thumb: 'data:image/png;base64,BBB', hasFull: false },
+    );
+    localStorage.setItem(KEY, JSON.stringify(d));
+    render(<TrackerApp />);
+    fireEvent.click(await screen.findByText('Claims · Tuntutan'));
+    fireEvent.click(await screen.findByText('Edit · Sunting'));
+    await screen.findByText('Edit claim · Sunting tuntutan');
+    expect((screen.getByAltText('r.png') as HTMLImageElement).src).toContain('AAA');
+    await screen.findByText('1 / 2');
+    fireEvent.click(screen.getByLabelText('Next receipt · Seterusnya'));
+    await screen.findByText('2 / 2');
+    expect((screen.getByAltText('r.png') as HTMLImageElement).src).toContain('BBB');
+  });
+
   it('returning visitors skip setup and keep their data', async () => {
     await completeSetup('Aisyah');
     cleanup();
