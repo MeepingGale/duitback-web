@@ -43,7 +43,7 @@ export function StatusScreen({ api, c, demo }: { api: Api; c: CalcResult; demo: 
         ))}
       </div>
 
-      <div style={{ display: 'flex', gap: 10, marginTop: 20, flexWrap: 'wrap' }}>
+      <div className="btnrow" style={{ marginTop: 20 }}>
         {sd.stage === 'tracking' && (
           <button className="btn btn-primary" onClick={() => mut((x) => {
             const t = today();

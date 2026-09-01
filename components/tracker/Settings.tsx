@@ -75,7 +75,7 @@ export function Settings({ api, lockNow }: { api: Api; lockNow: () => void }) {
             }}>Set passcode · Tetapkan</button>
           </div>
         ) : (
-          <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+          <div className="btnrow">
             <button className="btn btn-secondary" onClick={lockNow}>Lock now · Kunci sekarang</button>
             <button className="btn btn-ghost" onClick={() => { mut((x) => { delete x.profile.pin; }); setPinMsg('Passcode removed. · Kod dibuang.'); }}>Remove passcode</button>
           </div>
@@ -89,7 +89,7 @@ export function Settings({ api, lockNow }: { api: Api; lockNow: () => void }) {
           Claims and thumbnails live in this browser&apos;s localStorage; full-size receipt images in IndexedDB. Nothing is sent to a server — each visitor to a hosted copy gets their own private data. Export JSON to move devices (full-size files stay behind; thumbnails travel).{' '}
           <span lang="ms">Semua data kekal dalam pelayar ini — tiada apa-apa dihantar ke pelayan. Eksport JSON untuk pindah peranti.</span>
         </p>
-        <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+        <div className="btnrow">
           <button className="btn btn-secondary" onClick={() => { exportJson(d); setDataMsg('Backup exported. · Sandaran dieksport.'); }}>Export all data (JSON)</button>
           <label className="btn btn-secondary" style={{ cursor: 'pointer' }}>
             Import data (JSON)

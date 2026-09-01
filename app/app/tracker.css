@@ -294,6 +294,9 @@ input.input[type='date']::-webkit-date-and-time-value { text-align: left; }
 /* paired form fields: two columns, stacking on narrow phones so wrapped labels can't misalign inputs */
 .fields2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 @media (max-width: 480px) { .fields2 { grid-template-columns: 1fr; } }
+/* action-button rows: intrinsic widths side by side, equal full-width when they stack on phones */
+.btnrow { display: flex; gap: 10px; flex-wrap: wrap; }
+@media (max-width: 480px) { .btnrow > .btn { flex: 1 1 100%; } }
 /* filing-status stepper: coloured top rail as columns on wide screens,
    rotating to a left-rail timeline when the steps stack on phones */
 .steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0 16px; }
