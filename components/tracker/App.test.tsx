@@ -78,6 +78,44 @@ describe('TrackerApp smoke', () => {
     expect(JSON.parse(localStorage.getItem(KEY)!).profile.taxNo).toBe('IG845462070');
   });
 
+  it('setting a passcode requires a matching confirmation', async () => {
+    await completeSetup();
+    fireEvent.click(screen.getByText('Skip tour'));
+    fireEvent.click(screen.getByText('Settings'));
+    await screen.findByText('Set passcode · Tetapkan');
+    const inputs = document.querySelectorAll('input[type="password"]');
+    fireEvent.change(inputs[0], { target: { value: '1234' } });
+    fireEvent.change(inputs[1], { target: { value: '9999' } });
+    fireEvent.click(screen.getByText('Set passcode · Tetapkan'));
+    await screen.findByText(/don’t match/);
+    expect(JSON.parse(localStorage.getItem(KEY)!).profile.pin).toBeUndefined();
+    fireEvent.change(inputs[1], { target: { value: '1234' } });
+    fireEvent.click(screen.getByText('Set passcode · Tetapkan'));
+    await screen.findByText(/Passcode set/);
+    expect(JSON.parse(localStorage.getItem(KEY)!).profile.pin).toBe('1234');
+  });
+
+  it('the lock screen offers a checkbox-gated erase for forgotten passcodes', async () => {
+    await completeSetup();
+    fireEvent.click(screen.getByText('Skip tour'));
+    fireEvent.click(screen.getByText('Settings'));
+    const inputs = document.querySelectorAll('input[type="password"]');
+    fireEvent.change(inputs[0], { target: { value: '1234' } });
+    fireEvent.change(inputs[1], { target: { value: '1234' } });
+    fireEvent.click(screen.getByText('Set passcode · Tetapkan'));
+    await screen.findByText(/Passcode set/);
+    fireEvent.click(screen.getByText('Lock now · Kunci sekarang'));
+    await screen.findByText('Unlock · Buka');
+    fireEvent.click(screen.getByText(/Forgot passcode\?/));
+    const erase = await screen.findByText('Erase everything & start over · Padam semua');
+    expect((erase as HTMLButtonElement).disabled).toBe(true); // gated until acknowledged
+    fireEvent.click(screen.getByRole('checkbox'));
+    expect((erase as HTMLButtonElement).disabled).toBe(false);
+    fireEvent.click(erase);
+    await screen.findByText('Set up your tracker');
+    expect(localStorage.getItem(KEY)).toBeNull();
+  });
+
   it('returning visitors skip setup and keep their data', async () => {
     await completeSetup('Aisyah');
     cleanup();

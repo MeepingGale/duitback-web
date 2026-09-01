@@ -7,6 +7,7 @@ import { Kick, pagepad } from './bits';
 export function Settings({ api, lockNow }: { api: Api; lockNow: () => void }) {
   const { d, mut, save, clearAll, dataMsg, setDataMsg } = api;
   const [pinNew, setPinNew] = useState('');
+  const [pinConfirm, setPinConfirm] = useState('');
   const pb = (k: 'name' | 'taxNo' | 'bank') => (e: React.ChangeEvent<HTMLInputElement>) => mut((x) => { x.profile[k] = e.target.value; });
 
   return (
@@ -43,7 +44,9 @@ export function Settings({ api, lockNow }: { api: Api; lockNow: () => void }) {
         <Kick>Passcode lock · Kunci</Kick>
         <p className="text-muted" style={{ fontSize: 12.5, margin: '8px 0 14px' }}>
           Asks for a passcode when the app opens. Cosmetic only — data in this browser is not encrypted, so treat it as a privacy curtain, not security.{' '}
-          <span lang="ms">Kunci kosmetik sahaja — data dalam pelayar ini tidak disulitkan.</span>
+          <span lang="ms">Kunci kosmetik sahaja — data dalam pelayar ini tidak disulitkan.</span>{' '}
+          A forgotten passcode cannot be recovered — the only way back in is erasing this browser&apos;s data, so pick one you&apos;ll remember and export a JSON backup first.{' '}
+          <span lang="ms">Kod yang dilupakan tidak boleh dipulihkan — eksport sandaran JSON dahulu.</span>
         </p>
         {!d.profile.pin ? (
           <div style={{ display: 'flex', gap: 10, alignItems: 'flex-end', flexWrap: 'wrap' }}>
@@ -51,10 +54,18 @@ export function Settings({ api, lockNow }: { api: Api; lockNow: () => void }) {
               <label>New passcode (min 4 characters)</label>
               <input className="input mono" type="password" value={pinNew} onChange={(e) => setPinNew(e.target.value)} />
             </div>
+            <div className="field" style={{ margin: 0 }}>
+              <label>Confirm passcode · Sahkan</label>
+              <input className="input mono" type="password" value={pinConfirm} onChange={(e) => setPinConfirm(e.target.value)} />
+            </div>
             <button className="btn btn-secondary" onClick={() => {
               const p = pinNew.trim();
-              if (p.length >= 4) { mut((x) => { x.profile.pin = p; }); setPinNew(''); setDataMsg('Passcode set — the app will ask for it on next open. · Kod ditetapkan.'); }
-              else setDataMsg('Passcode must be at least 4 characters. · Kod mesti sekurang-kurangnya 4 aksara.');
+              if (p.length < 4) { setDataMsg('Passcode must be at least 4 characters. · Kod mesti sekurang-kurangnya 4 aksara.'); return; }
+              if (p !== pinConfirm.trim()) { setDataMsg('Passcodes don’t match — type the same code twice. · Kod tidak sepadan — taip kod yang sama dua kali.'); return; }
+              mut((x) => { x.profile.pin = p; });
+              setPinNew('');
+              setPinConfirm('');
+              setDataMsg('Passcode set — the app will ask for it on next open. · Kod ditetapkan.');
             }}>Set passcode · Tetapkan</button>
           </div>
         ) : (

@@ -55,6 +55,8 @@ export default function TrackerApp() {
   const [viewer, setViewer] = useState<ViewerState>({ id: null, name: '', sub: '', src: null, note: '' });
   const [pinEntry, setPinEntry] = useState('');
   const [pinErr, setPinErr] = useState('');
+  const [forgotOpen, setForgotOpen] = useState(false);
+  const [eraseArmed, setEraseArmed] = useState(false);
 
   useEffect(() => {
     const d = loadData();
@@ -224,7 +226,33 @@ export default function TrackerApp() {
             <div style={{ fontSize: 12, color: 'var(--color-accent-700)', minHeight: 16 }}>{pinErr}</div>
             <button className="btn btn-primary btn-block" style={{ marginTop: 10 }} onClick={tryUnlock}>Unlock · Buka</button>
             <p className="text-muted" style={{ fontSize: 11, marginTop: 14 }}>Cosmetic lock — data in this browser is not encrypted.</p>
-            <a href="../" className="navlink" style={{ fontSize: 12 }}>← Back to home · Kembali</a>
+            <div style={{ display: 'flex', gap: 14, alignItems: 'baseline' }}>
+              <a href="../" className="navlink" style={{ fontSize: 12 }}>← Back to home · Kembali</a>
+              <button className="navlink linkbtn" style={{ fontSize: 12 }} onClick={() => { setForgotOpen(!forgotOpen); setEraseArmed(false); }}>
+                Forgot passcode? · Lupa kod?
+              </button>
+            </div>
+            {forgotOpen && (
+              <div style={{ border: '2px solid var(--color-accent-700)', padding: 14, marginTop: 12 }}>
+                <p style={{ fontSize: 12.5, margin: '0 0 10px' }}>
+                  The passcode cannot be recovered. The only way back in is to <strong>erase all DuitBack data in this browser</strong> and start over — if you exported a JSON backup, you can import it afterwards.{' '}
+                  <span lang="ms">Kod tidak boleh dipulihkan — satu-satunya jalan ialah memadam semua data dan mula semula. Import sandaran JSON anda selepas itu.</span>
+                </p>
+                <label className="radio" style={{ fontSize: 12.5 }}>
+                  <input type="checkbox" checked={eraseArmed} onChange={(e) => setEraseArmed(e.target.checked)} />
+                  <span className="dot" style={{ borderRadius: 0 }} />
+                  I understand all data in this browser will be deleted · Saya faham semua data akan dipadam
+                </label>
+                <button
+                  className="btn btn-secondary"
+                  style={{ marginTop: 10 }}
+                  disabled={!eraseArmed}
+                  onClick={() => { setForgotOpen(false); setEraseArmed(false); setLocked(false); clearAll(); }}
+                >
+                  Erase everything &amp; start over · Padam semua
+                </button>
+              </div>
+            )}
           </div>
         </div>
       )}
