@@ -290,6 +290,19 @@ describe('TrackerApp smoke', () => {
     expect(localStorage.getItem(KEY)).toBeNull();
   });
 
+  it('loading the demo stashes real data, and exiting the demo restores it', async () => {
+    await completeSetup('Zul');
+    fireEvent.click(screen.getByText('Skip tour'));
+    fireEvent.click(screen.getByText('Settings'));
+    fireEvent.click(await screen.findByText('Load demo data · Muat demo'));
+    await screen.findByText('Demo mode · Mod demo');
+    expect(localStorage.getItem('cukaiku_v3_stash')).not.toBeNull();
+    fireEvent.click(screen.getByText('Exit demo — back to your data →'));
+    await screen.findByText('Hello, Zul');
+    expect(JSON.parse(localStorage.getItem(KEY)!).profile.name).toBe('Zul');
+    expect(localStorage.getItem('cukaiku_v3_stash')).toBeNull();
+  });
+
   it('returning visitors skip setup and keep their data', async () => {
     await completeSetup('Aisyah');
     cleanup();

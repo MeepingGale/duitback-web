@@ -1,7 +1,7 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { Claim, Data, calc, fmt, today, uid } from '@/lib/tax';
-import { bumpChanges, demoData, emptyData, exportJson, isDemo, loadData, persist, pruneEmptyFutureYears, wipe } from '@/lib/data';
+import { bumpChanges, demoData, emptyData, exportJson, hasStash, isDemo, loadData, persist, popStash, pruneEmptyFutureYears, wipe } from '@/lib/data';
 import { Kick, TinInput, Wordmark } from './bits';
 import { SiteFooter } from '@/components/ui';
 import { Dashboard } from './Dashboard';
@@ -199,8 +199,12 @@ export default function TrackerApp() {
         <div className="no-print demobar" style={{ display: 'flex', alignItems: 'center', gap: 14, flexWrap: 'wrap', padding: '9px 36px', background: 'var(--color-accent-700)', color: 'var(--color-bg)' }}>
           <span style={{ fontSize: 12, fontFamily: 'var(--font-heading)', fontWeight: 800, letterSpacing: '.08em', textTransform: 'uppercase' }}>Demo mode · Mod demo</span>
           <span style={{ fontSize: 12.5, opacity: 0.92 }}>Amirah&apos;s sample data — nothing here is yours · Data contoh sahaja</span>
-          <button className="btn" style={{ marginLeft: 'auto', background: 'var(--color-bg)', color: 'var(--color-text)', padding: '5px 12px', fontSize: 12 }} onClick={clearAll}>
-            Exit demo &amp; set up →
+          <button className="btn" style={{ marginLeft: 'auto', background: 'var(--color-bg)', color: 'var(--color-text)', padding: '5px 12px', fontSize: 12 }} onClick={() => {
+            const prev = popStash();
+            if (prev) { save(prev, 'Welcome back — your data is restored. · Data anda dipulihkan.'); setScreen('dash'); }
+            else clearAll();
+          }}>
+            {hasStash() ? 'Exit demo — back to your data →' : 'Exit demo & set up →'}
           </button>
         </div>
       )}

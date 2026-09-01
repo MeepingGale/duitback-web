@@ -104,7 +104,29 @@ export function persist(d: Data): string {
 }
 
 export function wipe(): void {
-  try { localStorage.removeItem(KEY); localStorage.removeItem(META_KEY); } catch {}
+  try { localStorage.removeItem(KEY); localStorage.removeItem(META_KEY); localStorage.removeItem(STASH_KEY); } catch {}
+}
+
+// While the demo is loaded, the user's own data waits under this key so
+// exiting the demo can hand it straight back.
+export const STASH_KEY = 'cukaiku_v3_stash';
+
+export function stashReal(d: Data): boolean {
+  try { localStorage.setItem(STASH_KEY, JSON.stringify(d)); return true; } catch { return false; }
+}
+
+export function popStash(): Data | null {
+  try {
+    const raw = localStorage.getItem(STASH_KEY);
+    if (!raw) return null;
+    localStorage.removeItem(STASH_KEY);
+    const d = JSON.parse(raw);
+    return d && d.profile ? (d as Data) : null;
+  } catch { return null; }
+}
+
+export function hasStash(): boolean {
+  try { return !!localStorage.getItem(STASH_KEY); } catch { return false; }
 }
 
 // ---- backup meta: nudge users to export before localStorage betrays them ----

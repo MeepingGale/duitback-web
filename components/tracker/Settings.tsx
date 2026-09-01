@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Api } from './App';
 import { BankInput, TinInput } from './bits';
-import { demoData, exportJson, getBackupMeta, parseImport } from '@/lib/data';
+import { demoData, exportJson, getBackupMeta, isDemo, parseImport, stashReal } from '@/lib/data';
 import { Kick, pagepad } from './bits';
 
 export function Settings({ api, lockNow }: { api: Api; lockNow: () => void }) {
@@ -106,7 +106,13 @@ export function Settings({ api, lockNow }: { api: Api; lockNow: () => void }) {
               e.target.value = '';
             }} />
           </label>
-          <button className="btn btn-secondary" onClick={() => save(demoData(), 'Demo data loaded. · Data demo dimuatkan.')}>Load demo data · Muat demo</button>
+          <button className="btn btn-secondary" onClick={() => {
+            if (!isDemo(d) && !stashReal(d)) {
+              setDataMsg('Not enough browser storage to keep your data safe while trying the demo — export a JSON backup first. · Storan tidak mencukupi — eksport sandaran JSON dahulu.');
+              return;
+            }
+            save(demoData(), 'Demo data loaded — your own data comes back when you exit the demo. · Data anda kembali apabila keluar demo.');
+          }}>Load demo data · Muat demo</button>
           <button className="btn btn-ghost" onClick={() => ask('Clear everything? All years, claims and receipts in this browser will be erased — export a JSON backup first. · Padam semua? Eksport sandaran JSON dahulu.', clearAll)}>Clear everything · Padam semua</button>
         </div>
         {(() => {
