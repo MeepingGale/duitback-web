@@ -86,7 +86,7 @@ a{color:var(--color-accent)}a:hover{color:var(--color-accent-600)}
 <div style="display:inline-flex;border:1px solid var(--color-divider)"><sc-for list="{{ yaTabs }}" as="t" hint-placeholder-count="3"><span class="yatab {{ t.cls }}" onClick="{{ t.pick }}">{{ t.label }}</span></sc-for><span class="yatab" onClick="{{ addYear }}" title="Add next year">+</span></div>
 </div>
 <div style="background:var(--color-accent);color:var(--color-bg);padding:26px 28px;margin-top:20px">
-<div style="font-size:10px;letter-spacing:.1em;text-transform:uppercase;font-family:var(--font-heading);font-weight:800">{{ ya }} · reliefs counted · pelepasan dikira</div>
+<div style="font-size:10px;letter-spacing:.1em;text-transform:uppercase;font-family:var(--font-heading);font-weight:800">{{ ya }} · reliefs you've claimed · pelepasan dituntut</div>
 <div style="display:flex;align-items:baseline;gap:24px;flex-wrap:wrap">
 <div class="mono postnum" style="font-family:var(--font-heading);font-weight:800;font-size:64px;letter-spacing:-.02em;line-height:1.05">{{ totalClaimedL }}</div>
 <div style="font-size:13px;max-width:340px;opacity:.92">{{ posterSub }}</div>
@@ -223,7 +223,7 @@ a{color:var(--color-accent)}a:hover{color:var(--color-accent-600)}
 </sc-if>
 <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:2px;background:var(--color-divider);border:2px solid var(--color-divider);margin-top:24px">
 <div style="background:var(--color-surface);padding:16px"><div class="kick" style="color:var(--color-neutral-700)">{{ balTileLabel }}</div><div style="font-family:var(--font-heading);font-weight:800;font-size:28px;margin-top:4px" class="mono">{{ balTileL }}</div><div style="font-size:12px" class="text-muted">{{ balTileSub }}</div></div>
-<div style="background:var(--color-surface);padding:16px"><div class="kick" style="color:var(--color-neutral-700)">Reliefs claimed</div><div style="font-family:var(--font-heading);font-weight:800;font-size:28px;margin-top:4px" class="mono">{{ totalAllowedL }}</div><div style="font-size:12px" class="text-muted">{{ reliefTileSub }}</div></div>
+<div style="background:var(--color-surface);padding:16px"><div class="kick" style="color:var(--color-neutral-700)">Reliefs claimed</div><div style="font-family:var(--font-heading);font-weight:800;font-size:28px;margin-top:4px" class="mono">{{ claimedTileL }}</div><div style="font-size:12px" class="text-muted">{{ reliefTileSub }}</div></div>
 <div style="background:var(--color-surface);padding:16px"><div class="kick" style="color:var(--color-neutral-700)">Documents · Dokumen</div><div style="font-family:var(--font-heading);font-weight:800;font-size:28px;margin-top:4px" class="mono">{{ docCount }}</div><div style="font-size:12px" class="text-muted">{{ docTileSub }}</div></div>
 </div>
 <div style="display:flex;align-items:baseline;justify-content:space-between;margin-top:26px"><h6 style="margin:0">Documents · Dokumen ({{ ya }})</h6><label class="btn btn-secondary" style="cursor:pointer">Upload document<input type="file" multiple style="display:none" onChange="{{ onPickDoc }}"></label></div>
@@ -735,13 +735,13 @@ class Component extends DCLogic {
     vals.filingWindow=now>dl?('window closed '+dlLabel):('1 Mar – '+dlLabel);
     vals.formLine=c.formType==='B'?('Form B (business income) — deadline '+dlLabel+', e-Filing grace to mid-Jul.'):('Form BE (no business income) — deadline '+dlLabel+', e-Filing grace to mid-May.');
     // poster
-    vals.totalClaimedL=fmt(c.totalAllowed);
+    vals.totalClaimedL=fmt(Math.max(0,c.totalAllowed-9000));
     const nClaims=c.claims.length, nRec=d.receipts.filter(r=>r.ya===ya).length;
     vals.posterSub=nClaims+' claim lines · '+nRec+' receipts in the vault. Est. '+(c.balance<0?('refund '+fmt(-c.balance)):('balance payable '+fmt(c.balance)))+'.';
-    const capTotal=CATS.reduce((a,ct)=>a+(ct.cap||0),0)+c.donCap;
-    const usedPct=capTotal?Math.min(100,Math.round(c.totalAllowed/capTotal*100)):0;
+    const capTotal=CATS.reduce((a,ct)=>a+(ct.cap||0),0)+c.donCap-9000;
+    const usedPct=capTotal?Math.min(100,Math.round(Math.max(0,c.totalAllowed-9000)/capTotal*100)):0;
     vals.usedPct=usedPct+'%';
-    vals.usedLine=usedPct+'% of '+fmt(capTotal)+' total caps used (incl. RM9,000 automatic individual relief)';
+    vals.usedLine=usedPct+'% of '+fmt(capTotal)+' claimable caps used · RM 9,000 automatic individual relief applies on top';
     vals.hasClaims=nClaims>0; vals.noClaims=nClaims===0;
     // relief rows
     const mkRow=ct=>{
@@ -779,7 +779,7 @@ class Component extends DCLogic {
     vals.yearRows=years.map(y=>{
       const cy=this.calc(d,y); const s2=(d.status[y]||{}).stage||'tracking';
       const map={tracking:['Tracking claims · Dalam rekod','tag-outline'],submitted:['Submitted · Dihantar','tag-neutral'],processing:['Processing · Diproses','tag-neutral'],refund:['Refund credited · Selesai','tag-accent']};
-      return {ya:y,form:cy.formType,status:map[s2][0],tagCls:map[s2][1],reliefsL:fmt(cy.totalAllowed),taxL:cy.totalIncome?fmt(cy.taxNet):'—',
+      return {ya:y,form:cy.formType,status:map[s2][0],tagCls:map[s2][1],reliefsL:fmt(Math.max(0,cy.totalAllowed-9000)),taxL:cy.totalIncome?fmt(cy.taxNet):'—',
         balL:cy.totalIncome?(cy.balance<0?fmt(-cy.balance)+' refund':fmt(cy.balance)+' due'):'—',
         open:()=>{this.mut(x=>{x.ya=y;}); this.setState({screen:'claims'});}};
     });
@@ -840,6 +840,7 @@ class Component extends DCLogic {
     vals.balTileLabel=c.balance<0?'Est. refund · Bayaran balik':'Est. balance payable · Baki';
     vals.balTileL=c.totalIncome?fmt(Math.abs(c.balance)):'—';
     vals.balTileSub='paid '+fmt(c.paid)+' (PCB + CP500) vs net tax '+fmt(c.taxNet);
+    vals.claimedTileL=fmt(Math.max(0,c.totalAllowed-9000));
     vals.reliefTileSub=nClaims+' claim lines across '+Object.keys(c.sums).length+' categories';
     const docsYa=d.docs.filter(x=>x.ya===ya);
     vals.docCount=String(docsYa.length);
