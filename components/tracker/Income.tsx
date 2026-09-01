@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useMemo } from 'react';
 import { CalcResult, IncomeYear, blankInc, fmt, jointComparison, to2dp } from '@/lib/tax';
 import { estimatePcb } from '@/lib/pcb';
 import { Api } from './App';
@@ -13,7 +13,7 @@ function NumField({ label, value, onCommit }: { label: React.ReactNode; value: n
   return (
     <div className="field">
       <label>{label}</label>
-      <MoneyInput value={value ? String(value) : ''} onChange={(str) => onCommit(to2dp(+str || 0))} />
+      <MoneyInput ariaLabel={typeof label === 'string' ? label : undefined} value={value ? String(value) : ''} onChange={(str) => onCommit(to2dp(+str || 0))} />
     </div>
   );
 }
@@ -32,28 +32,47 @@ export function Income({ api, c }: { api: Api; c: CalcResult }) {
   const years = yearsOf(d);
   const dl = deadlineInfo(d, ya, c);
   const isMarried = d.profile.marital === 'married';
-  const bind = (k: keyof IncomeYear) => (n: number) =>
+  const bind = (k: Exclude<keyof IncomeYear, 'pcbAuto'>) => (n: number) =>
     mut((x) => {
       x.income[ya] = Object.assign(blankInc(), x.income[ya]);
       (x.income[ya] as IncomeYear)[k] = n;
     });
 
-  const [pcbNote, setPcbNote] = useState('');
-  const estimatePcbNow = () => {
-    const category = !isMarried ? 1 : (c.inc.spInc || 0) > 0 ? 3 : 2;
-    const children = c.claims.filter((x) => x.cat === 'child').length;
-    const est = estimatePcb({ salary: c.inc.salary || 0, bonus: c.inc.bonus || 0, category, children });
-    bind('pcb')(est.total);
-    const catLabel = category === 1 ? 'single · bujang' : category === 2 ? 'married, spouse not working' : 'married, spouse working';
-    setPcbNote(
-      'Estimated ' + fmt(est.total) + ' for the year — ' +
+  // Auto-estimate PCB from salary + bonus with the LHDN computerised MTD
+  // formula. It stays live (recomputing as inputs change) until the user
+  // types their own figure into the PCB field, which always wins.
+  const pcbCategory = !isMarried ? 1 : (c.inc.spInc || 0) > 0 ? 3 : 2;
+  const pcbChildren = c.claims.filter((x) => x.cat === 'child').length;
+  const employment = (c.inc.salary || 0) + (c.inc.bonus || 0);
+  const est = useMemo(
+    () => estimatePcb({ salary: c.inc.salary || 0, bonus: c.inc.bonus || 0, category: pcbCategory, children: pcbChildren }),
+    [c.inc.salary, c.inc.bonus, pcbCategory, pcbChildren],
+  );
+  const pcbIsAuto = c.inc.pcbAuto === true || (c.inc.pcbAuto === undefined && !(c.inc.pcb || 0) && employment > 0);
+  useEffect(() => {
+    if (!pcbIsAuto) return;
+    if ((c.inc.pcb || 0) === est.total && c.inc.pcbAuto === true) return;
+    mut((x) => {
+      const y = (x.income[ya] = Object.assign(blankInc(), x.income[ya]));
+      y.pcb = est.total;
+      y.pcbAuto = true;
+    });
+  }, [pcbIsAuto, est.total, ya, c.inc.pcb, c.inc.pcbAuto, mut]);
+  const commitPcbManual = (n: number) =>
+    mut((x) => {
+      const y = (x.income[ya] = Object.assign(blankInc(), x.income[ya]));
+      y.pcb = n;
+      y.pcbAuto = false;
+    });
+  const catLabel = pcbCategory === 1 ? 'single · bujang' : pcbCategory === 2 ? 'married, spouse not working' : 'married, spouse working';
+  const pcbNote = pcbIsAuto
+    ? 'Auto-estimated ' + fmt(est.total) + ' for the year — ' +
       ((c.inc.bonus || 0) > 0 ? '≈ ' + fmt(est.monthly) + '/month + ' + fmt(est.december) + ' in the bonus month (Dec). ' : '≈ ' + fmt(est.monthly) + '/month. ') +
-      'LHDN computerised MTD formula, assuming equal monthly pay, bonus paid in December, EPF 11% (max RM 4,000), category ' + category + ' (' + catLabel + ')' +
-      (children && category !== 1 ? ', ' + children + ' children' : '') +
-      ', no TP1 deductions or payroll zakat. Replace with the exact figure from your EA form when you have it. ' +
-      '· Anggaran formula PCB berkomputer LHDN — gantikan dengan angka sebenar borang EA anda.'
-    );
-  };
+      'LHDN computerised MTD formula, assuming equal monthly pay, bonus paid in December, EPF 11% (max RM 4,000), category ' + pcbCategory + ' (' + catLabel + ')' +
+      (pcbChildren && pcbCategory !== 1 ? ', ' + pcbChildren + ' children' : '') +
+      ', no TP1 deductions or payroll zakat. Type the exact figure from your EA form to override. ' +
+      '· Anggaran formula PCB berkomputer LHDN — taip angka sebenar borang EA anda untuk menggantikan.'
+    : 'Using your entered PCB figure. · Menggunakan angka PCB anda.';
 
   const jc = isMarried ? jointComparison(c) : null;
   const jointVerdict = jc
@@ -78,15 +97,21 @@ export function Income({ api, c }: { api: Api; c: CalcResult }) {
           <div className="fields2">
             <NumField label="Salary / year · Gaji (RM)" value={c.inc.salary || 0} onCommit={bind('salary')} />
             <NumField label="Bonus (RM)" value={c.inc.bonus || 0} onCommit={bind('bonus')} />
-            <NumField label="PCB / MTD withheld (RM)" value={c.inc.pcb || 0} onCommit={bind('pcb')} />
+            <NumField label="PCB / MTD withheld (RM)" value={c.inc.pcb || 0} onCommit={commitPcbManual} />
             <NumField label="Zakat paid · Zakat (RM)" value={c.inc.zakat || 0} onCommit={bind('zakat')} />
           </div>
-          {(c.inc.salary || 0) + (c.inc.bonus || 0) > 0 && (
+          {employment > 0 && (
             <div style={{ fontSize: 11.5, marginTop: 8 }}>
-              <button className="navlink linkbtn" style={{ fontSize: 11.5 }} onClick={estimatePcbNow}>
-                Don&apos;t know your PCB? Estimate it from salary + bonus · Anggar PCB →
-              </button>
-              {pcbNote && <div className="text-muted" style={{ marginTop: 4 }}>{pcbNote}</div>}
+              <div className="text-muted">{pcbNote}</div>
+              {!pcbIsAuto && (
+                <button className="navlink linkbtn" style={{ fontSize: 11.5, marginTop: 4 }} onClick={() => mut((x) => {
+                  const y = (x.income[ya] = Object.assign(blankInc(), x.income[ya]));
+                  y.pcb = est.total;
+                  y.pcbAuto = true;
+                })}>
+                  Use the formula estimate instead ({fmt(est.total)}) · Guna anggaran →
+                </button>
+              )}
             </div>
           )}
           <h6 style={{ margin: '20px 0 8px' }}>Rental · Sewaan</h6>

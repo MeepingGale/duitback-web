@@ -251,7 +251,7 @@ describe('TrackerApp smoke', () => {
     expect((screen.getByAltText('r.png') as HTMLImageElement).src).toContain('BBB');
   });
 
-  it('PCB can be estimated from salary + bonus with the LHDN computerised formula', async () => {
+  it('PCB auto-estimates from salary + bonus, and a typed figure overrides it', async () => {
     await completeSetup();
     cleanup();
     const d = JSON.parse(localStorage.getItem(KEY)!);
@@ -259,12 +259,20 @@ describe('TrackerApp smoke', () => {
     localStorage.setItem(KEY, JSON.stringify(d));
     render(<TrackerApp />);
     fireEvent.click(await screen.findByText('Income'));
-    fireEvent.click(await screen.findByText(/Estimate it from salary/));
-    await screen.findByText(/computerised MTD formula/);
+    await screen.findByText(/Auto-estimated/);
     const { estimatePcb } = await import('@/lib/pcb');
     const expected = estimatePcb({ salary: 100000, bonus: 50000, category: 1, children: 0 }).total;
-    expect(JSON.parse(localStorage.getItem(KEY)!).income[d.ya].pcb).toBe(expected);
+    await waitFor(() => expect(JSON.parse(localStorage.getItem(KEY)!).income[d.ya].pcb).toBe(expected));
     expect(Math.abs(expected - 18650)).toBeLessThan(3); // tax on RM137k chargeable
+    // typing the EA figure overrides the estimate and sticks
+    fireEvent.change(screen.getByLabelText('PCB / MTD withheld (RM)'), { target: { value: '12000' } });
+    await screen.findByText(/Using your entered PCB/);
+    const st = JSON.parse(localStorage.getItem(KEY)!).income[d.ya];
+    expect(st.pcb).toBe(12000);
+    expect(st.pcbAuto).toBe(false);
+    // and the link flips back to the live estimate
+    fireEvent.click(screen.getByText(/Use the formula estimate instead/));
+    await waitFor(() => expect(JSON.parse(localStorage.getItem(KEY)!).income[d.ya].pcb).toBe(expected));
   });
 
   it('clear everything asks for confirmation before wiping', async () => {

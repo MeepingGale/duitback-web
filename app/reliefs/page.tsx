@@ -92,7 +92,8 @@ export default function ReliefsPage() {
         </section>
 
         <section style={{ padding: '24px 0 8px', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 24 }}>
-          <div>
+          {/* subgrid shares the kicker/intro/table row heights so both tables start on the same line */}
+          <div style={{ display: 'grid', gridTemplateRows: 'subgrid', gridRow: 'span 3', alignContent: 'start' }}>
             <Kicker>Medical sub-limits · Had kecil perubatan</Kicker>
             <p style={{ fontSize: 13, color: 'var(--color-neutral-800)', margin: '8px 0 10px', maxWidth: 480 }}>
               The RM 10,000 medical relief is shared across sub-limits — each capped independently:
@@ -108,7 +109,7 @@ export default function ReliefsPage() {
               </tbody>
             </table>
           </div>
-          <div>
+          <div style={{ display: 'grid', gridTemplateRows: 'subgrid', gridRow: 'span 3', alignContent: 'start' }}>
             <Kicker>Child relief · Pelepasan anak</Kicker>
             <p style={{ fontSize: 13, color: 'var(--color-neutral-800)', margin: '8px 0 10px', maxWidth: 480 }}>
               No overall cap — a fixed amount per child, one claim line each:

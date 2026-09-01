@@ -5,6 +5,8 @@ export interface IncomeYear {
   salary: number;
   bonus: number;
   pcb: number;
+  /** pcb is auto-estimated from salary/bonus (cleared when the user types their own figure) */
+  pcbAuto?: boolean;
   zakat: number;
   rent: number;
   rentExp: number;
