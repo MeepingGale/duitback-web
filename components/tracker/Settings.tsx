@@ -1,0 +1,107 @@
+import { useState } from 'react';
+import { Api } from './App';
+import { demoData, exportJson, parseImport } from '@/lib/data';
+import { Kick, pagepad } from './bits';
+
+export function Settings({ api, lockNow }: { api: Api; lockNow: () => void }) {
+  const { d, mut, save, clearAll, dataMsg, setDataMsg } = api;
+  const [pinNew, setPinNew] = useState('');
+  const pb = (k: 'name' | 'taxNo' | 'bank') => (e: React.ChangeEvent<HTMLInputElement>) => mut((x) => { x.profile[k] = e.target.value; });
+
+  return (
+    <div className="pagepad" data-screen-label="Settings" style={pagepad(900)}>
+      <h2 style={{ margin: '0 0 18px' }}>Settings <span className="bm" style={{ fontSize: 15 }}>· Tetapan</span></h2>
+
+      <div style={{ border: '2px solid var(--color-divider)', padding: 24 }}>
+        <Kick>Profile · Profil</Kick>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(220px,1fr))', gap: 10, marginTop: 12, alignItems: 'end' }}>
+          <div className="field"><label>Name · Nama</label><input className="input" value={d.profile.name} onChange={pb('name')} /></div>
+          <div className="field"><label>Income tax no. · No. cukai</label><input className="input" placeholder="SG 12345678-09" value={d.profile.taxNo} onChange={pb('taxNo')} /></div>
+          <div className="field"><label>Refund bank account · Akaun bank</label><input className="input" placeholder="Maybank ···1234" value={d.profile.bank} onChange={pb('bank')} /></div>
+        </div>
+        <div className="field" style={{ marginTop: 16 }}>
+          <label>Marital status · Status perkahwinan</label>
+          <div className="seg">
+            <label className="seg-opt">
+              <input type="radio" name="marital" checked={d.profile.marital !== 'married'} onChange={() => mut((x) => { x.profile.marital = 'single'; })} />
+              Single · Bujang
+            </label>
+            <label className="seg-opt">
+              <input type="radio" name="marital" checked={d.profile.marital === 'married'} onChange={() => mut((x) => { x.profile.marital = 'married'; })} />
+              Married · Berkahwin
+            </label>
+          </div>
+          <div style={{ fontSize: 11.5, marginTop: 6 }} className="text-muted">Married unlocks the joint-assessment comparison on the Income screen.</div>
+        </div>
+      </div>
+
+      <div style={{ border: '2px solid var(--color-divider)', borderTop: 0, padding: 24 }}>
+        <Kick>Passcode lock · Kunci</Kick>
+        <p className="text-muted" style={{ fontSize: 12.5, margin: '8px 0 14px' }}>
+          Asks for a passcode when the app opens. Cosmetic only — data in this browser is not encrypted, so treat it as a privacy curtain, not security.
+        </p>
+        {!d.profile.pin ? (
+          <div style={{ display: 'flex', gap: 10, alignItems: 'flex-end', flexWrap: 'wrap' }}>
+            <div className="field" style={{ margin: 0 }}>
+              <label>New passcode (min 4 characters)</label>
+              <input className="input mono" type="password" value={pinNew} onChange={(e) => setPinNew(e.target.value)} />
+            </div>
+            <button className="btn btn-secondary" onClick={() => {
+              const p = pinNew.trim();
+              if (p.length >= 4) { mut((x) => { x.profile.pin = p; }); setPinNew(''); setDataMsg('Passcode set — the app will ask for it on next open.'); }
+              else setDataMsg('Passcode must be at least 4 characters.');
+            }}>Set passcode · Tetapkan</button>
+          </div>
+        ) : (
+          <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+            <button className="btn btn-secondary" onClick={lockNow}>Lock now · Kunci sekarang</button>
+            <button className="btn btn-ghost" onClick={() => { mut((x) => { delete x.profile.pin; }); setDataMsg('Passcode removed.'); }}>Remove passcode</button>
+          </div>
+        )}
+      </div>
+
+      <div style={{ border: '2px solid var(--color-divider)', borderTop: 0, padding: 24 }}>
+        <Kick>Data · Data</Kick>
+        <p className="text-muted" style={{ fontSize: 12.5, margin: '8px 0 14px' }}>
+          Claims and thumbnails live in this browser&apos;s localStorage; full-size receipt images in IndexedDB. Nothing is sent to a server — each visitor to a hosted copy gets their own private data. Export JSON to move devices (full-size files stay behind; thumbnails travel).
+        </p>
+        <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+          <button className="btn btn-secondary" onClick={() => exportJson(d)}>Export all data (JSON)</button>
+          <label className="btn btn-secondary" style={{ cursor: 'pointer' }}>
+            Import data (JSON)
+            <input type="file" accept=".json,application/json" style={{ display: 'none' }} onChange={(e) => {
+              const f = e.target.files?.[0];
+              if (!f) return;
+              const rd = new FileReader();
+              rd.onload = () => {
+                const r = parseImport(String(rd.result));
+                if (r.data) save(r.data, 'Imported ' + f.name + ' — ' + r.data.claims.length + ' claims, ' + (r.data.receipts || []).length + ' receipts.');
+                else setDataMsg(r.error!);
+              };
+              rd.readAsText(f);
+              e.target.value = '';
+            }} />
+          </label>
+          <button className="btn btn-secondary" onClick={() => save(demoData(), 'Demo data loaded.')}>Load demo data · Muat demo</button>
+          <button className="btn btn-ghost" onClick={clearAll}>Clear everything · Padam semua</button>
+        </div>
+        <div style={{ fontSize: 12, marginTop: 10, color: 'var(--color-accent-700)' }}>{dataMsg}</div>
+      </div>
+
+      <div style={{ border: '2px solid var(--color-divider)', borderTop: 0, padding: 24 }}>
+        <Kick>Support · Sokongan</Kick>
+        <p className="text-muted" style={{ fontSize: 12.5, margin: '8px 0 0' }}>
+          DuitBack is free and keeps your data on your device. If it saved you some duit,{' '}
+          <a href="https://ko-fi.com/duitback" target="_blank" rel="noopener noreferrer">belanja teh tarik →</a>
+        </p>
+      </div>
+
+      <div style={{ border: '2px solid var(--color-divider)', borderTop: 0, padding: 24 }}>
+        <Kick>About · Perihal</Kick>
+        <p className="text-muted" style={{ fontSize: 12.5, margin: '8px 0 0' }}>
+          DuitBack is an unofficial personal tracker for Malaysian resident individual (BE/B) returns. Caps follow each year&apos;s LHDN schedule (YA2023/24 use approximate historical caps; YA2025+ the current one), incl. medical sub-limits and per-child relief; the tax scale is the YA2025 resident scale. Not affiliated with LHDN; no tax advice — always confirm figures in MyTax before filing.
+        </p>
+      </div>
+    </div>
+  );
+}

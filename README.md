@@ -1,6 +1,6 @@
 # DuitBack — Malaysian Tax Relief Tracker
 
-*Duit* is Malay for money; DuitBack is about getting yours back. It tracks a Malaysian personal income tax return (Form BE) through the year — relief claims against the real LHDN caps, receipts in one vault, a live refund/balance estimate — then hands you a cheat-sheet with every number to type into MyTax when e-Filing opens. The whole app is one self-contained HTML file, and all data stays in your browser: no backend, no account, no tracking.
+*Duit* is Malay for money; DuitBack is about getting yours back. It tracks a Malaysian personal income tax return (Form BE) through the year — relief claims against the real LHDN caps, receipts in one vault, a live refund/balance estimate — then hands you a cheat-sheet with every number to type into MyTax when e-Filing opens. All data stays in your browser: no backend, no account, no tracking.
 
 **[Live site →](https://meepinggale.github.io/duitback-web/)** · **[Open the tracker →](https://meepinggale.github.io/duitback-web/app/)** · [![deploy](https://github.com/MeepingGale/duitback-web/actions/workflows/deploy.yml/badge.svg)](https://github.com/MeepingGale/duitback-web/actions/workflows/deploy.yml)
 
@@ -45,7 +45,8 @@ The site is a Next.js static export: a server-rendered landing page (full SEO me
 | File | What it is |
 | --- | --- |
 | `app/` + `components/ui.tsx` | The Next.js landing — App Router, shared UI components, Archivo self-hosted via `next/font`, styled by the Modernist token sheet |
-| `public/app/index.html` | The tracker — one ~320 KB self-contained file with the React 18 runtime, design system, fonts and every screen inlined. Works offline from `file://` too. |
+| `components/tracker/` | The tracker — typed React screens (dashboard, claims, receipts, status, income, filing pack, settings) plus dialogs, tour and passcode lock |
+| `lib/tax.ts` + `lib/data.ts` | The engine — pure, unit-tested tax math (brackets, per-YA caps, sub-limits, rebates, joint assessment) and the storage layer (same keys as every earlier build, so nobody loses data) |
 | [`duitback-mockup`](https://github.com/MeepingGale/duitback-mockup) | The whole design process, in its own repo — the app's working canvas, the "CukaiKu"-era explorations, seventeen logo directions and the Modernist design system |
 
 ![Logo exploration — line-flower variations with rationale](docs/screenshots/logo-exploration.png)
@@ -60,7 +61,7 @@ DuitBack is an unofficial tracker, not tax advice — every screen's footer says
 
 Choices I'd defend, and where their ceilings are:
 
-- **One self-contained HTML file.** No build, no server, no install — you can send it over WhatsApp and it just opens. The ceiling is app growth; the path is the same rebuild-into-TypeScript-with-tests that [expense-web](https://github.com/MeepingGale/expense-web) went through.
+- **Born as a single-file prototype, productionized on purpose.** The tracker shipped for its first stretch as one self-contained HTML file built in a design canvas (preserved in [duitback-mockup](https://github.com/MeepingGale/duitback-mockup)), then was ported to typed React with a tested engine once it proved worth maintaining — the same arc [expense-web](https://github.com/MeepingGale/expense-web) took.
 - **`localStorage` + data-URL receipts.** Tax documents never touch a server. Receipt volume is the pressure point; IndexedDB is the upgrade path.
 - **Hand-maintained schedule data.** Caps and brackets live as plain data at the top of the file, one override set per YA. Someone has to update them every Budget — that someone is me, once a year.
 
@@ -68,10 +69,14 @@ Choices I'd defend, and where their ceilings are:
 
 ```bash
 npm install && npm run dev     # full site at http://localhost:3000/duitback-web/
-open public/app/index.html     # or just the tracker — no install, no build, no server
+npm test                       # the tax-engine suite (Vitest)
 ```
 
 `npm run build` exports the static site to `out/` — the same thing CI deploys.
+
+## Tests & CI
+
+Vitest concentrates where breakage is expensive — the money math: the YA2025 bracket scale checked against LHDN's cumulative figures, per-YA cap overrides, medical sub-limits, the 10%-of-aggregate donation cap, rebates and zakat, joint-vs-separate assessment, and the demo dataset's exact shipped numbers. Every push runs the suite before the build; a red test blocks the deploy.
 
 ## Roadmap
 

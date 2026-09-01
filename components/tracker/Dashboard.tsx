@@ -1,0 +1,130 @@
+import { CATS, CalcResult, calc, fmt } from '@/lib/tax';
+import { Api } from './App';
+import { Bar, Kick, YaTabs, pagepad, yaHead, right, heading800 } from './bits';
+import { STATUS_TAG, deadlineInfo, reliefRows, yearsOf } from './derive';
+import { blankInc } from '@/lib/tax';
+
+export function Dashboard({ api, c }: { api: Api; c: CalcResult }) {
+  const { d, ya, mut, go, openAdd } = api;
+  const years = yearsOf(d);
+  const dl = deadlineInfo(d, ya, c);
+  const rows = reliefRows(c, ya);
+  const topRows = rows.filter((r) => r.claimed > 0 && r.id !== 'individual').sort((a, b) => b.pct - a.pct).slice(0, 4);
+  const nClaims = c.claims.length;
+  const nRec = d.receipts.filter((r) => r.ya === ya).length;
+  const claimedByYou = Math.max(0, c.totalAllowed - 9000);
+  const capClaimable = CATS.reduce((a, ct) => a + (ct.cap || 0), 0) + c.donCap - 9000;
+  const usedPct = capClaimable ? Math.min(100, Math.round((claimedByYou / capClaimable) * 100)) : 0;
+
+  const addYear = () =>
+    mut((x) => {
+      const next = 'YA' + (Math.max(...Object.keys(x.income).map((k) => +k.slice(2))) + 1);
+      if (!x.income[next]) {
+        x.income[next] = blankInc();
+        x.status[next] = { stage: 'tracking' };
+        x.ya = next;
+      }
+    });
+
+  return (
+    <div className="pagepad" data-screen-label="Dashboard" style={pagepad(1200)}>
+      <div style={yaHead}>
+        <div>
+          <Kick>Year of assessment · Tahun taksiran</Kick>
+          <h1 style={{ margin: '6px 0 2px', fontSize: 34 }}>Hello, {d.profile.name || 'there'}</h1>
+          <p className="text-muted" style={{ fontSize: 13, margin: 0 }}>{dl.dline}</p>
+        </div>
+        <YaTabs tabs={years.map((y) => ({ label: y, on: y === ya, pick: () => mut((x) => { x.ya = y; }) }))} onAddYear={addYear} />
+      </div>
+
+      <div style={{ background: 'var(--color-accent-700)', color: 'var(--color-bg)', padding: '26px 28px', marginTop: 20 }}>
+        <div style={{ fontSize: 10, letterSpacing: '.1em', textTransform: 'uppercase', ...heading800 }}>
+          {ya} · reliefs you&apos;ve claimed · pelepasan dituntut
+        </div>
+        <div style={{ display: 'flex', alignItems: 'baseline', gap: 24, flexWrap: 'wrap' }}>
+          <div className="mono postnum" style={{ ...heading800, fontSize: 64, letterSpacing: '-.02em', lineHeight: 1.05 }}>{fmt(claimedByYou)}</div>
+          <div style={{ fontSize: 13, maxWidth: 340, opacity: 0.92 }}>
+            {nClaims} claim lines · {nRec} receipts in the vault. Est. {c.balance < 0 ? 'refund ' + fmt(-c.balance) : 'balance payable ' + fmt(c.balance)}.
+          </div>
+        </div>
+        <div style={{ display: 'flex', gap: 2, marginTop: 16, height: 10 }}>
+          <div style={{ background: 'var(--color-bg)', width: usedPct + '%' }} />
+          <div style={{ background: 'color-mix(in srgb, var(--color-bg) 25%, transparent)', flex: 1 }} />
+        </div>
+        <div style={{ fontSize: 11, marginTop: 6, opacity: 0.88 }}>
+          {usedPct}% of {fmt(capClaimable)} claimable caps used · RM 9,000 automatic individual relief applies on top
+        </div>
+      </div>
+
+      {nClaims > 0 ? (
+        <>
+          <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginTop: 28 }}>
+            <Kick>Top claims · Tuntutan utama</Kick>
+            <button className="navlink linkbtn" onClick={() => go('claims')} style={{ fontSize: 12 }}>All reliefs →</button>
+          </div>
+          <div style={{ overflowX: 'auto' }}>
+            <table className="table" style={{ marginTop: 8 }}>
+              <thead className="vh">
+                <tr><th>Relief</th><th>Utilisation</th><th>Claimed against cap</th><th>Status</th></tr>
+              </thead>
+              <tbody>
+                {topRows.map((r) => (
+                  <tr key={r.id}>
+                    <td style={{ minWidth: 220 }}>{r.en} <span className="bm">· {r.bm}</span></td>
+                    <td style={{ width: '30%', minWidth: 160 }}><Bar pct={r.pct} over={r.over} /></td>
+                    <td style={{ ...right, whiteSpace: 'nowrap' }} className="mono">{r.claimedL} / {r.capL}</td>
+                    <td style={right}><span className={'tag ' + r.tagCls}>{r.tagLabel}</span></td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </>
+      ) : (
+        <div style={{ border: '2px dashed var(--color-divider)', padding: 36, marginTop: 28, maxWidth: 560 }}>
+          <div style={{ ...heading800, fontSize: 20 }}>No claims yet for {ya} · Tiada tuntutan lagi</div>
+          <p className="text-muted" style={{ fontSize: 13, margin: '8px 0 16px' }}>
+            Add your first relief claim or drop a receipt into the vault — totals, caps and the refund estimate update live.
+          </p>
+          <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+            <button className="btn btn-primary" onClick={() => openAdd()}>Add a claim · Tambah tuntutan</button>
+            <button className="btn btn-secondary" onClick={() => go('receipts')}>Upload receipts</button>
+          </div>
+        </div>
+      )}
+
+      <hr className="hr" style={{ margin: '28px 0 20px' }} />
+      <Kick style={{ marginBottom: 10 }}>Your returns · Penyata anda</Kick>
+      <div style={{ overflowX: 'auto' }}>
+        <table className="table">
+          <thead>
+            <tr>
+              <th>YA</th><th>Form</th><th>Status</th>
+              <th style={right}>Reliefs claimed</th><th style={right}>Est. tax</th><th style={right}>Refund / balance</th><th><span className="vh">Open</span></th>
+            </tr>
+          </thead>
+          <tbody>
+            {years.map((y) => {
+              const cy = calc(d, y);
+              const s2 = (d.status[y] || {}).stage || 'tracking';
+              const [label, tagCls] = STATUS_TAG[s2];
+              return (
+                <tr key={y}>
+                  <td style={heading800}>{y}</td>
+                  <td className="text-muted">{cy.formType}</td>
+                  <td><span className={'tag ' + tagCls}>{label}</span></td>
+                  <td style={right} className="mono">{fmt(Math.max(0, cy.totalAllowed - 9000))}</td>
+                  <td style={right} className="mono">{cy.totalIncome ? fmt(cy.taxNet) : '—'}</td>
+                  <td style={right} className="mono">{cy.totalIncome ? (cy.balance < 0 ? fmt(-cy.balance) + ' refund' : fmt(cy.balance) + ' due') : '—'}</td>
+                  <td style={right}>
+                    <button className="navlink linkbtn" onClick={() => { mut((x) => { x.ya = y; }); go('claims'); }} style={heading800}>Open →</button>
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
