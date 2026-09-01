@@ -33,7 +33,7 @@ export function Claims({ api, c, selCat, setSelCat }: { api: Api; c: CalcResult;
         <YaTabs tabs={years.map((y) => ({ label: y, on: y === ya, pick: () => mut((x) => { x.ya = y; }) }))} />
       </div>
 
-      <div className="claimsgrid" style={{ display: 'grid', gridTemplateColumns: 'minmax(0,1fr) 360px', gap: 0, marginTop: 18, border: '2px solid var(--color-divider)' }}>
+      <div className="claimsgrid" data-tour="caps-table" style={{ display: 'grid', gridTemplateColumns: 'minmax(0,1fr) 360px', gap: 0, marginTop: 18, border: '2px solid var(--color-divider)' }}>
         <div style={{ overflowX: 'auto', borderRight: '2px solid var(--color-divider)' }}>
           <table className="table">
             <thead>

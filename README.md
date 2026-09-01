@@ -24,7 +24,7 @@ Malaysian reliefs are use-it-or-lose-it: whatever cap you haven't spent to by 31
 **Data & portability**
 - Everything persists in `localStorage`; receipts are stored as data URLs inside the same blob — and a failed write warns you instead of silently dropping data
 - JSON export and import for backup or moving devices
-- First run is a minute of setup — name, tax number, marital status — followed by a four-step tour of the claims → receipts → filing-pack loop; or one click loads a demo taxpayer ("Amirah") to explore. Demo mode wears an unmissable banner with a one-click exit, and Settings → Clear everything always returns you to setup
+- First run is a minute of setup — name, tax number, marital status — followed by a guided tour that walks the actual screens, spotlighting the claim button, the caps table, the receipt vault and the filing pack in place (replayable from Settings); or one click loads a demo taxpayer ("Amirah") to explore. Demo mode wears an unmissable banner with a one-click exit, and Settings → Clear everything always returns you to setup
 - Bilingual throughout — English · Bahasa Melayu
 
 ## Screenshots

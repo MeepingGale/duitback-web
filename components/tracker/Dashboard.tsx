@@ -37,7 +37,7 @@ export function Dashboard({ api, c }: { api: Api; c: CalcResult }) {
         <YaTabs tabs={years.map((y) => ({ label: y, on: y === ya, pick: () => mut((x) => { x.ya = y; }) }))} onAddYear={addYear} />
       </div>
 
-      <div style={{ background: 'var(--color-accent-700)', color: 'var(--color-bg)', padding: '26px 28px', marginTop: 20 }}>
+      <div data-tour="poster" style={{ background: 'var(--color-accent-700)', color: 'var(--color-bg)', padding: '26px 28px', marginTop: 20 }}>
         <div style={{ fontSize: 10, letterSpacing: '.1em', textTransform: 'uppercase', ...heading800 }}>
           {ya} · reliefs you&apos;ve claimed · pelepasan dituntut
         </div>

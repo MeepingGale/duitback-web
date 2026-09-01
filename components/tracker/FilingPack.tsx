@@ -21,11 +21,13 @@ export function FilingPack({ api, c }: { api: Api; c: CalcResult }) {
           <button className="btn btn-secondary" onClick={() => exportJson(d)}>Export data (JSON)</button>
         </div>
       </div>
-      <Kick>Filing pack · Pek pemfailan</Kick>
-      <h1 style={{ margin: '6px 0 2px', fontSize: 32 }}>{ya} — {c.formType} form cheat-sheet</h1>
-      <p className="text-muted" style={{ fontSize: 12.5 }}>
-        Everything to type into MyTax e-Filing for {ya} — generated {today()} for {d.profile.name || 'you'} ({d.profile.taxNo || 'no tax file no.'}). Figures are estimates.
-      </p>
+      <div data-tour="pack-sheet">
+        <Kick>Filing pack · Pek pemfailan</Kick>
+        <h1 style={{ margin: '6px 0 2px', fontSize: 32 }}>{ya} — {c.formType} form cheat-sheet</h1>
+        <p className="text-muted" style={{ fontSize: 12.5 }}>
+          Everything to type into MyTax e-Filing for {ya} — generated {today()} for {d.profile.name || 'you'} ({d.profile.taxNo || 'no tax file no.'}). Figures are estimates.
+        </p>
+      </div>
       <hr className="hr" />
 
       <h6 style={{ margin: '18px 0 6px' }}>1 · Income to declare · Pendapatan</h6>

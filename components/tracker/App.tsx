@@ -11,6 +11,7 @@ import { Income } from './Income';
 import { FilingPack } from './FilingPack';
 import { Settings } from './Settings';
 import { AddClaimDialog, TagDialog, ViewerDialog, AddState, TagState, ViewerState, freshAdd } from './dialogs';
+import { TOUR, Tour } from './Tour';
 
 export type Screen = 'dash' | 'claims' | 'receipts' | 'status' | 'income' | 'pack' | 'settings';
 
@@ -24,13 +25,6 @@ const NAV: Array<[Screen, string]> = [
   ['settings', 'Settings'],
 ];
 
-const TUT = [
-  { t: 'Add claims as you spend', b: 'Hit “+ New claim” whenever you spend on something claimable — books, clinic visits, PRS top-ups. Totals, caps and the refund estimate update live.' },
-  { t: 'Watch your caps', b: 'The Claims screen lists every LHDN relief with its cap and what is left this year. Over-cap entries are saved but flagged — only the allowed amount counts.' },
-  { t: 'Drop receipts in the vault', b: 'Drag receipts into the Receipts screen and tag them to a relief. LHDN can audit up to 7 years back — the vault keeps the evidence next to the claim.' },
-  { t: 'File from the pack in March', b: 'When e-Filing opens, the Filing pack shows every number to type into MyTax, with the receipts behind each line. Print it or save as PDF — and always confirm figures in MyTax.' },
-];
-
 export interface Api {
   d: Data;
   ya: string;
@@ -40,6 +34,7 @@ export interface Api {
   openAdd: (cat?: string) => void;
   setDlg: (d: null | 'add' | 'tag' | 'view') => void;
   clearAll: () => void;
+  startTour: () => void;
   dataMsg: string;
   setDataMsg: (m: string) => void;
 }
@@ -68,6 +63,11 @@ export default function TrackerApp() {
     }
     setBooted(true);
   }, []);
+
+  // the tour drives the screen: each step lands on the screen it teaches
+  useEffect(() => {
+    if (tut > 0 && tut <= TOUR.length) setScreen(TOUR[tut - 1].screen);
+  }, [tut]);
 
   const save = (d: Data, msg?: string) => {
     setData(d);
@@ -161,7 +161,7 @@ export default function TrackerApp() {
   const d = data;
   const ya = d.ya;
   const c = calc(d, ya);
-  const api: Api = { d, ya, save, mut, go: setScreen, openAdd, setDlg, clearAll, dataMsg, setDataMsg };
+  const api: Api = { d, ya, save, mut, go: setScreen, openAdd, setDlg, clearAll, startTour: () => setTut(1), dataMsg, setDataMsg };
   const demo = isDemo(d);
 
   return (
@@ -177,7 +177,7 @@ export default function TrackerApp() {
             {label}
           </a>
         ))}
-        <button className="btn btn-primary" onClick={() => openAdd()}>+ New claim</button>
+        <button className="btn btn-primary" data-tour="new-claim" onClick={() => openAdd()}>+ New claim</button>
       </div>
 
       {demo && (
@@ -227,23 +227,12 @@ export default function TrackerApp() {
       {dlg === 'view' && <ViewerDialog api={api} viewer={viewer} setViewer={setViewer} />}
 
       {tut > 0 && (
-        <div className="dialog-backdrop" style={{ zIndex: 60 }}>
-          <div className="dialog" style={{ maxWidth: 480, width: 'calc(100vw - 48px)' }}>
-            <Kick>Quick tour · Jom tengok · {tut} of {TUT.length}</Kick>
-            <h3 style={{ fontFamily: 'var(--font-heading)', fontWeight: 800, fontSize: 20, margin: '10px 0 8px' }}>{TUT[Math.min(tut, TUT.length) - 1].t}</h3>
-            <p style={{ fontSize: 13.5, lineHeight: 1.55, margin: '0 0 20px', color: 'var(--color-neutral-800)' }}>{TUT[Math.min(tut, TUT.length) - 1].b}</p>
-            <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
-              {tut < TUT.length ? (
-                <>
-                  <button className="btn btn-primary" onClick={() => setTut(tut + 1)}>Next →</button>
-                  <button className="btn btn-ghost" onClick={() => setTut(0)}>Skip tour</button>
-                </>
-              ) : (
-                <button className="btn btn-primary" onClick={() => setTut(0)}>Start tracking →</button>
-              )}
-            </div>
-          </div>
-        </div>
+        <Tour
+          step={tut}
+          onNext={() => setTut(tut + 1)}
+          onBack={() => setTut(tut - 1)}
+          onDone={() => { setTut(0); setScreen('dash'); }}
+        />
       )}
     </div>
   );

@@ -94,6 +94,7 @@ export function Settings({ api, lockNow }: { api: Api; lockNow: () => void }) {
           DuitBack is free and keeps your data on your device. If it saved you some duit,{' '}
           <a href="https://ko-fi.com/duitback" target="_blank" rel="noopener noreferrer">belanja teh tarik →</a>
         </p>
+        <button className="btn btn-ghost" style={{ marginTop: 12 }} onClick={api.startTour}>Replay the tour · Ulang jelajah →</button>
       </div>
 
       <div style={{ border: '2px solid var(--color-divider)', borderTop: 0, padding: 24 }}>
