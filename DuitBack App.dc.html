@@ -1,0 +1,956 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2064%2064'%3E%3Crect%20width='64'%20height='64'%20fill='%23ec3013'/%3E%3Ctext%20x='8'%20y='43'%20font-family='Archivo,Arial,sans-serif'%20font-size='26'%20font-weight='800'%20letter-spacing='-1'%20fill='%23f3f2f2'%3ERM%3C/text%3E%3Cpath%20d='M56%2048%20L56%2054%20L20%2054%20L20%2059%20L11%2053.5%20L20%2048%20Z'%20fill='%23f3f2f2'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="_ds/modernist-02a5774f-c73c-4c43-8a74-d0d33a570e64/styles.css">
+<script src="_ds/modernist-02a5774f-c73c-4c43-8a74-d0d33a570e64/_ds_bundle.js"></script>
+<style>
+body{margin:0;background:var(--color-bg)}
+a{color:var(--color-accent)}a:hover{color:var(--color-accent-600)}
+.bar{height:8px;background:var(--color-neutral-200);display:flex}
+.bar i{display:block;height:100%;background:var(--color-accent)}
+.bar i.over{background:var(--color-accent-800)}
+.bm{color:var(--color-neutral-600);font-weight:400}
+.kick{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--color-accent);font-family:var(--font-heading);font-weight:800}
+.mono{font-variant-numeric:tabular-nums}
+.navlink{cursor:pointer;user-select:none}
+.yatab{padding:6px 12px;font-size:12px;cursor:pointer;border-left:1px solid var(--color-divider)}
+.yatab:first-child{border-left:0}
+.yatab.on{background:var(--color-accent);color:var(--color-bg);font-family:var(--font-heading);font-weight:800}
+.yatab:not(.on):hover{background:color-mix(in srgb, var(--color-text) 7%, transparent)}
+.rrow{cursor:pointer}
+.rrow.sel td{background:var(--color-accent-100)}
+@media (max-width:760px){.pagepad{padding:18px 16px 32px!important}.claimsgrid{grid-template-columns:1fr!important}h1{font-size:26px!important}.nav{gap:10px!important;padding:10px 14px!important}.nav a{font-size:12px!important}.postnum{font-size:40px!important}}
+@media print{.no-print{display:none!important}body{background:#fff}.pagepad{padding:0!important;max-width:100%!important}.dv-card{border:0}}
+</style>
+</helmet>
+
+<div style="min-height:100vh;display:flex;flex-direction:column">
+<div class="nav no-print" style="flex-wrap:wrap;position:sticky;top:0;background:var(--color-bg);z-index:5">
+<span class="nav-brand" style="display:inline-flex;align-items:center"><svg width="132" height="27" viewBox="0 0 320 66" aria-label="duitback"><text x="2" y="56" font-family="Archivo, Arial, sans-serif" font-size="36" font-weight="800" letter-spacing="-1" fill="#201e1d">du&#305;tback<tspan fill="#ec3013">.</tspan></text><g transform="translate(50,24)"><g fill="#ec3013"><ellipse cx="0" cy="-5.4" rx="3.4" ry="5.4"></ellipse><ellipse cx="0" cy="-5.4" rx="3.4" ry="5.4" transform="rotate(72)"></ellipse><ellipse cx="0" cy="-5.4" rx="3.4" ry="5.4" transform="rotate(144)"></ellipse><ellipse cx="0" cy="-5.4" rx="3.4" ry="5.4" transform="rotate(216)"></ellipse><ellipse cx="0" cy="-5.4" rx="3.4" ry="5.4" transform="rotate(288)"></ellipse></g><circle r="1.8" fill="#201e1d"></circle><line x1="0.7" y1="-1" x2="5.8" y2="-7.1" stroke="#201e1d" stroke-width="0.9"></line><g fill="#201e1d"><circle cx="6.4" cy="-7.8" r="0.8"></circle><circle cx="7.8" cy="-7.8" r="0.8"></circle><circle cx="6.4" cy="-9.1" r="0.8"></circle><circle cx="7.8" cy="-9.1" r="0.8"></circle></g></g></svg></span>
+<a class="navlink" onClick="{{ goDash }}" aria-current="{{ curDash }}">Dashboard</a>
+<a class="navlink" onClick="{{ goClaims }}" aria-current="{{ curClaims }}">Claims · Tuntutan</a>
+<a class="navlink" onClick="{{ goReceipts }}" aria-current="{{ curReceipts }}">Receipts · Resit</a>
+<a class="navlink" onClick="{{ goStatus }}" aria-current="{{ curStatus }}">Status</a>
+<a class="navlink" onClick="{{ goIncome }}" aria-current="{{ curIncome }}">Income</a>
+<a class="navlink" onClick="{{ goPack }}" aria-current="{{ curPack }}">Filing pack</a>
+<a class="navlink" onClick="{{ goSettings }}" aria-current="{{ curSettings }}">Settings</a>
+<button class="btn btn-primary" onClick="{{ openAdd }}">+ New claim</button>
+</div>
+
+<sc-if value="{{ isDash }}" hint-placeholder-val="{{ true }}">
+<div class="pagepad" data-screen-label="Dashboard" style="padding:28px 36px 40px;max-width:1200px;width:100%;margin:0 auto;box-sizing:border-box">
+<div style="display:flex;align-items:baseline;justify-content:space-between;gap:16px;flex-wrap:wrap">
+<div><div class="kick">Year of assessment · Tahun taksiran</div><h1 style="margin:6px 0 2px;font-size:34px">Hello, {{ profileName }}</h1><p class="text-muted" style="font-size:13px;margin:0">{{ deadlineLine }}</p></div>
+<div style="display:inline-flex;border:1px solid var(--color-divider)"><sc-for list="{{ yaTabs }}" as="t" hint-placeholder-count="3"><span class="yatab {{ t.cls }}" onClick="{{ t.pick }}">{{ t.label }}</span></sc-for><span class="yatab" onClick="{{ addYear }}" title="Add next year">+</span></div>
+</div>
+<div style="background:var(--color-accent);color:var(--color-bg);padding:26px 28px;margin-top:20px">
+<div style="font-size:10px;letter-spacing:.1em;text-transform:uppercase;font-family:var(--font-heading);font-weight:800">{{ ya }} · reliefs counted · pelepasan dikira</div>
+<div style="display:flex;align-items:baseline;gap:24px;flex-wrap:wrap">
+<div class="mono postnum" style="font-family:var(--font-heading);font-weight:800;font-size:64px;letter-spacing:-.02em;line-height:1.05">{{ totalClaimedL }}</div>
+<div style="font-size:13px;max-width:340px;opacity:.92">{{ posterSub }}</div>
+</div>
+<div style="display:flex;gap:2px;margin-top:16px;height:10px"><div style="background:var(--color-bg);width:{{ usedPct }}"></div><div style="background:color-mix(in srgb, var(--color-bg) 25%, transparent);flex:1"></div></div>
+<div style="font-size:11px;margin-top:6px;opacity:.88">{{ usedLine }}</div>
+</div>
+<sc-if value="{{ hasClaims }}" hint-placeholder-val="{{ true }}">
+<div style="display:flex;align-items:baseline;justify-content:space-between;margin-top:28px"><div class="kick">Top claims · Tuntutan utama</div><a class="navlink" onClick="{{ goClaims }}" style="font-size:12px">All reliefs →</a></div>
+<div style="overflow-x:auto"><table class="table" style="margin-top:8px">
+<tbody><sc-for list="{{ topRows }}" as="r" hint-placeholder-count="4">
+<tr><td style="min-width:220px">{{ r.en }} <span class="bm">· {{ r.bm }}</span></td><td style="width:30%;min-width:160px"><div class="bar"><i class="{{ r.barCls }}" style="width:{{ r.pct }}"></i></div></td><td style="text-align:right;white-space:nowrap" class="mono">{{ r.claimedL }} / {{ r.capL }}</td><td style="text-align:right"><span class="tag {{ r.tagCls }}">{{ r.tagLabel }}</span></td></tr>
+</sc-for></tbody>
+</table></div>
+</sc-if>
+<sc-if value="{{ noClaims }}" hint-placeholder-val="{{ false }}">
+<div style="border:2px dashed var(--color-divider);padding:36px;margin-top:28px;max-width:560px">
+<div style="font-family:var(--font-heading);font-weight:800;font-size:20px">No claims yet for {{ ya }} · Tiada tuntutan lagi</div>
+<p class="text-muted" style="font-size:13px;margin:8px 0 16px">Add your first relief claim or drop a receipt into the vault — totals, caps and the refund estimate update live.</p>
+<div style="display:flex;gap:10px;flex-wrap:wrap"><button class="btn btn-primary" onClick="{{ openAdd }}">Add a claim · Tambah tuntutan</button><button class="btn btn-secondary" onClick="{{ goReceipts }}">Upload receipts</button></div>
+</div>
+</sc-if>
+<hr class="hr" style="margin:28px 0 20px">
+<div class="kick" style="margin-bottom:10px">Your returns · Penyata anda</div>
+<div style="overflow-x:auto"><table class="table">
+<thead><tr><th>YA</th><th>Form</th><th>Status</th><th style="text-align:right">Reliefs claimed</th><th style="text-align:right">Est. tax</th><th style="text-align:right">Refund / balance</th><th></th></tr></thead>
+<tbody><sc-for list="{{ yearRows }}" as="y" hint-placeholder-count="3">
+<tr><td style="font-family:var(--font-heading);font-weight:800">{{ y.ya }}</td><td class="text-muted">{{ y.form }}</td><td><span class="tag {{ y.tagCls }}">{{ y.status }}</span></td><td style="text-align:right" class="mono">{{ y.reliefsL }}</td><td style="text-align:right" class="mono">{{ y.taxL }}</td><td style="text-align:right" class="mono">{{ y.balL }}</td><td style="text-align:right"><a class="navlink" onClick="{{ y.open }}" style="font-weight:800;font-family:var(--font-heading);text-decoration:none">Open →</a></td></tr>
+</sc-for></tbody>
+</table></div>
+</div>
+</sc-if>
+
+<sc-if value="{{ isClaims }}" hint-placeholder-val="{{ false }}">
+<div class="pagepad" data-screen-label="Claims" style="padding:28px 36px 40px;max-width:1360px;width:100%;margin:0 auto;box-sizing:border-box">
+<div style="display:flex;align-items:baseline;justify-content:space-between;gap:16px;flex-wrap:wrap">
+<div><div class="kick">{{ ya }} · Reliefs &amp; deductions · Pelepasan</div><h2 style="margin:6px 0 2px">Claims against caps</h2><p class="text-muted" style="font-size:12.5px;margin:0">Caps follow the {{ ya }} LHDN schedule · click a row to see its claim lines. Medical sub-limits are enforced; child relief has no overall cap (fixed amount per child).</p></div>
+<div style="display:inline-flex;border:1px solid var(--color-divider)"><sc-for list="{{ yaTabs }}" as="t" hint-placeholder-count="3"><span class="yatab {{ t.cls }}" onClick="{{ t.pick }}">{{ t.label }}</span></sc-for></div>
+</div>
+<div class="claimsgrid" style="display:grid;grid-template-columns:minmax(0,1fr) 360px;gap:0;margin-top:18px;border:2px solid var(--color-divider)">
+<div style="overflow-x:auto;border-right:2px solid var(--color-divider)">
+<table class="table">
+<thead><tr><th style="width:32%">Relief · Pelepasan</th><th style="text-align:right">Cap · Had</th><th style="text-align:right">Claimed</th><th style="text-align:right">Left · Baki</th><th style="width:16%">Utilisation</th><th style="text-align:right">Lines</th></tr></thead>
+<tbody><sc-for list="{{ reliefRows }}" as="r" hint-placeholder-count="8">
+<tr class="rrow {{ r.selCls }}" onClick="{{ r.pick }}"><td>{{ r.en }} <span class="bm">· {{ r.bm }}</span></td><td style="text-align:right;white-space:nowrap" class="mono">{{ r.capL }}</td><td style="text-align:right" class="mono">{{ r.claimedL }}</td><td style="text-align:right" class="mono">{{ r.leftL }}</td><td style="min-width:110px"><div class="bar"><i class="{{ r.barCls }}" style="width:{{ r.pct }}"></i></div></td><td style="text-align:right" class="mono">{{ r.count }}</td></tr>
+</sc-for></tbody>
+</table>
+<div style="display:flex;justify-content:space-between;align-items:baseline;padding:14px 12px"><span style="font-size:13px" class="text-muted">Total allowed (caps applied) · Jumlah dibenarkan</span><span style="font-family:var(--font-heading);font-weight:800;font-size:22px" class="mono">{{ totalAllowedL }}</span></div>
+</div>
+<div style="padding:20px;background:var(--color-surface)">
+<div class="kick">{{ selCatEn }}</div>
+<div style="font-size:12px;margin:4px 0 10px" class="text-muted">{{ selCatNote }}</div>
+<sc-if value="{{ selHasClaims }}" hint-placeholder-val="{{ true }}">
+<div style="display:flex;flex-direction:column;gap:8px">
+<sc-for list="{{ selClaims }}" as="c" hint-placeholder-count="3">
+<div style="background:var(--color-bg);border:1px solid var(--color-divider);padding:10px 12px">
+<div style="display:flex;justify-content:space-between;gap:10px"><span style="font-size:13px;font-family:var(--font-heading);font-weight:800">{{ c.desc }}</span><span class="mono" style="font-size:13px;white-space:nowrap">{{ c.amountL }}</span></div>
+<div style="display:flex;justify-content:space-between;align-items:center;margin-top:4px"><span style="font-size:11px" class="text-muted mono">{{ c.date }}{{ c.subLabel }}</span><span style="display:flex;gap:8px;align-items:center"><sc-if value="{{ c.receiptName }}" hint-placeholder-val="{{ false }}"><span class="tag tag-neutral" style="font-size:10px">{{ c.receiptName }}</span></sc-if><a class="navlink" onClick="{{ c.del }}" style="font-size:11px">Delete</a></span></div>
+</div>
+</sc-for>
+</div>
+</sc-if>
+<sc-if value="{{ selNoClaims }}" hint-placeholder-val="{{ false }}"><div style="border:2px dashed var(--color-divider);padding:18px;font-size:12.5px" class="text-muted">No claim lines yet · Tiada baris tuntutan. Add one below.</div></sc-if>
+<button class="btn btn-primary btn-block" style="margin-top:14px" onClick="{{ openAddSel }}">Add claim here · Tambah</button>
+</div>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{ isReceipts }}" hint-placeholder-val="{{ false }}">
+<div class="pagepad" data-screen-label="Receipts" style="padding:28px 36px 40px;max-width:1360px;width:100%;margin:0 auto;box-sizing:border-box" onDrop="{{ onDrop }}" onDragOver="{{ onDragOver }}">
+<div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap">
+<h2 style="margin:0;margin-right:auto">Receipt vault <span class="bm" style="font-size:15px">· Peti resit</span></h2>
+<input class="input" style="width:230px" placeholder="Search merchant, file… · Cari" value="{{ rSearch }}" onChange="{{ onSearch }}">
+<div style="display:inline-flex;border:1px solid var(--color-divider)"><sc-for list="{{ yaTabs }}" as="t" hint-placeholder-count="3"><span class="yatab {{ t.cls }}" onClick="{{ t.pick }}">{{ t.label }}</span></sc-for></div>
+</div>
+<div style="display:flex;gap:8px;margin:16px 0;flex-wrap:wrap"><sc-for list="{{ rFilters }}" as="f" hint-placeholder-count="5"><span class="tag {{ f.cls }}" style="cursor:pointer" onClick="{{ f.pick }}">{{ f.label }}</span></sc-for></div>
+<div style="border:2px dashed var(--color-divider);padding:16px;display:flex;align-items:center;gap:12px;margin-bottom:22px;flex-wrap:wrap">
+<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--color-accent)"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+<div style="flex:1;min-width:240px"><span style="font-family:var(--font-heading);font-weight:800;font-size:13px">Drop receipts here · Seret resit ke sini</span> <span class="text-muted" style="font-size:12px">— full-size images go to this browser's IndexedDB; thumbnails stay in the app. Tag them to a relief and they count.</span></div>
+<label class="btn btn-secondary" style="cursor:pointer">Browse files<input type="file" accept="image/*,.pdf" multiple style="display:none" onChange="{{ onPickVault }}"></label>
+</div>
+<sc-if value="{{ hasReceipts }}" hint-placeholder-val="{{ true }}">
+<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px">
+<sc-for list="{{ receiptCards }}" as="r" hint-placeholder-count="8">
+<div style="border:1px solid {{ r.borderC }};background:{{ r.bgC }}">
+<div style="height:110px;background:var(--color-neutral-200);display:grid;place-items:center;overflow:hidden;cursor:pointer" class="text-muted" onClick="{{ r.view }}">
+<sc-if value="{{ r.thumb }}" hint-placeholder-val="{{ false }}"><img src="{{ r.thumb }}" class="grayscale" style="width:100%;height:110px;object-fit:cover"></sc-if>
+<sc-if value="{{ r.noThumb }}" hint-placeholder-val="{{ true }}"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"></path><path d="M14 2v4a2 2 0 0 0 2 2h4"></path><path d="M16 13H8"></path><path d="M16 17H8"></path></svg></sc-if>
+</div>
+<div style="padding:10px 12px">
+<div style="font-family:var(--font-heading);font-weight:800;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ r.name }}</div>
+<div style="font-size:11.5px" class="text-muted">{{ r.sub }}</div>
+<div style="display:flex;gap:6px;margin-top:8px;align-items:center;flex-wrap:wrap">
+<span class="tag {{ r.tagCls }}">{{ r.tagLabel }}</span>
+<sc-if value="{{ r.untagged }}" hint-placeholder-val="{{ false }}"><a class="navlink" style="font-size:12px;margin-left:auto" onClick="{{ r.tag }}">Tag →</a></sc-if>
+<sc-if value="{{ r.tagged }}" hint-placeholder-val="{{ true }}"><a class="navlink" style="font-size:11px;margin-left:auto" onClick="{{ r.del }}">Delete</a></sc-if>
+</div>
+</div>
+</div>
+</sc-for>
+</div>
+</sc-if>
+<sc-if value="{{ noReceipts }}" hint-placeholder-val="{{ false }}"><div style="border:2px dashed var(--color-divider);padding:36px;max-width:560px"><div style="font-family:var(--font-heading);font-weight:800;font-size:18px">Vault is empty · Peti kosong</div><p class="text-muted" style="font-size:13px;margin:6px 0 0">Drop a file above, or add a claim with a receipt attached — everything is kept 7 years for audit.</p></div></sc-if>
+<div style="display:flex;justify-content:space-between;margin-top:18px;font-size:12px;flex-wrap:wrap;gap:8px" class="text-muted"><span>{{ vaultFooter }}</span><a class="navlink" onClick="{{ exportJson }}" style="font-size:12px">Export data (JSON) →</a></div>
+</div>
+</sc-if>
+
+<sc-if value="{{ isStatus }}" hint-placeholder-val="{{ false }}">
+<div class="pagepad" data-screen-label="Status" style="padding:28px 36px 40px;max-width:1200px;width:100%;margin:0 auto;box-sizing:border-box">
+<div style="display:flex;align-items:baseline;justify-content:space-between;gap:16px;flex-wrap:wrap">
+<h2 style="margin:0">Filing status <span class="bm" style="font-size:15px">· Status pemfailan</span></h2>
+<div style="display:inline-flex;border:1px solid var(--color-divider)"><sc-for list="{{ yaTabs }}" as="t" hint-placeholder-count="3"><span class="yatab {{ t.cls }}" onClick="{{ t.pick }}">{{ t.label }}</span></sc-for></div>
+</div>
+<p class="text-muted" style="font-size:12.5px;margin:8px 0 0">{{ formLine }}</p>
+<hr class="hr" style="margin:16px 0 24px">
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:0 16px">
+<sc-for list="{{ steps }}" as="s" hint-placeholder-count="4">
+<div style="border-top:6px solid {{ s.barC }};padding:12px 0 0;background:{{ s.bgC }};padding-left:{{ s.padL }}">
+<div style="font-size:11px" class="text-muted mono">{{ s.date }}</div>
+<div style="font-family:var(--font-heading);font-weight:800;margin-top:2px;color:{{ s.titleC }}">{{ s.title }} <span class="bm" style="font-weight:400">· {{ s.bm }}</span></div>
+<div style="font-size:12px;margin-top:4px" class="text-muted">{{ s.desc }}</div>
+</div>
+</sc-for>
+</div>
+<div style="display:flex;gap:10px;margin-top:20px;flex-wrap:wrap">
+<sc-if value="{{ canSubmit }}" hint-placeholder-val="{{ false }}"><button class="btn btn-primary" onClick="{{ doSubmit }}">Simulate e-Filing submission · Hantar</button></sc-if>
+<sc-if value="{{ canRefund }}" hint-placeholder-val="{{ false }}"><button class="btn btn-primary" onClick="{{ doRefund }}">Simulate refund credited · Kreditkan</button></sc-if>
+<sc-if value="{{ canReopen }}" hint-placeholder-val="{{ false }}"><button class="btn btn-secondary" onClick="{{ doReopen }}">Reset to tracking</button></sc-if>
+<button class="btn btn-ghost" onClick="{{ goPack }}">Open filing pack →</button>
+</div>
+<sc-if value="{{ showTehTarik }}" hint-placeholder-val="{{ false }}">
+<div style="font-size:12.5px;margin-top:12px"><span class="text-muted">Got your refund? </span><a href="https://ko-fi.com/duitback" target="_blank" rel="noopener">Tip the app 0.1% lah →</a></div>
+</sc-if>
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:2px;background:var(--color-divider);border:2px solid var(--color-divider);margin-top:24px">
+<div style="background:var(--color-surface);padding:16px"><div class="kick" style="color:var(--color-neutral-700)">{{ balTileLabel }}</div><div style="font-family:var(--font-heading);font-weight:800;font-size:28px;margin-top:4px" class="mono">{{ balTileL }}</div><div style="font-size:12px" class="text-muted">{{ balTileSub }}</div></div>
+<div style="background:var(--color-surface);padding:16px"><div class="kick" style="color:var(--color-neutral-700)">Reliefs claimed</div><div style="font-family:var(--font-heading);font-weight:800;font-size:28px;margin-top:4px" class="mono">{{ totalAllowedL }}</div><div style="font-size:12px" class="text-muted">{{ reliefTileSub }}</div></div>
+<div style="background:var(--color-surface);padding:16px"><div class="kick" style="color:var(--color-neutral-700)">Documents · Dokumen</div><div style="font-family:var(--font-heading);font-weight:800;font-size:28px;margin-top:4px" class="mono">{{ docCount }}</div><div style="font-size:12px" class="text-muted">{{ docTileSub }}</div></div>
+</div>
+<div style="display:flex;align-items:baseline;justify-content:space-between;margin-top:26px"><h6 style="margin:0">Documents · Dokumen ({{ ya }})</h6><label class="btn btn-secondary" style="cursor:pointer">Upload document<input type="file" multiple style="display:none" onChange="{{ onPickDoc }}"></label></div>
+<div style="overflow-x:auto"><table class="table" style="margin-top:8px">
+<tbody><sc-for list="{{ docRows }}" as="d" hint-placeholder-count="3">
+<tr><td style="width:44%"><span style="font-family:var(--font-heading);font-weight:800;font-size:13px">{{ d.name }}</span></td><td class="text-muted" style="font-size:12px">{{ d.kind }}</td><td class="mono text-muted" style="font-size:12px">{{ d.date }}</td><td style="text-align:right"><a class="navlink" onClick="{{ d.del }}" style="font-size:11px">Remove</a></td></tr>
+</sc-for></tbody>
+</table></div>
+<sc-if value="{{ noDocs }}" hint-placeholder-val="{{ false }}"><div style="border:2px dashed var(--color-divider);padding:16px;font-size:12.5px;margin-top:8px" class="text-muted">No documents for {{ ya }} yet — upload your EA form, premium statements or acknowledgements.</div></sc-if>
+</div>
+</sc-if>
+
+<sc-if value="{{ isIncome }}" hint-placeholder-val="{{ false }}">
+<div class="pagepad" data-screen-label="Income" style="padding:28px 36px 40px;max-width:1200px;width:100%;margin:0 auto;box-sizing:border-box">
+<div style="display:flex;align-items:baseline;justify-content:space-between;gap:16px;flex-wrap:wrap">
+<h2 style="margin:0">Income <span class="bm" style="font-size:15px">· Pendapatan</span></h2>
+<div style="display:inline-flex;border:1px solid var(--color-divider)"><sc-for list="{{ yaTabs }}" as="t" hint-placeholder-count="3"><span class="yatab {{ t.cls }}" onClick="{{ t.pick }}">{{ t.label }}</span></sc-for></div>
+</div>
+<div class="claimsgrid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:0;border:2px solid var(--color-divider);margin-top:18px">
+<div style="padding:24px;border-right:2px solid var(--color-divider)">
+<div class="kick">Sources · Punca pendapatan — editable</div>
+<h6 style="margin:16px 0 8px">Employment · Penggajian</h6>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+<div class="field"><label>Salary / year · Gaji (RM)</label><input class="input mono" type="number" min="0" value="{{ incSalary }}" onChange="{{ onSalary }}"></div>
+<div class="field"><label>Bonus (RM)</label><input class="input mono" type="number" min="0" value="{{ incBonus }}" onChange="{{ onBonus }}"></div>
+<div class="field"><label>PCB / MTD withheld (RM)</label><input class="input mono" type="number" min="0" value="{{ incPcb }}" onChange="{{ onPcb }}"></div>
+<div class="field"><label>Zakat paid · Zakat (RM)</label><input class="input mono" type="number" min="0" value="{{ incZakat }}" onChange="{{ onZakat }}"></div>
+</div>
+<h6 style="margin:20px 0 8px">Rental · Sewaan</h6>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+<div class="field"><label>Gross rent / year (RM)</label><input class="input mono" type="number" min="0" value="{{ incRent }}" onChange="{{ onRent }}"></div>
+<div class="field"><label>Allowable expenses (RM)</label><input class="input mono" type="number" min="0" value="{{ incRentExp }}" onChange="{{ onRentExp }}"></div>
+<div class="field"><label>CP500 instalments paid (RM)</label><input class="input mono" type="number" min="0" value="{{ incCp500 }}" onChange="{{ onCp500 }}"></div>
+</div>
+<div style="font-size:11.5px;margin-top:8px" class="text-muted">Allowable: repairs, management fees, assessment &amp; quit rent, loan interest. Net rental {{ netRentL }}. CP500 = LHDN's bi-monthly instalment scheme for rental/business income; paid amounts offset the final bill.</div>
+<h6 style="margin:20px 0 8px">Business &amp; other · Perniagaan</h6>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+<div class="field"><label>Business income, net (RM) — makes this a Form B year</label><input class="input mono" type="number" min="0" value="{{ incBiz }}" onChange="{{ onBiz }}"></div>
+<div class="field"><label>Other — dividends, freelance (RM)</label><input class="input mono" type="number" min="0" value="{{ incOther }}" onChange="{{ onOther }}"></div>
+</div>
+<sc-if value="{{ isMarried }}" hint-placeholder-val="{{ false }}">
+<h6 style="margin:20px 0 8px">Spouse · Pasangan (for joint comparison)</h6>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+<div class="field"><label>Spouse income / year (RM)</label><input class="input mono" type="number" min="0" value="{{ incSpInc }}" onChange="{{ onSpInc }}"></div>
+<div class="field"><label>Spouse reliefs, est. (RM)</label><input class="input mono" type="number" min="0" value="{{ incSpRel }}" onChange="{{ onSpRel }}"></div>
+</div>
+</sc-if>
+</div>
+<div style="padding:24px;background:var(--color-surface)">
+<div class="kick">Computation · Pengiraan ({{ ya }} · {{ formType }} · resident scale)</div>
+<table class="table" style="font-size:13px;margin-top:12px">
+<tbody>
+<tr><td>Total income · Jumlah pendapatan</td><td style="text-align:right" class="mono">{{ totalIncomeL }}</td></tr>
+<tr><td>Donations allowed <span class="text-muted">(capped 10% of aggregate)</span></td><td style="text-align:right" class="mono">− {{ donationL }}</td></tr>
+<tr><td>Reliefs claimed · Pelepasan <a class="navlink" onClick="{{ goClaims }}" style="font-size:11px">(detail)</a></td><td style="text-align:right" class="mono">− {{ reliefsNonDonL }}</td></tr>
+<tr><td style="font-weight:800;font-family:var(--font-heading)">Chargeable income · Pendapatan bercukai</td><td style="text-align:right;font-weight:800;font-family:var(--font-heading)" class="mono">{{ chargeableL }}</td></tr>
+<tr><td>Tax on chargeable income <span class="text-muted">(YA2025 scale)</span></td><td style="text-align:right" class="mono">{{ taxGrossL }}</td></tr>
+<tr><td>Individual rebate <span class="text-muted">(RM400 if chargeable ≤ RM35,000)</span></td><td style="text-align:right" class="mono">− {{ rebateL }}</td></tr>
+<tr><td>Zakat rebate · Rebat zakat</td><td style="text-align:right" class="mono">− {{ zakatRebateL }}</td></tr>
+<tr><td>PCB / MTD already paid</td><td style="text-align:right" class="mono">− {{ pcbL }}</td></tr>
+<tr><td>CP500 instalments paid</td><td style="text-align:right" class="mono">− {{ cp500L }}</td></tr>
+</tbody>
+</table>
+<div style="background:{{ balBg }};color:var(--color-bg);padding:16px;margin-top:16px">
+<div style="font-size:10px;letter-spacing:.1em;text-transform:uppercase;font-family:var(--font-heading);font-weight:800">{{ balLabel }}</div>
+<div style="display:flex;align-items:baseline;justify-content:space-between;gap:10px;flex-wrap:wrap"><div class="mono postnum" style="font-family:var(--font-heading);font-weight:800;font-size:36px">{{ balL }}</div><div style="font-size:12.5px">{{ balSub }}</div></div>
+</div>
+<sc-if value="{{ isMarried }}" hint-placeholder-val="{{ false }}">
+<div style="border:2px solid var(--color-divider);padding:14px 16px;margin-top:16px;background:var(--color-bg)">
+<div class="kick" style="color:var(--color-neutral-700)">Joint vs separate · Taksiran bersama vs berasingan</div>
+<table class="table" style="font-size:13px;margin-top:8px"><tbody>
+<tr><td>Separate — you + spouse each assessed</td><td style="text-align:right" class="mono">{{ sepTaxL }}</td></tr>
+<tr><td>Joint — combined income, RM4,000 spouse relief</td><td style="text-align:right" class="mono">{{ jointTaxL }}</td></tr>
+</tbody></table>
+<div style="font-size:12.5px;margin-top:6px;font-family:var(--font-heading);font-weight:800">{{ jointVerdict }}</div>
+<div style="font-size:11px;margin-top:4px" class="text-muted">Rough comparison — under joint assessment the spouse's own reliefs beyond RM4,000 are ignored here.</div>
+</div>
+</sc-if>
+<div style="font-size:11.5px;margin-top:10px" class="text-muted">Estimate only, not tax advice — confirm in MyTax e-Filing. Anggaran sahaja.</div>
+</div>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{ isPack }}" hint-placeholder-val="{{ false }}">
+<div class="pagepad" data-screen-label="Filing pack" style="padding:28px 36px 40px;max-width:1000px;width:100%;margin:0 auto;box-sizing:border-box">
+<div class="no-print" style="display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:8px">
+<div style="display:inline-flex;border:1px solid var(--color-divider)"><sc-for list="{{ yaTabs }}" as="t" hint-placeholder-count="3"><span class="yatab {{ t.cls }}" onClick="{{ t.pick }}">{{ t.label }}</span></sc-for></div>
+<div style="display:flex;gap:10px"><button class="btn btn-primary" onClick="{{ doPrint }}">Print / save as PDF</button><button class="btn btn-secondary" onClick="{{ exportJson }}">Export data (JSON)</button></div>
+</div>
+<div class="kick">Filing pack · Pek pemfailan</div>
+<h1 style="margin:6px 0 2px;font-size:32px">{{ ya }} — {{ formType }} form cheat-sheet</h1>
+<p class="text-muted" style="font-size:12.5px">{{ packSub }}</p>
+<hr class="hr">
+<h6 style="margin:18px 0 6px">1 · Income to declare · Pendapatan</h6>
+<table class="table" style="font-size:13px"><tbody>
+<tr><td>Employment (salary + bonus) · Penggajian</td><td style="text-align:right" class="mono">{{ packEmpL }}</td></tr>
+<tr><td>Net rental · Sewaan bersih</td><td style="text-align:right" class="mono">{{ netRentL }}</td></tr>
+<tr><td>Business (net) · Perniagaan</td><td style="text-align:right" class="mono">{{ packBizL }}</td></tr>
+<tr><td>Other · Lain-lain</td><td style="text-align:right" class="mono">{{ packOtherL }}</td></tr>
+<tr><td style="font-weight:800;font-family:var(--font-heading)">Total · Jumlah</td><td style="text-align:right;font-weight:800;font-family:var(--font-heading)" class="mono">{{ totalIncomeL }}</td></tr>
+</tbody></table>
+<h6 style="margin:22px 0 6px">2 · Reliefs to type into MyTax · Pelepasan</h6>
+<table class="table" style="font-size:13px">
+<thead><tr><th>Relief line</th><th style="text-align:right">Amount to enter</th><th style="text-align:right">Your receipts total</th><th>Evidence in vault</th></tr></thead>
+<tbody><sc-for list="{{ packRows }}" as="p" hint-placeholder-count="6">
+<tr><td>{{ p.en }} <span class="bm">· {{ p.bm }}</span></td><td style="text-align:right;font-weight:800;font-family:var(--font-heading)" class="mono">{{ p.allowedL }}</td><td style="text-align:right" class="mono">{{ p.claimedL }}</td><td class="text-muted" style="font-size:11.5px">{{ p.evidence }}</td></tr>
+</sc-for></tbody>
+</table>
+<h6 style="margin:22px 0 6px">3 · Result · Keputusan</h6>
+<table class="table" style="font-size:13px"><tbody>
+<tr><td>Chargeable income · Pendapatan bercukai</td><td style="text-align:right" class="mono">{{ chargeableL }}</td></tr>
+<tr><td>Tax after rebates &amp; zakat</td><td style="text-align:right" class="mono">{{ taxNetL }}</td></tr>
+<tr><td>Already paid (PCB + CP500)</td><td style="text-align:right" class="mono">{{ paidL }}</td></tr>
+<tr><td style="font-weight:800;font-family:var(--font-heading)">{{ balLabel }}</td><td style="text-align:right;font-weight:800;font-family:var(--font-heading)" class="mono">{{ balL }}</td></tr>
+</tbody></table>
+<h6 style="margin:22px 0 6px">4 · Receipts on file · Resit ({{ packRecCount }})</h6>
+<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px">
+<sc-for list="{{ packReceipts }}" as="r" hint-placeholder-count="6">
+<div style="border:1px solid var(--color-divider)">
+<sc-if value="{{ r.thumb }}" hint-placeholder-val="{{ false }}"><img src="{{ r.thumb }}" class="grayscale" style="width:100%;height:80px;object-fit:cover"></sc-if>
+<div style="padding:6px 8px"><div style="font-size:11px;font-family:var(--font-heading);font-weight:800;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ r.name }}</div><div style="font-size:10px" class="text-muted">{{ r.tagLabel }}</div></div>
+</div>
+</sc-for>
+</div>
+<p class="text-muted" style="font-size:11px;margin-top:18px">Generated by DuitBack — unofficial, estimates only. Keep receipts 7 years. Confirm every figure in MyTax before submitting. · Anggaran sahaja, sahkan dalam MyTax.</p>
+</div>
+</sc-if>
+
+<sc-if value="{{ isSettings }}" hint-placeholder-val="{{ false }}">
+<div class="pagepad" data-screen-label="Settings" style="padding:28px 36px 40px;max-width:900px;width:100%;margin:0 auto;box-sizing:border-box">
+<h2 style="margin:0 0 18px">Settings <span class="bm" style="font-size:15px">· Tetapan</span></h2>
+<div style="border:2px solid var(--color-divider);padding:24px">
+<div class="kick">Profile · Profil</div>
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;margin-top:12px;align-items:end">
+<div class="field"><label>Name · Nama</label><input class="input" value="{{ profileName }}" onChange="{{ onName }}"></div>
+<div class="field"><label>Income tax no. · No. cukai</label><input class="input" placeholder="SG 12345678-09" value="{{ profileTaxNo }}" onChange="{{ onTaxNo }}"></div>
+<div class="field"><label>Refund bank account · Akaun bank</label><input class="input" placeholder="Maybank ···1234" value="{{ profileBank }}" onChange="{{ onBank }}"></div>
+</div>
+<div class="field" style="margin-top:16px"><label>Marital status · Status perkahwinan</label>
+<div class="seg"><label class="seg-opt"><input type="radio" name="marital" checked="{{ isSingle }}" onChange="{{ setSingle }}">Single · Bujang</label><label class="seg-opt"><input type="radio" name="marital" checked="{{ isMarried }}" onChange="{{ setMarried }}">Married · Berkahwin</label></div>
+<div style="font-size:11.5px;margin-top:6px" class="text-muted">Married unlocks the joint-assessment comparison on the Income screen.</div>
+</div>
+</div>
+<div style="border:2px solid var(--color-divider);border-top:0;padding:24px">
+<div class="kick">Passcode lock · Kunci</div>
+<p class="text-muted" style="font-size:12.5px;margin:8px 0 14px">Asks for a passcode when the app opens. Cosmetic only — data in this browser is not encrypted, so treat it as a privacy curtain, not security.</p>
+<sc-if value="{{ noPin }}" hint-placeholder-val="{{ true }}">
+<div style="display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap">
+<div class="field" style="margin:0"><label>New passcode (min 4 characters)</label><input class="input mono" type="password" value="{{ pinNew }}" onChange="{{ onPinNew }}"></div>
+<button class="btn btn-secondary" onClick="{{ setPin }}">Set passcode · Tetapkan</button>
+</div>
+</sc-if>
+<sc-if value="{{ hasPin }}" hint-placeholder-val="{{ false }}">
+<div style="display:flex;gap:10px;flex-wrap:wrap">
+<button class="btn btn-secondary" onClick="{{ lockNow }}">Lock now · Kunci sekarang</button>
+<button class="btn btn-ghost" onClick="{{ removePin }}">Remove passcode</button>
+</div>
+</sc-if>
+</div>
+<div style="border:2px solid var(--color-divider);border-top:0;padding:24px">
+<div class="kick">Data · Data</div>
+<p class="text-muted" style="font-size:12.5px;margin:8px 0 14px">Claims and thumbnails live in this browser's localStorage; full-size receipt images in IndexedDB. Nothing is sent to a server — each visitor to a hosted copy gets their own private data. Export JSON to move devices (full-size files stay behind; thumbnails travel).</p>
+<div style="display:flex;gap:10px;flex-wrap:wrap">
+<button class="btn btn-secondary" onClick="{{ exportJson }}">Export all data (JSON)</button>
+<label class="btn btn-secondary" style="cursor:pointer">Import data (JSON)<input type="file" accept=".json,application/json" style="display:none" onChange="{{ onImport }}"></label>
+<button class="btn btn-secondary" onClick="{{ loadDemo }}">Load demo data · Muat demo</button>
+<button class="btn btn-ghost" onClick="{{ clearAll }}">Clear everything · Padam semua</button>
+</div>
+<div style="font-size:12px;margin-top:10px;color:var(--color-accent-700)">{{ dataMsg }}</div>
+</div>
+<div style="border:2px solid var(--color-divider);border-top:0;padding:24px">
+<div class="kick">Support · Sokongan</div>
+<p class="text-muted" style="font-size:12.5px;margin:8px 0 0">DuitBack is free and keeps your data on your device. If it saved you some duit, <a href="https://ko-fi.com/duitback" target="_blank" rel="noopener">belanja teh tarik →</a></p>
+</div>
+<div style="border:2px solid var(--color-divider);border-top:0;padding:24px">
+<div class="kick">About · Perihal</div>
+<p class="text-muted" style="font-size:12.5px;margin:8px 0 0">DuitBack is an unofficial personal tracker for Malaysian resident individual (BE/B) returns. Caps follow each year's LHDN schedule (YA2023/24 use approximate historical caps; YA2025+ the current one), incl. medical sub-limits and per-child relief; the tax scale is the YA2025 resident scale. Not affiliated with LHDN; no tax advice — always confirm figures in MyTax before filing.</p>
+</div>
+</div>
+</sc-if>
+
+<div class="no-print" style="margin-top:auto;border-top:2px solid var(--color-divider);padding:14px 36px;display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;font-size:11.5px"><span class="text-muted">DuitBack — unofficial tracker · YA2025 schedule · estimates only</span><span style="display:flex;gap:14px;align-items:center"><a href="https://ko-fi.com/duitback" target="_blank" rel="noopener" style="text-decoration:none">DuitBack is free · belanja teh tarik →</a><span class="text-muted">{{ profileTaxNo }}</span></span></div>
+</div>
+
+<sc-if value="{{ isLocked }}" hint-placeholder-val="{{ false }}">
+<div style="position:fixed;inset:0;background:var(--color-bg);z-index:40;display:grid;place-items:center">
+<div style="width:min(360px,90%)">
+<svg width="198" height="41" viewBox="0 0 320 66" aria-label="duitback"><text x="2" y="56" font-family="Archivo, Arial, sans-serif" font-size="36" font-weight="800" letter-spacing="-1" fill="#201e1d">du&#305;tback<tspan fill="#ec3013">.</tspan></text><g transform="translate(50,24)"><g fill="#ec3013"><ellipse cx="0" cy="-5.4" rx="3.4" ry="5.4"></ellipse><ellipse cx="0" cy="-5.4" rx="3.4" ry="5.4" transform="rotate(72)"></ellipse><ellipse cx="0" cy="-5.4" rx="3.4" ry="5.4" transform="rotate(144)"></ellipse><ellipse cx="0" cy="-5.4" rx="3.4" ry="5.4" transform="rotate(216)"></ellipse><ellipse cx="0" cy="-5.4" rx="3.4" ry="5.4" transform="rotate(288)"></ellipse></g><circle r="1.8" fill="#201e1d"></circle><line x1="0.7" y1="-1" x2="5.8" y2="-7.1" stroke="#201e1d" stroke-width="0.9"></line><g fill="#201e1d"><circle cx="6.4" cy="-7.8" r="0.8"></circle><circle cx="7.8" cy="-7.8" r="0.8"></circle><circle cx="6.4" cy="-9.1" r="0.8"></circle><circle cx="7.8" cy="-9.1" r="0.8"></circle></g></g></svg>
+<p class="text-muted" style="font-size:13px;margin:10px 0 18px">Enter your passcode · Masukkan kod laluan</p>
+<div class="field"><label>Passcode · Kod</label><input class="input mono" type="password" value="{{ pinEntry }}" onChange="{{ onPinEntry }}" onKeyDown="{{ onPinKey }}"></div>
+<div style="font-size:12px;color:var(--color-accent-700);min-height:16px">{{ pinErr }}</div>
+<button class="btn btn-primary btn-block" style="margin-top:10px" onClick="{{ tryUnlock }}">Unlock · Buka</button>
+<p class="text-muted" style="font-size:11px;margin-top:14px">Cosmetic lock — data in this browser is not encrypted.</p>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{ dlgAdd }}" hint-placeholder-val="{{ false }}">
+<div class="dialog-backdrop" style="z-index:20" onClick="{{ closeDlg }}">
+<div class="dialog" onClick="{{ stopClick }}">
+<div class="dialog-title">New claim · Tuntutan baharu <span class="bm" style="font-size:13px">({{ ya }})</span></div>
+<div class="field"><label>Relief category · Kategori</label>
+<select class="input" value="{{ addCat }}" onChange="{{ onAddCat }}"><sc-for list="{{ catOptions }}" as="c" hint-placeholder-count="6"><option value="{{ c.id }}">{{ c.label }}</option></sc-for></select>
+</div>
+<sc-if value="{{ addIsMedical }}" hint-placeholder-val="{{ false }}">
+<div class="field"><label>Medical sub-type · Jenis (sub-limits enforced)</label>
+<select class="input" value="{{ addSub }}" onChange="{{ onAddSub }}"><sc-for list="{{ medSubOptions }}" as="m" hint-placeholder-count="5"><option value="{{ m.id }}">{{ m.label }}</option></sc-for></select>
+</div>
+</sc-if>
+<sc-if value="{{ addIsChild }}" hint-placeholder-val="{{ false }}">
+<div class="field"><label>Child type · Jenis (sets the fixed amount — one line per child)</label>
+<select class="input" value="{{ addChildSub }}" onChange="{{ onAddChildSub }}"><sc-for list="{{ childSubOptions }}" as="m" hint-placeholder-count="5"><option value="{{ m.id }}">{{ m.label }}</option></sc-for></select>
+</div>
+</sc-if>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+<div class="field"><label>Date · Tarikh</label><input class="input" type="date" value="{{ addDate }}" onChange="{{ onAddDate }}"></div>
+<div class="field"><label>Amount · Jumlah (RM)</label><input class="input mono" type="number" min="0" value="{{ addAmount }}" onChange="{{ onAddAmount }}"></div>
+</div>
+<div class="field"><label>Description · Keterangan</label><input class="input" placeholder="e.g. broadband bill — Unifi" value="{{ addDesc }}" onChange="{{ onAddDesc }}"></div>
+<label class="radio"><input type="checkbox" checked="{{ addMonthly }}" onChange="{{ onAddMonthly }}"><span class="dot" style="border-radius:0"></span>Recurring — create 12 monthly lines (Jan–Dec) · Bulanan</label>
+<div class="field"><label>Receipt · Resit (optional)</label>
+<label style="border:2px dashed var(--color-divider);padding:14px;display:block;cursor:pointer;background:var(--color-bg)">
+<span style="font-family:var(--font-heading);font-weight:800;font-size:13px">{{ addFileLabel }}</span>
+<span style="display:block;font-size:11.5px" class="text-muted">JPG, PNG or PDF — saved to the vault, linked to this claim</span>
+<input type="file" accept="image/*,.pdf" style="display:none" onChange="{{ onPickClaimFile }}">
+</label>
+</div>
+<div style="font-size:11.5px" class="{{ capNoteCls }}">{{ capNote }}</div>
+<div class="dialog-actions"><button class="btn btn-secondary" onClick="{{ closeDlg }}">Cancel</button><button class="btn btn-primary" onClick="{{ saveClaim }}">Save claim · Simpan</button></div>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{ dlgTag }}" hint-placeholder-val="{{ false }}">
+<div class="dialog-backdrop" style="z-index:20" onClick="{{ closeDlg }}">
+<div class="dialog" onClick="{{ stopClick }}">
+<div class="dialog-title">Tag receipt · Tag resit</div>
+<div class="dialog-body" style="margin:0">{{ tagFileName }}</div>
+<div class="field"><label>Relief category · Kategori</label>
+<select class="input" value="{{ tagCat }}" onChange="{{ onTagCat }}"><sc-for list="{{ catOptions }}" as="c" hint-placeholder-count="6"><option value="{{ c.id }}">{{ c.label }}</option></sc-for></select>
+</div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+<div class="field"><label>Merchant · Kedai</label><input class="input" value="{{ tagMerchant }}" onChange="{{ onTagMerchant }}"></div>
+<div class="field"><label>Amount · Jumlah (RM)</label><input class="input mono" type="number" min="0" value="{{ tagAmount }}" onChange="{{ onTagAmount }}"></div>
+</div>
+<label class="radio" style="margin-top:4px"><input type="checkbox" checked="{{ tagMakeClaim }}" onChange="{{ onTagMakeClaim }}"><span class="dot" style="border-radius:0"></span>Also create a claim line for this amount</label>
+<div class="dialog-actions"><button class="btn btn-secondary" onClick="{{ closeDlg }}">Cancel</button><button class="btn btn-primary" onClick="{{ saveTag }}">Save · Simpan</button></div>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{ dlgView }}" hint-placeholder-val="{{ false }}">
+<div class="dialog-backdrop" style="z-index:20" onClick="{{ closeDlg }}">
+<div class="dialog" style="width:min(720px,100%)" onClick="{{ stopClick }}">
+<div class="dialog-title" style="font-size:16px">{{ viewName }}</div>
+<div style="background:var(--color-neutral-200);display:grid;place-items:center;min-height:200px;max-height:60vh;overflow:auto">
+<sc-if value="{{ viewIsPdf }}" hint-placeholder-val="{{ false }}"><embed src="{{ viewPdfSrc }}" type="application/pdf" style="width:660px;max-width:100%;height:55vh"></sc-if>
+<sc-if value="{{ viewSrc }}" hint-placeholder-val="{{ false }}"><img src="{{ viewSrc }}" style="max-width:100%;display:block"></sc-if>
+<sc-if value="{{ viewNoSrc }}" hint-placeholder-val="{{ true }}"><div class="text-muted" style="font-size:13px;padding:30px">{{ viewNote }}</div></sc-if>
+</div>
+<div class="dialog-body" style="margin:0">{{ viewSub }}</div>
+<div class="dialog-actions"><button class="btn btn-secondary" onClick="{{ closeDlg }}">Close</button></div>
+</div>
+</div>
+</sc-if>
+
+
+<template id="__bundler_thumbnail"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" fill="#ec3013"></rect><text x="50" y="62" font-family="Archivo, Arial, sans-serif" font-size="30" font-weight="800" fill="#f3f2f2" text-anchor="middle">DB</text></svg></template></x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1280,&quot;height&quot;:900}}">
+const CATS = [
+  {id:'individual', en:'Individual & dependents', bm:'Individu', cap:9000, auto:true, note:'Automatic RM9,000 for every resident taxpayer — no receipts needed.'},
+  {id:'medical', en:'Medical — self, spouse, child', bm:'Perubatan', cap:10000, note:'Shared RM10,000 ceiling with enforced sub-limits: check-up RM1,000, vaccination RM1,000, dental RM1,000, learning disability RM6,000.'},
+  {id:'parents_med', en:'Parents — medical, care & exam', bm:'Perubatan ibu bapa', cap:8000, note:'Medical treatment, special needs, carer expenses; includes grandparents from YA2025. Exam sub-limit RM1,000.'},
+  {id:'lifestyle', en:'Lifestyle', bm:'Gaya hidup', cap:2500, note:'Books, personal computer/phone/tablet, internet bill, self-improvement courses.'},
+  {id:'sports', en:'Sports — additional', bm:'Sukan tambahan', cap:1000, note:'Sports equipment, facility rental, competition fees, gym; includes parents from YA2025.'},
+  {id:'epf', en:'EPF & approved schemes', bm:'KWSP', cap:4000, note:'Employee statutory + voluntary contributions.'},
+  {id:'socso', en:'SOCSO / EIS', bm:'PERKESO', cap:350, note:'Statutory contributions per EA form.'},
+  {id:'life_ins', en:'Life insurance / takaful', bm:'Insurans nyawa', cap:3000, note:'Premiums for self or spouse.'},
+  {id:'edu_med_ins', en:'Education & medical insurance', bm:'Insurans pendidikan/perubatan', cap:4000, note:'Raised to RM4,000 from YA2025.'},
+  {id:'prs', en:'PRS & deferred annuity', bm:'Skim persaraan swasta', cap:3000, note:'Extended until YA2030.'},
+  {id:'edu_self', en:'Education fees — self', bm:'Yuran pendidikan', cap:7000, note:'Degree & above, or law/accounting/technical; upskilling courses sub-limit RM2,000.'},
+  {id:'sspn', en:'SSPN net savings', bm:'Simpanan SSPN', cap:8000, note:'Net deposit for children\u2019s education savings.'},
+  {id:'childcare', en:'Childcare fees (child ≤ 6)', bm:'Taska / tadika', cap:3000, note:'Registered childcare centre or kindergarten.'},
+  {id:'breastfeed', en:'Breastfeeding equipment', bm:'Peralatan penyusuan', cap:1000, note:'Child ≤ 2 years; claimable once every 2 years.'},
+  {id:'spouse', en:'Spouse / alimony', bm:'Suami / isteri', cap:4000, note:'Spouse with no income, or alimony paid.'},
+  {id:'child', en:'Child relief', bm:'Anak', cap:null, note:'No overall cap — fixed amount per child; add one line per child. RM2,000 under 18; RM8,000 in diploma/degree; disabled RM8,000 (+RM8,000 if studying).'},
+  {id:'disabled_self', en:'Disabled individual', bm:'Individu OKU', cap:7000, note:'Raised to RM7,000 from YA2025.'},
+  {id:'disabled_spouse', en:'Disabled spouse', bm:'Pasangan OKU', cap:6000, note:'Raised to RM6,000 from YA2025.'},
+  {id:'equip', en:'Disabled supporting equipment', bm:'Peralatan OKU', cap:6000, note:'Basic supporting equipment for self or disabled dependents.'},
+  {id:'ev', en:'EV charging / composting', bm:'Pengecas EV / kompos', cap:2500, note:'EV charger install/rental/subscription or food-waste composter; until YA2027.'},
+  {id:'housing', en:'Housing loan interest — first home', bm:'Faedah pinjaman rumah', cap:7000, note:'New YA2025–2027: RM7,000 if home ≤ RM500k; RM5,000 if RM500k–750k. SPA signed 2025–2027.'},
+  {id:'donation', en:'Donations & gifts', bm:'Derma', cap:null, note:'Approved institutions — capped at 10% of aggregate income.'}
+];
+const MEDSUB=[
+  {id:'general',label:'General treatment / serious illness / fertility',cap:null},
+  {id:'checkup',label:'Full check-up / mental health exam — max RM1,000',cap:1000},
+  {id:'vax',label:'Vaccination — max RM1,000',cap:1000},
+  {id:'dental',label:'Dental exam & treatment — max RM1,000',cap:1000},
+  {id:'learning',label:'Learning disability, child ≤18 — max RM6,000',cap:6000}
+];
+const OVERRIDES={ // historical caps where they differed (approximate)
+ 2023:{sports:500,edu_med_ins:3000,disabled_self:6000,disabled_spouse:5000,housing:0},
+ 2024:{edu_med_ins:3000,disabled_self:6000,disabled_spouse:5000,housing:0}
+};
+const CHILDSUB=[
+ {id:'u18',label:'Under 18 — RM2,000 each',amt:2000},
+ {id:'a18pre',label:'18+ in A-Level / matric / foundation — RM2,000',amt:2000},
+ {id:'a18edu',label:'18+ in diploma / degree & above — RM8,000',amt:8000},
+ {id:'dis',label:'Disabled child — RM8,000',amt:8000},
+ {id:'disedu',label:'Disabled child in tertiary study — RM16,000',amt:16000}
+];
+function capFor(id,yaNum){
+ if(id==='child')return Infinity;
+ const o=OVERRIDES[yaNum];
+ if(o&&(id in o))return o[id];
+ const ct=CATS.find(c=>c.id===id);
+ return ct&&ct.cap?ct.cap:0;
+}
+const BRACKETS = [[5000,0],[20000,.01],[35000,.03],[50000,.06],[70000,.11],[100000,.19],[400000,.25],[600000,.26],[2000000,.28],[Infinity,.30]];
+const KEY = 'cukaiku_v3';
+function taxOn(ci){let t=0,p=0;for(const[u,r]of BRACKETS){if(ci<=p)break;t+=(Math.min(ci,u)-p)*r;p=u;}return Math.max(0,Math.round(t));}
+function fmt(n){return 'RM '+Math.round(n).toLocaleString('en-MY');}
+function uid(){return Math.random().toString(36).slice(2,9);}
+function today(){return new Date().toISOString().slice(0,10);}
+function blankInc(){return {salary:0,bonus:0,pcb:0,zakat:0,rent:0,rentExp:0,other:0,cp500:0,biz:0,spInc:0,spRel:9000};}
+function demoData(){
+  const inc=(o)=>Object.assign(blankInc(),o);
+  return {
+    profile:{name:'Amirah', taxNo:'SG 1234567-08', bank:'Maybank ···8807', marital:'single'},
+    ya:'YA2026',
+    income:{
+      YA2026:inc({salary:90000,bonus:0,pcb:5400,rent:19200,rentExp:5800,cp500:1000}),
+      YA2025:inc({salary:86400,bonus:7200,pcb:7704,rent:19200,rentExp:6300}),
+      YA2024:inc({salary:81600,bonus:4800,pcb:7702,rent:18000,rentExp:5400}),
+      YA2023:inc({salary:76800,bonus:3600,pcb:6320,rent:16800,rentExp:4900})
+    },
+    claims:[
+      {id:uid(),ya:'YA2026',cat:'lifestyle',date:'2026-08-02',desc:'Unifi broadband (Jan–Aug)',amount:688,receipt:null},
+      {id:uid(),ya:'YA2026',cat:'prs',date:'2026-06-30',desc:'Principal PRS — H1',amount:1500,receipt:'prs-h1-2026.pdf'},
+      {id:uid(),ya:'YA2026',cat:'epf',date:'2026-08-01',desc:'EPF employee contribution (YTD)',amount:2360,receipt:null},
+      {id:uid(),ya:'YA2026',cat:'socso',date:'2026-08-01',desc:'SOCSO + EIS (YTD)',amount:158,receipt:null},
+      {id:uid(),ya:'YA2026',cat:'medical',sub:'general',date:'2026-05-14',desc:'Klinik Mediviron — treatment',amount:120,receipt:'klinik-may26.pdf'},
+      {id:uid(),ya:'YA2025',cat:'lifestyle',date:'2025-08-12',desc:'Kinokuniya — books',amount:148,receipt:'receipt-0812.jpg'},
+      {id:uid(),ya:'YA2025',cat:'lifestyle',date:'2025-07-03',desc:'Fitness First — gym membership',amount:960,receipt:'invoice-ff-q3.pdf'},
+      {id:uid(),ya:'YA2025',cat:'lifestyle',date:'2025-05-21',desc:'Machines — tablet',amount:672,receipt:'receipt-mch.pdf'},
+      {id:uid(),ya:'YA2025',cat:'medical',sub:'general',date:'2025-07-30',desc:'Klinik Mediviron — treatment',amount:180,receipt:'klinik-mediviron.pdf'},
+      {id:uid(),ya:'YA2025',cat:'medical',sub:'checkup',date:'2025-03-14',desc:'Full medical check-up',amount:660,receipt:null},
+      {id:uid(),ya:'YA2025',cat:'medical',sub:'dental',date:'2025-02-02',desc:'Dental scaling & filling',amount:1500,receipt:null},
+      {id:uid(),ya:'YA2025',cat:'prs',date:'2025-06-15',desc:'Principal PRS — Q1+Q2',amount:1500,receipt:'prs-statement-q2.pdf'},
+      {id:uid(),ya:'YA2025',cat:'prs',date:'2025-01-20',desc:'Principal PRS — top-up',amount:1500,receipt:null},
+      {id:uid(),ya:'YA2025',cat:'epf',date:'2025-12-31',desc:'EPF employee contribution',amount:3540,receipt:null},
+      {id:uid(),ya:'YA2025',cat:'socso',date:'2025-12-31',desc:'SOCSO + EIS',amount:238,receipt:null},
+      {id:uid(),ya:'YA2025',cat:'life_ins',date:'2025-01-12',desc:'Takaful annual premium',amount:2400,receipt:'takaful-2025.pdf'},
+      {id:uid(),ya:'YA2025',cat:'edu_med_ins',date:'2025-01-12',desc:'Medical card rider',amount:420,receipt:null},
+      {id:uid(),ya:'YA2025',cat:'donation',date:'2025-05-08',desc:'Wakaf — approved institution',amount:300,receipt:'wakaf-resit-005.pdf'},
+      {id:uid(),ya:'YA2025',cat:'lifestyle',date:'2025-04-02',desc:'Unifi broadband (Jan–Apr)',amount:516,receipt:null},
+      {id:uid(),ya:'YA2024',cat:'lifestyle',date:'2024-06-11',desc:'Laptop — Machines',amount:2500,receipt:null},
+      {id:uid(),ya:'YA2024',cat:'prs',date:'2024-11-02',desc:'Principal PRS',amount:3000,receipt:null},
+      {id:uid(),ya:'YA2024',cat:'epf',date:'2024-12-31',desc:'EPF employee contribution',amount:4000,receipt:null},
+      {id:uid(),ya:'YA2024',cat:'medical',sub:'general',date:'2024-09-19',desc:'Clinic visits',amount:840,receipt:null},
+      {id:uid(),ya:'YA2023',cat:'lifestyle',date:'2023-08-05',desc:'Phone — Samsung',amount:2500,receipt:null},
+      {id:uid(),ya:'YA2023',cat:'epf',date:'2023-12-31',desc:'EPF employee contribution',amount:4000,receipt:null}
+    ],
+    receipts:[
+      {id:uid(),ya:'YA2026',cat:'prs',name:'prs-h1-2026.pdf',sub:'Principal PRS · 30 Jun 2026 · RM 1,500',thumb:null},
+      {id:uid(),ya:'YA2026',cat:'medical',name:'klinik-may26.pdf',sub:'Clinic visit · 14 May 2026 · RM 120',thumb:null},
+      {id:uid(),ya:'YA2026',cat:null,name:'IMG_5108.jpg',sub:'Uploaded · untagged',thumb:null},
+      {id:uid(),ya:'YA2025',cat:'lifestyle',name:'receipt-0812.jpg',sub:'Kinokuniya · 12 Aug 2025 · RM 148',thumb:null},
+      {id:uid(),ya:'YA2025',cat:'medical',name:'klinik-mediviron.pdf',sub:'Clinic visit · 30 Jul 2025 · RM 180',thumb:null},
+      {id:uid(),ya:'YA2025',cat:'prs',name:'prs-statement-q2.pdf',sub:'Principal PRS · 15 Jun 2025 · RM 1,500',thumb:null},
+      {id:uid(),ya:'YA2025',cat:'lifestyle',name:'invoice-ff-q3.pdf',sub:'Fitness First · 03 Jul 2025 · RM 960',thumb:null},
+      {id:uid(),ya:'YA2025',cat:'donation',name:'wakaf-resit-005.pdf',sub:'Donation · 08 May 2025 · RM 300',thumb:null},
+      {id:uid(),ya:'YA2025',cat:'life_ins',name:'takaful-2025.pdf',sub:'Annual premium · 12 Jan 2025 · RM 2,400',thumb:null},
+      {id:uid(),ya:'YA2025',cat:'lifestyle',name:'receipt-mch.pdf',sub:'Machines · 21 May 2025 · RM 672',thumb:null}
+    ],
+    docs:[
+      {id:uid(),ya:'YA2026',name:'PRS-statement-H1.pdf',kind:'Premium statement',date:'2026-07-02'},
+      {id:uid(),ya:'YA2025',name:'EA-form-2025.pdf',kind:'EA form',date:'2026-02-16'},
+      {id:uid(),ya:'YA2025',name:'BE-acknowledgement.pdf',kind:'e-Filing acknowledgement',date:'2026-03-15'},
+      {id:uid(),ya:'YA2025',name:'tax-computation-2025.pdf',kind:'Tax computation',date:'2026-03-15'},
+      {id:uid(),ya:'YA2025',name:'refund-advice.pdf',kind:'Refund advice',date:'2026-05-02'},
+      {id:uid(),ya:'YA2024',name:'EA-form-2024.pdf',kind:'EA form',date:'2025-02-18'},
+      {id:uid(),ya:'YA2024',name:'BE-ack-2024.pdf',kind:'e-Filing acknowledgement',date:'2025-03-28'}
+    ],
+    status:{
+      YA2026:{stage:'tracking'},
+      YA2025:{stage:'refund',drafted:'2026-03-15',submitted:'2026-03-15',processing:'2026-03-22',refunded:'2026-05-02',ack:'EF-2026-9174820'},
+      YA2024:{stage:'refund',drafted:'2025-03-28',submitted:'2025-03-28',processing:'2025-04-02',refunded:'2025-04-14',ack:'EF-2025-8841302'},
+      YA2023:{stage:'refund',drafted:'2024-04-12',submitted:'2024-04-12',processing:'2024-04-20',refunded:'2024-05-16',ack:'EF-2024-5510877'}
+    }
+  };
+}
+function emptyData(){
+  const y=new Date().getFullYear();
+  const income={}; income['YA'+y]=blankInc(); income['YA'+(y-1)]=blankInc();
+  const status={}; status['YA'+y]={stage:'tracking'}; status['YA'+(y-1)]={stage:'tracking'};
+  return {profile:{name:'there',taxNo:'',bank:'',marital:'single'},ya:'YA'+y,income,claims:[],receipts:[],docs:[],status};
+}
+class Component extends DCLogic {
+  state = {screen:'dash', data:null, rFilter:'all', rSearch:'', selCat:'lifestyle', dlg:null, dataMsg:'', locked:false, pinEntry:'', pinErr:'', pinNew:'',
+    add:{cat:'lifestyle',sub:'general',date:today(),amount:'',desc:'',fileName:null,fileThumb:null,fileFull:null,monthly:false},
+    tag:{rid:null,cat:'lifestyle',merchant:'',amount:'',makeClaim:true},
+    viewer:{id:null,name:'',sub:'',src:null,note:''}};
+  componentDidMount(){
+    let d=null;
+    try{d=JSON.parse(localStorage.getItem(KEY));}catch(e){}
+    const dd=d && d.claims ? d : demoData();
+    this.setState({data:dd, locked:!!(dd.profile&&dd.profile.pin)});
+  }
+  save(d,msg){this.setState({data:d,dataMsg:msg||''}); try{localStorage.setItem(KEY,JSON.stringify(d));}catch(e){this.setState({dataMsg:'Browser storage is full — delete some receipts or export + clear.'});}}
+  mut(fn){const d=JSON.parse(JSON.stringify(this.state.data)); fn(d); this.save(d);}
+  idb(){if(!this._db)this._db=new Promise(res=>{try{const r=indexedDB.open('cukaiku',1); r.onupgradeneeded=()=>r.result.createObjectStore('files'); r.onsuccess=()=>res(r.result); r.onerror=()=>res(null);}catch(e){res(null);}}); return this._db;}
+  async putFile(id,val){const db=await this.idb(); if(db&&val)try{db.transaction('files','readwrite').objectStore('files').put(val,id);}catch(e){}}
+  async getFile(id){const db=await this.idb(); if(!db)return null; return new Promise(res=>{try{const q=db.transaction('files').objectStore('files').get(id); q.onsuccess=()=>res(q.result||null); q.onerror=()=>res(null);}catch(e){res(null);}});}
+  async delFile(id){const db=await this.idb(); if(db)try{db.transaction('files','readwrite').objectStore('files').delete(id);}catch(e){}}
+  readFiles(files, cb){
+    Array.from(files).forEach(f=>{
+      if(f.type.startsWith('image/')){
+        const rd=new FileReader();
+        rd.onload=()=>{const img=new Image(); img.onload=()=>{
+          const mk=(max,q)=>{const s=Math.min(1,max/img.width); const cv=document.createElement('canvas');
+            cv.width=Math.round(img.width*s); cv.height=Math.round(img.height*s);
+            cv.getContext('2d').drawImage(img,0,0,cv.width,cv.height); return cv.toDataURL('image/jpeg',q);};
+          cb(f.name, mk(320,0.55), mk(1600,0.8));
+        }; img.src=rd.result;};
+        rd.readAsDataURL(f);
+      } else {const rd=new FileReader(); rd.onload=()=>cb(f.name,null,rd.result); rd.readAsDataURL(f);}
+    });
+  }
+  addReceipt(name, thumb, full, cat, sub){
+    const id=uid();
+    if(full)this.putFile(id,full);
+    this.mut(d=>{d.receipts.unshift({id,ya:d.ya,cat:cat||null,name,sub:sub||(cat?'':'Uploaded · untagged'),thumb,hasFull:!!full});});
+    return id;
+  }
+  medSum(claims){ // sub-limit-aware medical total
+    const bySub={}; claims.forEach(c=>{const s=c.sub||'general'; bySub[s]=(bySub[s]||0)+(+c.amount||0);});
+    let t=0; MEDSUB.forEach(m=>{const v=bySub[m.id]||0; t+=m.cap?Math.min(v,m.cap):v;});
+    return t;
+  }
+  calc(d, ya){
+    const yaNum=+ya.slice(2);
+    const claims=d.claims.filter(c=>c.ya===ya);
+    const inc=Object.assign(blankInc(),d.income[ya]||{});
+    const netRent=Math.max(0,(+inc.rent||0)-(+inc.rentExp||0));
+    const totalIncome=(+inc.salary||0)+(+inc.bonus||0)+netRent+(+inc.other||0)+(+inc.biz||0);
+    const sums={}; claims.forEach(c=>{if(c.cat!=='medical')sums[c.cat]=(sums[c.cat]||0)+(+c.amount||0);});
+    const medClaims=claims.filter(c=>c.cat==='medical');
+    if(medClaims.length)sums.medical=this.medSum(medClaims);
+    const donRaw=sums.donation||0; const donCap=Math.round(totalIncome*0.10); const donAllowed=Math.min(donRaw,donCap);
+    let reliefsNonDon=9000;
+    CATS.forEach(ct=>{ if(ct.id==='donation'||ct.id==='individual') return; const cl=sums[ct.id]||0; const cp=capFor(ct.id,yaNum); reliefsNonDon+=cp===Infinity?cl:Math.min(cl,cp); });
+    const chargeable=Math.max(0,totalIncome-donAllowed-reliefsNonDon);
+    const taxGross=taxOn(chargeable);
+    const rebate=chargeable<=35000?Math.min(400,taxGross):0;
+    const zakatRebate=Math.min(+inc.zakat||0,Math.max(0,taxGross-rebate));
+    const taxNet=Math.max(0,taxGross-rebate-zakatRebate);
+    const paid=(+inc.pcb||0)+(+inc.cp500||0);
+    const balance=taxNet-paid;
+    return {claims,inc,sums,netRent,totalIncome,donRaw,donCap,donAllowed,reliefsNonDon,totalAllowed:reliefsNonDon+donAllowed,chargeable,taxGross,rebate,zakatRebate,taxNet,paid,balance,formType:(+inc.biz||0)>0?'B':'BE'};
+  }
+  renderVals(){
+    const st=this.state, d=st.data;
+    const vals={};
+    const go=s=>()=>this.setState({screen:s});
+    ['dash','claims','receipts','status','income','pack','settings'].forEach(s=>{
+      const K=s[0].toUpperCase()+s.slice(1);
+      vals['is'+K]=st.screen===s && !!d;
+      vals['go'+K]=go(s);
+      vals['cur'+K]=st.screen===s?'page':undefined;
+    });
+    if(!d){vals.profileName='…'; vals.yaTabs=[]; vals.deadlineLine=''; vals.totalClaimedL=''; vals.posterSub=''; vals.usedPct='0%'; vals.usedLine=''; vals.hasClaims=false; vals.noClaims=false; vals.yearRows=[]; vals.topRows=[]; vals.ya=''; vals.addYear=()=>{}; vals.openAdd=()=>{}; return vals;}
+    const ya=d.ya, c=this.calc(d,ya);
+    const yaNum=+ya.slice(2);
+    vals.ya=ya;
+    vals.formType=c.formType;
+    vals.profileName=d.profile.name||'there';
+    vals.profileTaxNo=d.profile.taxNo||'—';
+    vals.profileBank=d.profile.bank||'';
+    vals.dataMsg=st.dataMsg;
+    const years=Object.keys(d.income).sort((a,b)=>b.localeCompare(a));
+    vals.yaTabs=years.map(y=>({label:y,cls:y===ya?'on':'',pick:()=>this.mut(x=>{x.ya=y;})}));
+    vals.addYear=()=>this.mut(x=>{const next='YA'+(Math.max(...Object.keys(x.income).map(k=>+k.slice(2)))+1); if(!x.income[next]){x.income[next]=blankInc(); x.status[next]={stage:'tracking'}; x.ya=next;}});
+    // filing window per YA & form
+    const now=new Date(), open=new Date((yaNum+1)+'-03-01'), dl=new Date((yaNum+1)+(c.formType==='B'?'-06-30':'-04-30'));
+    const dlLabel=(c.formType==='B'?'30 Jun ':'30 Apr ')+(yaNum+1);
+    const dTo=x=>Math.ceil((x-now)/86400000);
+    const stg=(d.status[ya]||{}).stage||'tracking';
+    let dline;
+    if(stg==='refund')dline=ya+' return filed and refund credited — history on the Status page.';
+    else if(stg!=='tracking')dline=ya+' return submitted — track it on the Status page.';
+    else if(now<open)dline='e-Filing opens 1 Mar '+(yaNum+1)+' — in '+dTo(open)+' days · '+dTo(open)+' hari lagi';
+    else if(now<=dl)dline='e-Filing open · '+c.formType+' deadline '+dlLabel+' — '+dTo(dl)+' days left · '+dTo(dl)+' hari lagi';
+    else dline=ya+' filing window closed '+dlLabel+' · Tempoh e-Filing telah tamat';
+    vals.deadlineLine=dline;
+    vals.filingWindow=now>dl?('window closed '+dlLabel):('1 Mar – '+dlLabel);
+    vals.formLine=c.formType==='B'?('Form B (business income) — deadline '+dlLabel+', e-Filing grace to mid-Jul.'):('Form BE (no business income) — deadline '+dlLabel+', e-Filing grace to mid-May.');
+    // poster
+    vals.totalClaimedL=fmt(c.totalAllowed);
+    const nClaims=c.claims.length, nRec=d.receipts.filter(r=>r.ya===ya).length;
+    vals.posterSub=nClaims+' claim lines · '+nRec+' receipts in the vault. Est. '+(c.balance<0?('refund '+fmt(-c.balance)):('balance payable '+fmt(c.balance)))+'.';
+    const capTotal=CATS.reduce((a,ct)=>a+(ct.cap||0),0)+c.donCap;
+    const usedPct=capTotal?Math.min(100,Math.round(c.totalAllowed/capTotal*100)):0;
+    vals.usedPct=usedPct+'%';
+    vals.usedLine=usedPct+'% of '+fmt(capTotal)+' total caps used (incl. RM9,000 automatic individual relief)';
+    vals.hasClaims=nClaims>0; vals.noClaims=nClaims===0;
+    // relief rows
+    const mkRow=ct=>{
+      const cap=ct.id==='donation'?c.donCap:capFor(ct.id,yaNum);
+      const rawClaimed=ct.auto?9000:c.claims.filter(x=>x.cat===ct.id).reduce((a,x)=>a+(+x.amount||0),0);
+      const noCap=cap===Infinity, na=cap===0&&!ct.auto;
+      const over=!noCap&&!na&&rawClaimed>cap;
+      const pct=noCap?(rawClaimed?100:0):(cap?Math.min(100,Math.round(rawClaimed/cap*100)):0);
+      return {id:ct.id,en:ct.en,bm:ct.bm,
+        capL:na?'n/a':(noCap?'per child':(ct.id==='donation'?('~'+fmt(cap)):fmt(cap))),
+        claimedL:rawClaimed?fmt(rawClaimed):'—',
+        leftL:na?('not in '+ya):(noCap?'—':(over?('over by '+fmt(rawClaimed-cap)):fmt(Math.max(0,cap-rawClaimed)))),
+        pct:pct+'%',barCls:over?'over':'',
+        tagCls:over?'tag-outline':(pct>=100&&!noCap&&!na?'tag-accent':'tag-neutral'),
+        tagLabel:na?'Not available':(over?'Over cap · flagged':(noCap?(rawClaimed?'No cap':'—'):(pct>=100?'Maxed':fmt(Math.max(0,cap-rawClaimed))+' left'))),
+        count:ct.auto?'auto':String(c.claims.filter(x=>x.cat===ct.id).length),
+        selCls:st.selCat===ct.id?'sel':'',pick:()=>this.setState({selCat:ct.id}),
+        claimed:rawClaimed,allowed:noCap?rawClaimed:Math.min(ct.id==='medical'?(c.sums.medical||0):rawClaimed,cap),pctN:pct};
+    };
+    const rows=CATS.map(mkRow);
+    vals.reliefRows=rows;
+    vals.topRows=rows.filter(r=>r.claimed>0&&r.id!=='individual').sort((a,b)=>b.pctN-a.pctN).slice(0,4);
+    vals.totalAllowedL=fmt(c.totalAllowed);
+    // selected cat
+    const selCt=CATS.find(x=>x.id===st.selCat)||CATS[0];
+    vals.selCatEn=selCt.en+' · '+selCt.bm;
+    const selCap=selCt.id==='donation'?c.donCap:capFor(selCt.id,yaNum);
+    vals.selCatNote=(selCt.id==='donation'?('Cap for you now: '+fmt(c.donCap)+' (10% of aggregate income). '):(selCap===Infinity?'':(selCap===0?('Not available for '+ya+'. '):('Cap for '+ya+': '+fmt(selCap)+'. '))))+(selCt.note||'');
+    const selClaims=c.claims.filter(x=>x.cat===st.selCat).sort((a,b)=>b.date<a.date?-1:1);
+    vals.selClaims=selClaims.map(x=>({desc:x.desc||'(no description)',amountL:fmt(x.amount),date:x.date,
+      subLabel:x.sub&&x.sub!=='general'?(' · '+x.sub):'',receiptName:x.receipt||false,
+      del:()=>this.mut(dd=>{dd.claims=dd.claims.filter(q=>q.id!==x.id);})}));
+    vals.selHasClaims=selClaims.length>0; vals.selNoClaims=selClaims.length===0;
+    // year rows
+    vals.yearRows=years.map(y=>{
+      const cy=this.calc(d,y); const s2=(d.status[y]||{}).stage||'tracking';
+      const map={tracking:['Tracking claims · Dalam rekod','tag-outline'],submitted:['Submitted · Dihantar','tag-neutral'],processing:['Processing · Diproses','tag-neutral'],refund:['Refund credited · Selesai','tag-accent']};
+      return {ya:y,form:cy.formType,status:map[s2][0],tagCls:map[s2][1],reliefsL:fmt(cy.totalAllowed),taxL:cy.totalIncome?fmt(cy.taxNet):'—',
+        balL:cy.totalIncome?(cy.balance<0?fmt(-cy.balance)+' refund':fmt(cy.balance)+' due'):'—',
+        open:()=>{this.mut(x=>{x.ya=y;}); this.setState({screen:'claims'});}};
+    });
+    // receipts
+    vals.rSearch=st.rSearch; vals.onSearch=e=>this.setState({rSearch:e.target.value});
+    const recAll=d.receipts.filter(r=>r.ya===ya);
+    const counts={}; recAll.forEach(r=>{const k=r.cat||'untagged'; counts[k]=(counts[k]||0)+1;});
+    const filters=[{id:'all',label:'All · Semua ('+recAll.length+')'}];
+    CATS.forEach(ct=>{if(counts[ct.id])filters.push({id:ct.id,label:ct.en.split(' — ')[0].split(' &')[0]+' ('+counts[ct.id]+')'});});
+    if(counts.untagged)filters.push({id:'untagged',label:'Unlinked · Belum dipaut ('+counts.untagged+')'});
+    vals.rFilters=filters.map(f=>({label:f.label,cls:st.rFilter===f.id?'tag-accent':(f.id==='untagged'?'tag-outline':'tag-neutral'),pick:()=>this.setState({rFilter:f.id})}));
+    let recs=recAll;
+    if(st.rFilter==='untagged')recs=recs.filter(r=>!r.cat);
+    else if(st.rFilter!=='all')recs=recs.filter(r=>r.cat===st.rFilter);
+    if(st.rSearch)recs=recs.filter(r=>(r.name+' '+(r.sub||'')).toLowerCase().includes(st.rSearch.toLowerCase()));
+    const openViewer=r=>{
+      this.setState({dlg:'view',viewer:{id:r.id,name:r.name,sub:r.sub||'',src:r.thumb||null,note:r.hasFull?'Loading file…':'No stored file — demo receipts are placeholders; your own uploads open here.'}});
+      if(r.hasFull)this.getFile(r.id).then(full=>{if(this.state.viewer.id===r.id&&full)this.setState({viewer:{...this.state.viewer,src:full}});});
+    };
+    vals.receiptCards=recs.map(r=>{
+      const ct=CATS.find(x=>x.id===r.cat);
+      return {name:r.name,sub:r.sub||'',thumb:r.thumb||false,noThumb:!r.thumb,
+        untagged:!r.cat,tagged:!!r.cat,
+        borderC:r.cat?'var(--color-divider)':'var(--color-accent)',bgC:r.cat?'var(--color-bg)':'var(--color-accent-100)',
+        tagCls:r.cat?'tag-accent':'tag-outline',tagLabel:ct?ct.en.split(' — ')[0].split(' &')[0]:'Needs tags · Perlu tag',
+        view:()=>openViewer(r),
+        tag:()=>this.setState({dlg:'tag',tag:{rid:r.id,cat:'lifestyle',merchant:'',amount:'',makeClaim:true}}),
+        del:()=>{this.delFile(r.id); this.mut(dd=>{dd.receipts=dd.receipts.filter(q=>q.id!==r.id);});}};
+    });
+    vals.hasReceipts=recs.length>0; vals.noReceipts=recs.length===0;
+    vals.vaultFooter=recAll.length+' receipts for '+ya+' · stored in this browser · kept 7 years for audit · disimpan 7 tahun';
+    vals.onDrop=e=>{e.preventDefault(); this.readFiles(e.dataTransfer.files,(n,t,f)=>this.addReceipt(n,t,f));};
+    vals.onDragOver=e=>e.preventDefault();
+    vals.onPickVault=e=>{this.readFiles(e.target.files,(n,t,f)=>this.addReceipt(n,t,f)); e.target.value='';};
+    // status
+    const sd=d.status[ya]||{stage:'tracking'};
+    const stageIdx={tracking:0,submitted:1,processing:2,refund:3}[sd.stage];
+    const stepDefs=[
+      {title:'Draft prepared',bm:'Draf',date:sd.drafted||'now · live totals',desc:c.formType+' form pre-filled from your claims and income records.'},
+      {title:'Submitted',bm:'Dihantar',date:sd.submitted||vals.filingWindow,desc:sd.ack?('Via e-Filing. Acknowledgement no. '+sd.ack):'Submit through MyTax e-Filing, then record it here.'},
+      {title:'Processing',bm:'Diproses',date:sd.processing||'—',desc:'Assessment under review by LHDN. Queries would appear in MyTax.'},
+      {title:'Refund credited',bm:'Dikreditkan',date:sd.refunded||'—',desc:c.balance<0?(fmt(-c.balance)+' to '+(d.profile.bank||'your bank')+'.'):'Applies when PCB paid exceeds final tax.'}
+    ];
+    vals.steps=stepDefs.map((s,i)=>({...s,
+      barC:i<=stageIdx?(i===stageIdx?'var(--color-accent-700)':'var(--color-accent)'):'var(--color-neutral-300)',
+      bgC:i===stageIdx?'var(--color-accent-100)':'transparent',
+      padL:i===stageIdx?'14px':'0px',
+      titleC:i===stageIdx?'var(--color-accent-700)':'var(--color-text)'}));
+    vals.canSubmit=sd.stage==='tracking';
+    vals.canRefund=sd.stage==='submitted'||sd.stage==='processing';
+    vals.canReopen=sd.stage!=='tracking';
+    vals.showTehTarik=sd.stage==='refund'&&c.balance<0;
+    vals.doSubmit=()=>this.mut(x=>{const t=today(); x.status[ya]={stage:'processing',drafted:t,submitted:t,processing:t,ack:'EF-'+(yaNum+1)+'-'+Math.floor(1000000+Math.random()*9000000)};});
+    vals.doRefund=()=>this.mut(x=>{x.status[ya]={...x.status[ya],stage:'refund',refunded:today()};});
+    vals.doReopen=()=>this.mut(x=>{x.status[ya]={stage:'tracking'};});
+    vals.balTileLabel=c.balance<0?'Est. refund · Bayaran balik':'Est. balance payable · Baki';
+    vals.balTileL=c.totalIncome?fmt(Math.abs(c.balance)):'—';
+    vals.balTileSub='paid '+fmt(c.paid)+' (PCB + CP500) vs net tax '+fmt(c.taxNet);
+    vals.reliefTileSub=nClaims+' claim lines across '+Object.keys(c.sums).length+' categories';
+    const docsYa=d.docs.filter(x=>x.ya===ya);
+    vals.docCount=String(docsYa.length);
+    vals.docTileSub=docsYa.length?docsYa.map(x=>x.kind).slice(0,4).join(', '):'none yet — upload below';
+    vals.docRows=docsYa.map(x=>({name:x.name,kind:x.kind,date:x.date,del:()=>this.mut(dd=>{dd.docs=dd.docs.filter(q=>q.id!==x.id);})}));
+    vals.noDocs=docsYa.length===0;
+    vals.onPickDoc=e=>{Array.from(e.target.files).forEach(f=>this.mut(dd=>{dd.docs.unshift({id:uid(),ya:dd.ya,name:f.name,kind:'Uploaded document',date:today()});})); e.target.value='';};
+    // income
+    const bindOn=k=>e=>this.mut(x=>{x.income[ya]=Object.assign(blankInc(),x.income[ya]); x.income[ya][k]=+e.target.value||0;});
+    [['incSalary','salary'],['incBonus','bonus'],['incPcb','pcb'],['incZakat','zakat'],['incRent','rent'],['incRentExp','rentExp'],['incOther','other'],['incCp500','cp500'],['incBiz','biz'],['incSpInc','spInc'],['incSpRel','spRel']].forEach(([v,k])=>{
+      vals[v]=c.inc[k]||0; vals['on'+v.slice(3)]=bindOn(k);
+    });
+    vals.onSalary=bindOn('salary'); vals.onBonus=bindOn('bonus'); vals.onPcb=bindOn('pcb'); vals.onZakat=bindOn('zakat');
+    vals.onRent=bindOn('rent'); vals.onRentExp=bindOn('rentExp'); vals.onOther=bindOn('other'); vals.onCp500=bindOn('cp500');
+    vals.onBiz=bindOn('biz'); vals.onSpInc=bindOn('spInc'); vals.onSpRel=bindOn('spRel');
+    vals.netRentL=fmt(c.netRent);
+    vals.totalIncomeL=fmt(c.totalIncome);
+    vals.donationL=fmt(c.donAllowed);
+    vals.reliefsNonDonL=fmt(c.reliefsNonDon);
+    vals.chargeableL=fmt(c.chargeable);
+    vals.taxGrossL=fmt(c.taxGross);
+    vals.rebateL=fmt(c.rebate);
+    vals.zakatRebateL=fmt(c.zakatRebate);
+    vals.pcbL=fmt(c.inc.pcb||0);
+    vals.cp500L=fmt(c.inc.cp500||0);
+    vals.taxNetL=fmt(c.taxNet);
+    vals.paidL=fmt(c.paid);
+    vals.balBg=c.balance<0?'var(--color-neutral-900)':'var(--color-accent)';
+    vals.balLabel=c.balance<0?'Estimated refund · Anggaran bayaran balik':'Estimated balance payable · Anggaran baki';
+    vals.balL=fmt(Math.abs(c.balance));
+    vals.balSub=c.balance<0?'credited after LHDN processes your return':('payable by '+dlLabel+' · perlu dibayar');
+    // joint vs separate
+    vals.isMarried=d.profile.marital==='married';
+    vals.isSingle=d.profile.marital!=='married';
+    vals.setSingle=()=>this.mut(x=>{x.profile.marital='single';});
+    vals.setMarried=()=>this.mut(x=>{x.profile.marital='married';});
+    if(vals.isMarried){
+      const spInc=+c.inc.spInc||0, spRel=+c.inc.spRel||0;
+      const spCh=Math.max(0,spInc-spRel); const spTaxG=taxOn(spCh); const spTax=Math.max(0,spTaxG-(spCh<=35000?Math.min(400,spTaxG):0));
+      const myTax=c.taxNet;
+      const sep=myTax+spTax;
+      const jCh=Math.max(0,c.totalIncome+spInc-c.donAllowed-c.reliefsNonDon-4000);
+      const jG=taxOn(jCh); const jReb=jCh<=35000?Math.min(800,jG):0;
+      const joint=Math.max(0,jG-jReb-c.zakatRebate);
+      vals.sepTaxL=fmt(sep); vals.jointTaxL=fmt(joint);
+      vals.jointVerdict= sep===joint?'No difference on these numbers.':(sep<joint?('Separate assessment saves '+fmt(joint-sep)+' · Taksiran berasingan lebih jimat'):('Joint assessment saves '+fmt(sep-joint)+' · Taksiran bersama lebih jimat'));
+    } else {vals.sepTaxL='';vals.jointTaxL='';vals.jointVerdict='';}
+    // filing pack
+    vals.doPrint=()=>window.print();
+    vals.packSub='Everything to type into MyTax e-Filing for '+ya+' — generated '+today()+' for '+(d.profile.name||'you')+' ('+(d.profile.taxNo||'no tax file no.')+'). Figures are estimates.';
+    vals.packEmpL=fmt((+c.inc.salary||0)+(+c.inc.bonus||0));
+    vals.packBizL=fmt(c.inc.biz||0);
+    vals.packOtherL=fmt(c.inc.other||0);
+    vals.packRows=rows.filter(r=>r.claimed>0).map(r=>{
+      const evid=c.claims.filter(x=>x.cat===r.id&&x.receipt).map(x=>x.receipt);
+      return {en:r.en,bm:r.bm,allowedL:fmt(r.allowed),claimedL:fmt(r.claimed),evidence:evid.length?evid.join(', '):(r.id==='individual'?'automatic — none needed':'no receipts linked')};
+    });
+    vals.packRecCount=String(recAll.length);
+    vals.packReceipts=recAll.map(r=>{const ct=CATS.find(x=>x.id===r.cat); return {name:r.name,thumb:r.thumb||false,tagLabel:ct?ct.en.split(' — ')[0].split(' &')[0]:'untagged'};});
+    // settings / data
+    const pb=k=>e=>this.mut(x=>{x.profile[k]=e.target.value;});
+    vals.onName=pb('name'); vals.onTaxNo=pb('taxNo'); vals.onBank=pb('bank');
+    vals.hasPin=!!d.profile.pin; vals.noPin=!d.profile.pin;
+    vals.pinNew=st.pinNew||''; vals.onPinNew=e=>this.setState({pinNew:e.target.value});
+    vals.setPin=()=>{const p=(st.pinNew||'').trim(); if(p.length>=4){this.mut(x=>{x.profile.pin=p;}); this.setState({pinNew:'',dataMsg:'Passcode set — the app will ask for it on next open.'});} else this.setState({dataMsg:'Passcode must be at least 4 characters.'});};
+    vals.removePin=()=>{this.mut(x=>{delete x.profile.pin;}); this.setState({dataMsg:'Passcode removed.'});};
+    vals.lockNow=()=>this.setState({locked:true,pinEntry:'',pinErr:'',screen:'dash'});
+    vals.exportJson=()=>{const blob=new Blob([JSON.stringify(d,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='duitback-data.json';a.click();};
+    vals.onImport=e=>{const f=e.target.files[0]; if(!f)return; const rd=new FileReader();
+      rd.onload=()=>{try{const j=JSON.parse(rd.result); if(j&&Array.isArray(j.claims)&&j.income){if(!j.income[j.ya])j.ya=Object.keys(j.income)[0]; this.save(j,'Imported '+f.name+' — '+j.claims.length+' claims, '+(j.receipts||[]).length+' receipts.');}else this.setState({dataMsg:'That file is not a DuitBack export.'});}catch(err){this.setState({dataMsg:'Could not read that file as JSON.'});}};
+      rd.readAsText(f); e.target.value='';};
+    vals.loadDemo=()=>this.save(demoData(),'Demo data loaded.');
+    vals.clearAll=()=>this.save(emptyData(),'Cleared. You are starting fresh.');
+    // dialogs
+    vals.dlgAdd=st.dlg==='add'; vals.dlgTag=st.dlg==='tag'; vals.dlgView=st.dlg==='view';
+    vals.closeDlg=()=>this.setState({dlg:null});
+    vals.stopClick=e=>e.stopPropagation();
+    const freshAdd=cat=>({cat:cat||'lifestyle',sub:'general',childSub:'u18',date:today(),amount:'',desc:'',fileName:null,fileThumb:null,fileFull:null,monthly:false});
+    vals.openAdd=()=>this.setState({dlg:'add',add:freshAdd()});
+    vals.openAddSel=()=>this.setState({dlg:'add',add:freshAdd(st.selCat==='individual'?'lifestyle':st.selCat)});
+    vals.catOptions=CATS.filter(x=>!x.auto).map(x=>({id:x.id,label:x.en+(x.id==='child'?' — fixed per child':(x.id==='donation'?' — 10% of income':(' — max '+fmt(capFor(x.id,yaNum)))))}));
+    vals.medSubOptions=MEDSUB.map(m=>({id:m.id,label:m.label}));
+    const a=st.add;
+    vals.addCat=a.cat; vals.onAddCat=e=>this.setState({add:{...a,cat:e.target.value}});
+    vals.addIsMedical=a.cat==='medical';
+    vals.addSub=a.sub; vals.onAddSub=e=>this.setState({add:{...a,sub:e.target.value}});
+    vals.addIsChild=a.cat==='child';
+    vals.childSubOptions=CHILDSUB.map(m=>({id:m.id,label:m.label}));
+    vals.addChildSub=a.childSub||'u18';
+    vals.onAddChildSub=e=>{const m=CHILDSUB.find(x=>x.id===e.target.value); this.setState({add:{...a,childSub:e.target.value,amount:m?String(m.amt):a.amount}});};
+    vals.addDate=a.date; vals.onAddDate=e=>this.setState({add:{...a,date:e.target.value}});
+    vals.addAmount=a.amount; vals.onAddAmount=e=>this.setState({add:{...a,amount:e.target.value}});
+    vals.addDesc=a.desc; vals.onAddDesc=e=>this.setState({add:{...a,desc:e.target.value}});
+    vals.addMonthly=a.monthly; vals.onAddMonthly=e=>this.setState({add:{...a,monthly:e.target.checked}});
+    vals.addFileLabel=a.fileName?('Attached: '+a.fileName):'Attach receipt · Lampirkan resit';
+    vals.onPickClaimFile=e=>{const f=e.target.files[0]; if(!f)return; this.readFiles([f],(n,t,fl)=>this.setState({add:{...this.state.add,fileName:n,fileThumb:t,fileFull:fl}})); e.target.value='';};
+    const addCt=CATS.find(x=>x.id===a.cat);
+    if(addCt){
+      const already=a.cat==='medical'?(c.sums.medical||0):(c.sums[a.cat]||0);
+      const cap=a.cat==='donation'?c.donCap:capFor(a.cat,yaNum);
+      const each=+a.amount||0; const total=a.monthly?each*12:each;
+      const after=already+total;
+      const sub=MEDSUB.find(m=>m.id===a.sub);
+      let note, cls='text-muted';
+      if(cap===Infinity)note=addCt.note||'';
+      else if(cap===0){note='This relief is not available for '+ya+' — it can be saved for your records but counts RM 0.'; cls='';}
+      else if(after>cap){note=(a.monthly?('12 × '+fmt(each)+' = '+fmt(total)+'. '):'')+'This takes '+addCt.en+' to '+fmt(after)+' — '+fmt(after-cap)+' over the '+fmt(cap)+' cap. Saved and flagged; only '+fmt(cap)+' counts.'; cls='';}
+      else note=(a.monthly?('12 × '+fmt(each)+' = '+fmt(total)+'. '):'')+fmt(cap-after)+' left under the '+fmt(cap)+' cap after this. '+(a.cat==='medical'&&sub&&sub.cap?('Sub-limit for this type: '+fmt(sub.cap)+'. '):'')+(addCt.note||'');
+      vals.capNote=note; vals.capNoteCls=cls;
+    } else {vals.capNote='';vals.capNoteCls='text-muted';}
+    vals.saveClaim=()=>{
+      const amt=+a.amount||0; if(!amt){this.setState({dlg:null});return;}
+      let recId=null;
+      if(a.fileName){recId=uid(); if(a.fileFull)this.putFile(recId,a.fileFull);}
+      this.mut(dd=>{
+        const yr=+dd.ya.slice(2);
+        if(a.monthly){
+          for(let m=1;m<=12;m++){const mm=String(m).padStart(2,'0');
+            dd.claims.unshift({id:uid(),ya:dd.ya,cat:a.cat,sub:a.cat==='medical'?a.sub:undefined,date:yr+'-'+mm+'-15',desc:(a.desc||'(recurring)')+' — '+['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][m-1],amount:amt,receipt:m===1?(a.fileName||null):null});}
+        } else {
+          dd.claims.unshift({id:uid(),ya:dd.ya,cat:a.cat,sub:a.cat==='medical'?a.sub:undefined,date:a.date||today(),desc:a.desc||'(no description)',amount:amt,receipt:a.fileName||null});
+        }
+        if(a.fileName)dd.receipts.unshift({id:recId,ya:dd.ya,cat:a.cat,name:a.fileName,sub:(a.desc||'')+' · '+fmt(a.monthly?amt*12:amt),thumb:a.fileThumb,hasFull:!!a.fileFull});
+      });
+      this.setState({dlg:null,selCat:a.cat});
+    };
+    // tag dialog
+    const t=st.tag; const tagRec=d.receipts.find(r=>r.id===t.rid);
+    vals.tagFileName=tagRec?tagRec.name:'';
+    vals.tagCat=t.cat; vals.onTagCat=e=>this.setState({tag:{...t,cat:e.target.value}});
+    vals.tagMerchant=t.merchant; vals.onTagMerchant=e=>this.setState({tag:{...t,merchant:e.target.value}});
+    vals.tagAmount=t.amount; vals.onTagAmount=e=>this.setState({tag:{...t,amount:e.target.value}});
+    vals.tagMakeClaim=t.makeClaim; vals.onTagMakeClaim=e=>this.setState({tag:{...t,makeClaim:e.target.checked}});
+    vals.saveTag=()=>{
+      this.mut(dd=>{
+        const r=dd.receipts.find(x=>x.id===t.rid); if(!r)return;
+        r.cat=t.cat; const amt=+t.amount||0;
+        r.sub=(t.merchant||'Receipt')+(amt?(' · '+fmt(amt)):'');
+        if(t.makeClaim&&amt)dd.claims.unshift({id:uid(),ya:dd.ya,cat:t.cat,sub:t.cat==='medical'?'general':undefined,date:today(),desc:t.merchant||r.name,amount:amt,receipt:r.name});
+      });
+      this.setState({dlg:null});
+    };
+    // viewer
+    vals.viewName=st.viewer.name; vals.viewSub=st.viewer.sub;
+    const vsrc=st.viewer.src||'';
+    const vIsPdf=typeof vsrc==='string'&&vsrc.startsWith('data:application/pdf');
+    vals.viewIsPdf=vIsPdf; vals.viewPdfSrc=vIsPdf?vsrc:'';
+    vals.viewSrc=(!vIsPdf&&vsrc)?vsrc:false; vals.viewNoSrc=!vsrc; vals.viewNote=st.viewer.note;
+    // passcode lock
+    vals.isLocked=st.locked===true;
+    vals.pinEntry=st.pinEntry||''; vals.onPinEntry=e=>this.setState({pinEntry:e.target.value,pinErr:''});
+    const tryUnlock=()=>{if((st.pinEntry||'')===(d.profile.pin||''))this.setState({locked:false,pinEntry:'',pinErr:''});else this.setState({pinErr:'Wrong passcode · Kod salah'});};
+    vals.tryUnlock=tryUnlock;
+    vals.onPinKey=e=>{if(e.key==='Enter')tryUnlock();};
+    vals.pinErr=st.pinErr||'';
+    return vals;
+  }
+}
+</script>
+</body>
+</html>

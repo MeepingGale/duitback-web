@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas">
+<link rel="stylesheet" href="_ds/modernist-02a5774f-c73c-4c43-8a74-d0d33a570e64/styles.css">
+<script src="_ds/modernist-02a5774f-c73c-4c43-8a74-d0d33a570e64/_ds_bundle.js"></script>
+<style>
+body{margin:0;background:var(--color-bg)}
+a{color:var(--color-accent)}a:hover{color:var(--color-accent-600)}
+.dv-turn{padding:40px 44px 32px;border-bottom:1px solid rgba(0,0,0,.08);scroll-margin-top:16px}
+.dv-thd{display:flex;align-items:baseline;gap:10px;margin:0 0 8px}
+.dv-tid{font:600 10px ui-monospace,Menlo,monospace;padding:3px 7px;background:#1a1a1a;color:#fff;text-decoration:none}
+.dv-tname{font:600 13px/1.2 var(--font-heading)}
+.dv-intro{max-width:760px;font-size:12.5px;color:var(--color-neutral-700);margin:0 0 24px}
+.dv-opts{display:flex;flex-wrap:wrap;gap:36px;align-items:flex-start}
+.dv-opt{flex:none;display:flex;flex-direction:column;gap:9px;scroll-margin-top:16px;max-width:100%}
+.dv-oid{font:600 10.5px ui-monospace,Menlo,monospace;padding:3px 7px;background:rgba(0,0,0,.08);color:#1a1a1a;text-decoration:none}
+.dv-olabel{display:flex;align-items:baseline;gap:8px;font:400 11px/1.3 var(--font-body);color:rgba(0,0,0,.55)}
+.dv-card{max-width:100%;background:var(--color-bg);border:1px solid rgba(0,0,0,.14);box-shadow:0 1px 3px rgba(0,0,0,.06);overflow:hidden}
+.dv-opt:target .dv-oid{background:var(--color-accent);color:#fff}
+.dv-next{margin:26px 0 0;font:12px/1.5 var(--font-body);color:rgba(0,0,0,.5)}
+.bar{height:8px;background:var(--color-neutral-200)}
+.bar i{display:block;height:100%;background:var(--color-accent)}
+.bar i.over{background:var(--color-accent-800)}
+.bm{color:var(--color-neutral-600);font-weight:400}
+.kick{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--color-accent);font-family:var(--font-heading);font-weight:800}
+.mono{font-variant-numeric:tabular-nums}
+</style>
+</helmet>
+
+<section class="dv-turn" id="t1">
+<div class="dv-thd"><a class="dv-tid" href="#t1">1</a><span class="dv-tname">CukaiKu — personal tax return tracker (Malaysia, YA2023–YA2025)</span></div>
+<p class="dv-intro">Assumptions: personal tool for one taxpayer (resident, BE form) with employment + rental income and PRS; bilingual EN·BM labels; <strong>all figures and relief caps are placeholders</strong> — confirm against the LHDN schedule before use. Three dashboard directions (<a class="dv-oid" href="#1a">1a</a>–<a class="dv-oid" href="#1c">1c</a>), then the four core screens (<a class="dv-oid" href="#1d">1d</a>–<a class="dv-oid" href="#1g">1g</a>) in the ledger direction.</p>
+<div class="dv-opts">
+
+<div class="dv-opt" id="1a">
+<div class="dv-olabel"><a class="dv-oid" href="#1a">1a</a>Dashboard — Ledger: years as rows, claims utilisation below</div>
+<div class="dv-card" style="width:1120px">
+<div class="nav"><span class="nav-brand">CukaiKu<span style="color:var(--color-accent)">.</span></span><a href="#1a" aria-current="page">Dashboard</a><a href="#1d">Claims · Tuntutan</a><a href="#1e">Receipts · Resit</a><a href="#1f">Status</a><a href="#1g">Income · Pendapatan</a><button class="btn btn-primary">+ New claim</button></div>
+<div style="padding:32px 36px 36px">
+<div class="kick">Year of assessment · Tahun taksiran</div>
+<h1 style="margin:6px 0 4px">Your returns</h1>
+<p class="text-muted" style="font-size:13px;margin-bottom:20px">Penyata cukai anda — 2023 to 2025</p>
+<table class="table">
+<thead><tr><th>YA</th><th>Status</th><th style="text-align:right">Chargeable income</th><th style="text-align:right">Tax payable</th><th style="text-align:right">Refund · Bayaran balik</th><th></th></tr></thead>
+<tbody>
+<tr><td style="font-family:var(--font-heading);font-weight:800">YA2025</td><td><span class="tag tag-outline">Tracking claims · Dalam rekod</span></td><td style="text-align:right" class="mono text-muted">est. RM 78,400</td><td style="text-align:right" class="mono text-muted">est. RM 6,120</td><td style="text-align:right" class="mono text-muted">—</td><td style="text-align:right"><a href="#1d" style="text-decoration:none;font-weight:800;font-family:var(--font-heading)">Open →</a></td></tr>
+<tr><td style="font-family:var(--font-heading);font-weight:800">YA2024</td><td><span class="tag tag-accent">Refund credited · Selesai</span></td><td style="text-align:right" class="mono">RM 74,150</td><td style="text-align:right" class="mono">RM 5,860</td><td style="text-align:right" class="mono" style="font-weight:800">RM 1,842</td><td style="text-align:right"><a href="#1f" style="text-decoration:none;font-weight:800;font-family:var(--font-heading)">Open →</a></td></tr>
+<tr><td style="font-family:var(--font-heading);font-weight:800">YA2023</td><td><span class="tag tag-neutral">Filed · Difailkan</span></td><td style="text-align:right" class="mono">RM 69,900</td><td style="text-align:right" class="mono">RM 5,214</td><td style="text-align:right" class="mono">RM 310</td><td style="text-align:right"><a href="#1f" style="text-decoration:none;font-weight:800;font-family:var(--font-heading)">Open →</a></td></tr>
+</tbody>
+</table>
+<hr class="hr" style="margin:28px 0 20px">
+<div style="display:flex;align-items:baseline;justify-content:space-between;gap:16px">
+<div class="kick">YA2025 claims so far · Tuntutan setakat ini</div>
+<span style="font-size:12px" class="text-muted">18 receipts saved · caps are placeholders</span>
+</div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:14px 40px;margin-top:14px">
+<div><div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:5px"><span>Lifestyle <span class="bm">· Gaya hidup</span></span><span class="mono">RM 1,780 / 2,500</span></div><div class="bar"><i style="width:71%"></i></div></div>
+<div><div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:5px"><span>Medical <span class="bm">· Perubatan</span></span><span class="mono">RM 2,340 / 10,000</span></div><div class="bar"><i style="width:23%"></i></div></div>
+<div><div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:5px"><span>PRS &amp; deferred annuity <span class="bm">· Skim persaraan swasta</span></span><span class="mono">RM 3,000 / 3,000</span></div><div class="bar"><i style="width:100%"></i></div></div>
+<div><div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:5px"><span>EPF &amp; approved schemes <span class="bm">· KWSP</span></span><span class="mono">RM 3,540 / 4,000</span></div><div class="bar"><i style="width:88%"></i></div></div>
+</div>
+<div style="display:flex;gap:10px;margin-top:24px"><button class="btn btn-primary">Add a claim · Tambah tuntutan</button><button class="btn btn-secondary">Upload receipts</button><button class="btn btn-ghost">View all reliefs →</button></div>
+</div>
+</div>
+</div>
+
+<div class="dv-opt" id="1b">
+<div class="dv-olabel"><a class="dv-oid" href="#1b">1b</a>Dashboard — Poster: red claims counter, YA cards in a grid</div>
+<div class="dv-card" style="width:1120px">
+<div class="nav"><span class="nav-brand">CukaiKu<span style="color:var(--color-accent)">.</span></span><a href="#1b" aria-current="page">Dashboard</a><a href="#1d">Claims</a><a href="#1e">Receipts</a><a href="#1f">Status</a><a href="#1g">Income</a><button class="btn btn-primary">+ New claim</button></div>
+<div style="background:var(--color-accent);color:var(--color-bg);padding:36px">
+<div style="font-size:10px;letter-spacing:.1em;text-transform:uppercase;font-family:var(--font-heading);font-weight:800">YA2025 · claimed so far · tuntutan setakat ini</div>
+<div style="display:flex;align-items:baseline;gap:24px;flex-wrap:wrap">
+<div style="font-family:var(--font-heading);font-weight:800;font-size:84px;letter-spacing:-.02em;line-height:1.05">RM 12,480</div>
+<div style="font-size:13px;max-width:320px;opacity:.9">across 6 relief categories, 18 receipts saved. e-Filing opens 1 Mar 2026 — 187 days away.</div>
+</div>
+<div style="display:flex;gap:2px;margin-top:18px;height:10px">
+<div style="flex:36;background:var(--color-bg)"></div><div style="flex:64;background:color-mix(in srgb, var(--color-bg) 25%, transparent)"></div>
+</div>
+<div style="font-size:11px;margin-top:6px;opacity:.85">36% of RM 34,500 total placeholder cap used</div>
+</div>
+<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:2px;background:var(--color-divider);border-block:2px solid var(--color-divider)">
+<div class="card" style="border-radius:0"><span class="card-kicker">YA2025 · In progress</span><span class="card-title" style="font-size:28px">RM 12,480</span><p class="card-body">Claims recorded · Tuntutan direkod. Est. refund RM 1,120.</p><div class="card-meta">18 receipts · updated today</div></div>
+<div class="card" style="border-radius:0"><span class="card-kicker" style="color:var(--color-neutral-700)">YA2024 · Refund credited</span><span class="card-title" style="font-size:28px">RM 1,842</span><p class="card-body">Refund received 14 Apr 2025 · Bayaran balik diterima.</p><div class="card-meta">Filed 28 Mar 2025 · BE form</div></div>
+<div class="card" style="border-radius:0"><span class="card-kicker" style="color:var(--color-neutral-700)">YA2023 · Filed</span><span class="card-title" style="font-size:28px">RM 310</span><p class="card-body">Refund received 2 May 2024 · no audit queries.</p><div class="card-meta">Filed 12 Apr 2024 · BE form</div></div>
+</div>
+<div style="display:flex;gap:10px;padding:20px 36px;align-items:center">
+<button class="btn btn-primary">Add a claim</button><button class="btn btn-secondary">Upload receipts · Muat naik resit</button>
+<span style="margin-left:auto;font-size:12px" class="text-muted">Figures are placeholders · Angka contoh sahaja</span>
+</div>
+</div>
+</div>
+
+<div class="dv-opt" id="1c">
+<div class="dv-olabel"><a class="dv-oid" href="#1c">1c</a>Dashboard — Rail: side navigation, filing calendar + compact claims</div>
+<div class="dv-card" style="width:1120px;display:grid;grid-template-columns:220px 1fr">
+<div style="border-right:2px solid var(--color-divider);padding:24px 0;display:flex;flex-direction:column;min-height:560px">
+<div class="nav-brand" style="padding:0 20px 20px;border-bottom:2px solid var(--color-divider)">CukaiKu<span style="color:var(--color-accent)">.</span></div>
+<div style="display:flex;flex-direction:column;padding-top:8px">
+<a href="#1c" style="padding:10px 20px;text-decoration:none;color:var(--color-bg);background:var(--color-accent);font-family:var(--font-heading);font-weight:800;font-size:14px">Dashboard</a>
+<a href="#1d" style="padding:10px 20px;text-decoration:none;color:inherit;font-size:14px">Claims <span class="bm">· Tuntutan</span></a>
+<a href="#1e" style="padding:10px 20px;text-decoration:none;color:inherit;font-size:14px">Receipts <span class="bm">· Resit</span></a>
+<a href="#1f" style="padding:10px 20px;text-decoration:none;color:inherit;font-size:14px">Filing status</a>
+<a href="#1g" style="padding:10px 20px;text-decoration:none;color:inherit;font-size:14px">Income <span class="bm">· Pendapatan</span></a>
+</div>
+<div style="margin-top:auto;padding:16px 20px;border-top:1px solid var(--color-divider);font-size:11px" class="text-muted">Amirah · tax file SG 1234567-08</div>
+</div>
+<div style="padding:28px 32px">
+<div style="display:flex;align-items:baseline;justify-content:space-between"><h2 style="margin:0">YA2025</h2><div style="display:inline-flex;border:1px solid var(--color-divider)"><span style="padding:6px 12px;font-size:12px;background:var(--color-accent);color:var(--color-bg);font-weight:800;font-family:var(--font-heading)">YA2025</span><span style="padding:6px 12px;font-size:12px;border-left:1px solid var(--color-divider)">YA2024</span><span style="padding:6px 12px;font-size:12px;border-left:1px solid var(--color-divider)">YA2023</span></div></div>
+<hr class="hr" style="margin:16px 0 20px">
+<div class="kick" style="margin-bottom:12px">Filing calendar · Kalendar pemfailan</div>
+<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:2px;background:var(--color-divider);border:2px solid var(--color-divider)">
+<div style="background:var(--color-surface);padding:14px"><div style="font-size:11px" class="text-muted">Now · Sekarang</div><div style="font-family:var(--font-heading);font-weight:800;font-size:15px;margin-top:2px">Record claims</div><div style="font-size:11px;margin-top:4px" class="text-muted">until 31 Dec 2025</div></div>
+<div style="background:var(--color-bg);padding:14px"><div style="font-size:11px" class="text-muted">1 Mar 2026</div><div style="font-family:var(--font-heading);font-weight:800;font-size:15px;margin-top:2px">e-Filing opens</div><div style="font-size:11px;margin-top:4px" class="text-muted">BE form, e-Filing</div></div>
+<div style="background:var(--color-bg);padding:14px"><div style="font-size:11px" class="text-muted">30 Apr 2026</div><div style="font-family:var(--font-heading);font-weight:800;font-size:15px;margin-top:2px">Deadline</div><div style="font-size:11px;margin-top:4px" class="text-muted">15 May via e-Filing</div></div>
+<div style="background:var(--color-bg);padding:14px"><div style="font-size:11px" class="text-muted">May–Jun 2026</div><div style="font-family:var(--font-heading);font-weight:800;font-size:15px;margin-top:2px">Refund</div><div style="font-size:11px;margin-top:4px" class="text-muted">est. RM 1,120</div></div>
+</div>
+<div style="display:flex;align-items:baseline;justify-content:space-between;margin-top:26px"><div class="kick">Top claims · Tuntutan utama</div><a href="#1d" style="font-size:12px">All reliefs →</a></div>
+<table class="table" style="margin-top:8px">
+<tbody>
+<tr><td>PRS &amp; deferred annuity</td><td style="width:280px"><div class="bar"><i style="width:100%"></i></div></td><td style="text-align:right" class="mono">RM 3,000 / 3,000</td><td style="text-align:right"><span class="tag tag-accent">Maxed</span></td></tr>
+<tr><td>EPF &amp; approved schemes</td><td><div class="bar"><i style="width:88%"></i></div></td><td style="text-align:right" class="mono">RM 3,540 / 4,000</td><td style="text-align:right"><span class="tag tag-neutral">RM 460 left</span></td></tr>
+<tr><td>Lifestyle · Gaya hidup</td><td><div class="bar"><i style="width:71%"></i></div></td><td style="text-align:right" class="mono">RM 1,780 / 2,500</td><td style="text-align:right"><span class="tag tag-neutral">RM 720 left</span></td></tr>
+<tr><td>Medical · Perubatan</td><td><div class="bar"><i style="width:23%"></i></div></td><td style="text-align:right" class="mono">RM 2,340 / 10,000</td><td style="text-align:right"><span class="tag tag-neutral">RM 7,660 left</span></td></tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+
+<div class="dv-opt" id="1d">
+<div class="dv-olabel"><a class="dv-oid" href="#1d">1d</a>Claims detail — reliefs with caps, expanded line with receipts + add-claim panel</div>
+<div class="dv-card" style="width:1240px">
+<div class="nav"><span class="nav-brand">CukaiKu<span style="color:var(--color-accent)">.</span></span><a href="#1a">Dashboard</a><a href="#1d" aria-current="page">Claims · Tuntutan</a><a href="#1e">Receipts</a><a href="#1f">Status</a><a href="#1g">Income</a><button class="btn btn-primary">+ New claim</button></div>
+<div style="display:grid;grid-template-columns:1fr 340px">
+<div style="padding:28px 32px;border-right:2px solid var(--color-divider)">
+<div class="kick">YA2025 · Reliefs &amp; deductions · Pelepasan</div>
+<h2 style="margin:6px 0 2px">Claims against caps</h2>
+<p class="text-muted" style="font-size:12.5px;margin-bottom:16px">Caps shown are placeholders — check the LHDN relief schedule for YA2025.</p>
+<table class="table">
+<thead><tr><th style="width:34%">Relief · Pelepasan</th><th style="text-align:right">Cap · Had</th><th style="text-align:right">Claimed</th><th style="text-align:right">Left · Baki</th><th style="width:18%">Utilisation</th><th style="text-align:right">Receipts</th></tr></thead>
+<tbody>
+<tr><td>Individual &amp; dependents <span class="bm">· Individu</span></td><td style="text-align:right" class="mono">RM 9,000</td><td style="text-align:right" class="mono">RM 9,000</td><td style="text-align:right" class="mono">0</td><td><div class="bar"><i style="width:100%"></i></div></td><td style="text-align:right" class="text-muted">auto</td></tr>
+<tr style="background:var(--color-accent-100)"><td style="font-weight:800;font-family:var(--font-heading)">Lifestyle <span class="bm" style="font-weight:400">· Gaya hidup</span></td><td style="text-align:right" class="mono">RM 2,500</td><td style="text-align:right" class="mono">RM 1,780</td><td style="text-align:right" class="mono">RM 720</td><td><div class="bar" style="background:var(--color-accent-200)"><i style="width:71%"></i></div></td><td style="text-align:right" class="mono">5</td></tr>
+<tr><td>Medical expenses <span class="bm">· Perubatan</span></td><td style="text-align:right" class="mono">RM 10,000</td><td style="text-align:right" class="mono">RM 2,340</td><td style="text-align:right" class="mono">RM 7,660</td><td><div class="bar"><i style="width:23%"></i></div></td><td style="text-align:right" class="mono">3</td></tr>
+<tr><td>EPF &amp; approved schemes <span class="bm">· KWSP</span></td><td style="text-align:right" class="mono">RM 4,000</td><td style="text-align:right" class="mono">RM 3,540</td><td style="text-align:right" class="mono">RM 460</td><td><div class="bar"><i style="width:88%"></i></div></td><td style="text-align:right" class="mono">2</td></tr>
+<tr><td>Life insurance &amp; takaful <span class="bm">· Insurans</span></td><td style="text-align:right" class="mono">RM 3,000</td><td style="text-align:right" class="mono">RM 2,400</td><td style="text-align:right" class="mono">RM 600</td><td><div class="bar"><i style="width:80%"></i></div></td><td style="text-align:right" class="mono">1</td></tr>
+<tr><td>PRS &amp; deferred annuity <span class="bm">· Skim persaraan swasta</span></td><td style="text-align:right" class="mono">RM 3,000</td><td style="text-align:right" class="mono">RM 3,000</td><td style="text-align:right" class="mono">0</td><td><div class="bar"><i style="width:100%"></i></div></td><td style="text-align:right" class="mono">4</td></tr>
+<tr><td>Education fees (self) <span class="bm">· Yuran pendidikan</span></td><td style="text-align:right" class="mono">RM 7,000</td><td style="text-align:right" class="mono">—</td><td style="text-align:right" class="mono">RM 7,000</td><td><div class="bar"><i style="width:0%"></i></div></td><td style="text-align:right" class="mono">0</td></tr>
+<tr><td>Education &amp; medical insurance</td><td style="text-align:right" class="mono">RM 3,000</td><td style="text-align:right" class="mono">RM 420</td><td style="text-align:right" class="mono">RM 2,580</td><td><div class="bar"><i style="width:14%"></i></div></td><td style="text-align:right" class="mono">1</td></tr>
+<tr><td>Donations <span class="bm">· Derma</span> <span class="text-muted" style="font-size:11px">(max 10% of aggregate income)</span></td><td style="text-align:right" class="mono">~RM 8,900</td><td style="text-align:right" class="mono">RM 500</td><td style="text-align:right" class="mono">RM 8,400</td><td><div class="bar"><i style="width:6%"></i></div></td><td style="text-align:right" class="mono">2</td></tr>
+</tbody>
+</table>
+<div style="border:2px solid var(--color-divider);border-top:0;padding:16px 18px;background:var(--color-surface)">
+<div style="display:flex;align-items:baseline;justify-content:space-between"><div style="font-family:var(--font-heading);font-weight:800;font-size:14px">Lifestyle — 5 claims · 5 tuntutan</div><button class="btn btn-ghost" style="font-size:13px">Collapse ↑</button></div>
+<table class="table" style="font-size:13px;margin-top:6px">
+<tbody>
+<tr><td class="mono text-muted">12 Aug 2025</td><td>Kinokuniya — books · buku</td><td style="text-align:right" class="mono">RM 148</td><td><span class="tag tag-neutral">receipt-0812.jpg</span></td></tr>
+<tr><td class="mono text-muted">03 Jul 2025</td><td>Fitness First — gym membership</td><td style="text-align:right" class="mono">RM 960</td><td><span class="tag tag-neutral">invoice-ff-q3.pdf</span></td></tr>
+<tr><td class="mono text-muted">21 May 2025</td><td>Machines — tablet · tablet</td><td style="text-align:right" class="mono">RM 672</td><td><span class="tag tag-neutral">receipt-mch.pdf</span></td></tr>
+</tbody>
+</table>
+</div>
+<div style="display:flex;justify-content:space-between;align-items:baseline;margin-top:16px"><span style="font-size:13px" class="text-muted">Total claimed · Jumlah dituntut</span><span style="font-family:var(--font-heading);font-weight:800;font-size:22px" class="mono">RM 22,980</span></div>
+</div>
+<div style="padding:28px 24px;background:var(--color-surface)">
+<div class="kick">Add claim · Tambah tuntutan</div>
+<h4 style="margin:8px 0 16px">New claim line</h4>
+<div class="field" style="margin-bottom:12px"><label>Relief category · Kategori</label><input class="input" value="Lifestyle · Gaya hidup"></div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
+<div class="field"><label>Date · Tarikh</label><input class="input" value="26 Aug 2025"></div>
+<div class="field"><label>Amount · Jumlah (RM)</label><input class="input" value="248.00"></div>
+</div>
+<div class="field" style="margin-bottom:12px"><label>Description · Keterangan</label><input class="input" placeholder="e.g. broadband bill — Unifi"></div>
+<div style="border:2px dashed var(--color-divider);padding:22px 16px;text-align:left;background:var(--color-bg);margin-bottom:6px">
+<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--color-accent)"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+<div style="font-family:var(--font-heading);font-weight:800;font-size:13px;margin-top:6px">Drop receipt here · Letak resit di sini</div>
+<div style="font-size:11.5px" class="text-muted">JPG, PNG or PDF · saved to the vault, linked to this claim</div>
+</div>
+<div style="font-size:11px;margin-bottom:14px" class="text-muted">RM 720 left under the Lifestyle cap — amounts above it are flagged, not blocked.</div>
+<button class="btn btn-primary btn-block">Save claim · Simpan</button>
+<button class="btn btn-secondary btn-block">Save &amp; add another</button>
+</div>
+</div>
+</div>
+</div>
+
+<div class="dv-opt" id="1e">
+<div class="dv-olabel"><a class="dv-oid" href="#1e">1e</a>Receipt vault — year/category filters, drop zone, tagged thumbnails</div>
+<div class="dv-card" style="width:1240px">
+<div class="nav"><span class="nav-brand">CukaiKu<span style="color:var(--color-accent)">.</span></span><a href="#1a">Dashboard</a><a href="#1d">Claims</a><a href="#1e" aria-current="page">Receipts · Resit</a><a href="#1f">Status</a><a href="#1g">Income</a><button class="btn btn-primary">Upload</button></div>
+<div style="padding:28px 32px">
+<div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap">
+<h2 style="margin:0;margin-right:auto">Receipt vault <span class="bm" style="font-size:15px">· Peti resit</span></h2>
+<input class="input" style="width:240px" placeholder="Search merchant, file… · Cari">
+<div style="display:inline-flex;border:1px solid var(--color-divider)"><span style="padding:6px 12px;font-size:12px;background:var(--color-accent);color:var(--color-bg);font-family:var(--font-heading);font-weight:800">YA2025</span><span style="padding:6px 12px;font-size:12px;border-left:1px solid var(--color-divider)">YA2024</span><span style="padding:6px 12px;font-size:12px;border-left:1px solid var(--color-divider)">YA2023</span></div>
+</div>
+<div style="display:flex;gap:8px;margin:16px 0;flex-wrap:wrap">
+<span class="tag tag-accent">All · Semua (18)</span><span class="tag tag-neutral">Lifestyle (5)</span><span class="tag tag-neutral">Medical (3)</span><span class="tag tag-neutral">PRS (4)</span><span class="tag tag-neutral">Insurance (2)</span><span class="tag tag-neutral">Donations (2)</span><span class="tag tag-neutral">Rental expenses (2)</span><span class="tag tag-outline">Unlinked · Belum dipaut (1)</span>
+</div>
+<div style="border:2px dashed var(--color-divider);padding:16px;display:flex;align-items:center;gap:12px;margin-bottom:22px">
+<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--color-accent)"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+<div><span style="font-family:var(--font-heading);font-weight:800;font-size:13px">Drag receipts anywhere on this page</span> <span class="text-muted" style="font-size:12px">— they land here untagged; add year + category, or link to a claim line. · Seret resit ke sini.</span></div>
+<button class="btn btn-secondary" style="margin-left:auto">Browse files</button>
+</div>
+<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:18px">
+<div style="border:1px solid var(--color-divider)"><div style="height:120px;background:var(--color-neutral-200);display:grid;place-items:center" class="text-muted"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"></path><path d="M14 2v4a2 2 0 0 0 2 2h4"></path><path d="M16 13H8"></path><path d="M16 17H8"></path></svg></div><div style="padding:10px 12px"><div style="font-family:var(--font-heading);font-weight:800;font-size:13px">receipt-0812.jpg</div><div style="font-size:11.5px" class="text-muted">Kinokuniya · 12 Aug 2025 · RM 148</div><div style="display:flex;gap:6px;margin-top:8px"><span class="tag tag-accent">Lifestyle</span><span class="tag tag-neutral">YA2025</span></div></div></div>
+<div style="border:1px solid var(--color-divider)"><div style="height:120px;background:var(--color-neutral-200);display:grid;place-items:center" class="text-muted"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"></path><path d="M14 2v4a2 2 0 0 0 2 2h4"></path><path d="M16 13H8"></path><path d="M16 17H8"></path></svg></div><div style="padding:10px 12px"><div style="font-family:var(--font-heading);font-weight:800;font-size:13px">klinik-mediviron.pdf</div><div style="font-size:11.5px" class="text-muted">Clinic visit · 30 Jul 2025 · RM 180</div><div style="display:flex;gap:6px;margin-top:8px"><span class="tag tag-accent">Medical</span><span class="tag tag-neutral">YA2025</span></div></div></div>
+<div style="border:1px solid var(--color-divider)"><div style="height:120px;background:var(--color-neutral-200);display:grid;place-items:center" class="text-muted"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"></path><path d="M14 2v4a2 2 0 0 0 2 2h4"></path><path d="M16 13H8"></path><path d="M16 17H8"></path></svg></div><div style="padding:10px 12px"><div style="font-family:var(--font-heading);font-weight:800;font-size:13px">prs-statement-q2.pdf</div><div style="font-size:11.5px" class="text-muted">Principal PRS · 15 Jun 2025 · RM 750</div><div style="display:flex;gap:6px;margin-top:8px"><span class="tag tag-accent">PRS</span><span class="tag tag-neutral">YA2025</span></div></div></div>
+<div style="border:1px solid var(--color-accent);background:var(--color-accent-100)"><div style="height:120px;background:var(--color-neutral-200);display:grid;place-items:center" class="text-muted"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"></path><path d="M14 2v4a2 2 0 0 0 2 2h4"></path><path d="M16 13H8"></path><path d="M16 17H8"></path></svg></div><div style="padding:10px 12px"><div style="font-family:var(--font-heading);font-weight:800;font-size:13px">IMG_4021.jpg</div><div style="font-size:11.5px" class="text-muted">Uploaded 2 min ago · untagged</div><div style="display:flex;gap:6px;margin-top:8px"><span class="tag tag-outline">Needs tags · Perlu tag</span><button class="btn btn-ghost" style="font-size:12px;margin-left:auto">Tag →</button></div></div></div>
+<div style="border:1px solid var(--color-divider)"><div style="height:120px;background:var(--color-neutral-200);display:grid;place-items:center" class="text-muted"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"></path><path d="M14 2v4a2 2 0 0 0 2 2h4"></path><path d="M16 13H8"></path><path d="M16 17H8"></path></svg></div><div style="padding:10px 12px"><div style="font-family:var(--font-heading);font-weight:800;font-size:13px">invoice-ff-q3.pdf</div><div style="font-size:11.5px" class="text-muted">Fitness First · 03 Jul 2025 · RM 960</div><div style="display:flex;gap:6px;margin-top:8px"><span class="tag tag-accent">Lifestyle</span><span class="tag tag-neutral">YA2025</span></div></div></div>
+<div style="border:1px solid var(--color-divider)"><div style="height:120px;background:var(--color-neutral-200);display:grid;place-items:center" class="text-muted"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"></path><path d="M14 2v4a2 2 0 0 0 2 2h4"></path><path d="M16 13H8"></path><path d="M16 17H8"></path></svg></div><div style="padding:10px 12px"><div style="font-family:var(--font-heading);font-weight:800;font-size:13px">wakaf-resit-005.pdf</div><div style="font-size:11.5px" class="text-muted">Donation · 08 May 2025 · RM 300</div><div style="display:flex;gap:6px;margin-top:8px"><span class="tag tag-accent">Donations</span><span class="tag tag-neutral">YA2025</span></div></div></div>
+<div style="border:1px solid var(--color-divider)"><div style="height:120px;background:var(--color-neutral-200);display:grid;place-items:center" class="text-muted"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"></path><path d="M14 2v4a2 2 0 0 0 2 2h4"></path><path d="M16 13H8"></path><path d="M16 17H8"></path></svg></div><div style="padding:10px 12px"><div style="font-family:var(--font-heading);font-weight:800;font-size:13px">plumber-sept.jpg</div><div style="font-size:11.5px" class="text-muted">Rental repair · 02 Aug 2025 · RM 420</div><div style="display:flex;gap:6px;margin-top:8px"><span class="tag tag-accent">Rental</span><span class="tag tag-neutral">YA2025</span></div></div></div>
+<div style="border:1px solid var(--color-divider)"><div style="height:120px;background:var(--color-neutral-200);display:grid;place-items:center" class="text-muted"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"></path><path d="M14 2v4a2 2 0 0 0 2 2h4"></path><path d="M16 13H8"></path><path d="M16 17H8"></path></svg></div><div style="padding:10px 12px"><div style="font-family:var(--font-heading);font-weight:800;font-size:13px">takaful-2025.pdf</div><div style="font-size:11.5px" class="text-muted">Annual premium · 12 Jan 2025 · RM 2,400</div><div style="display:flex;gap:6px;margin-top:8px"><span class="tag tag-accent">Insurance</span><span class="tag tag-neutral">YA2025</span></div></div></div>
+</div>
+<div style="display:flex;justify-content:space-between;margin-top:18px;font-size:12px" class="text-muted"><span>18 receipts · 42.6 MB · kept 7 years for audit · disimpan 7 tahun</span><button class="btn btn-ghost" style="font-size:12px">Export all as ZIP →</button></div>
+</div>
+</div>
+</div>
+
+<div class="dv-opt" id="1f">
+<div class="dv-olabel"><a class="dv-oid" href="#1f">1f</a>Refund &amp; filing status — stepper per YA + history</div>
+<div class="dv-card" style="width:1240px">
+<div class="nav"><span class="nav-brand">CukaiKu<span style="color:var(--color-accent)">.</span></span><a href="#1a">Dashboard</a><a href="#1d">Claims</a><a href="#1e">Receipts</a><a href="#1f" aria-current="page">Status</a><a href="#1g">Income</a><button class="btn btn-primary">+ New claim</button></div>
+<div style="padding:28px 32px">
+<div style="display:flex;align-items:baseline;justify-content:space-between"><h2 style="margin:0">Filing status <span class="bm" style="font-size:15px">· Status pemfailan</span></h2><div style="display:inline-flex;border:1px solid var(--color-divider)"><span style="padding:6px 12px;font-size:12px;border-right:1px solid var(--color-divider)">YA2025</span><span style="padding:6px 12px;font-size:12px;background:var(--color-accent);color:var(--color-bg);font-family:var(--font-heading);font-weight:800">YA2024</span><span style="padding:6px 12px;font-size:12px;border-left:1px solid var(--color-divider)">YA2023</span></div></div>
+<hr class="hr" style="margin:18px 0 26px">
+<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:0">
+<div style="border-top:6px solid var(--color-accent);padding:14px 16px 0 0"><div style="font-size:11px" class="text-muted mono">28 Mar 2025</div><div style="font-family:var(--font-heading);font-weight:800;margin-top:2px">Draft prepared <span class="bm" style="font-weight:400">· Draf</span></div><div style="font-size:12px;margin-top:4px" class="text-muted">BE form pre-filled from claims + income records.</div></div>
+<div style="border-top:6px solid var(--color-accent);padding:14px 16px 0 0"><div style="font-size:11px" class="text-muted mono">28 Mar 2025</div><div style="font-family:var(--font-heading);font-weight:800;margin-top:2px">Submitted <span class="bm" style="font-weight:400">· Dihantar</span></div><div style="font-size:12px;margin-top:4px" class="text-muted">Via e-Filing. Acknowledgement no. EF-2025-8841302.</div></div>
+<div style="border-top:6px solid var(--color-accent);padding:14px 16px 0 0"><div style="font-size:11px" class="text-muted mono">02 Apr 2025</div><div style="font-family:var(--font-heading);font-weight:800;margin-top:2px">Processing <span class="bm" style="font-weight:400">· Diproses</span></div><div style="font-size:12px;margin-top:4px" class="text-muted">Assessment under review by LHDN. No queries raised.</div></div>
+<div style="border-top:6px solid var(--color-accent);padding:14px 0 0 0;background:var(--color-accent-100);padding-left:16px;margin-top:-6px;border-top:6px solid var(--color-accent-700)"><div style="font-size:11px" class="text-muted mono">14 Apr 2025</div><div style="font-family:var(--font-heading);font-weight:800;margin-top:2px;color:var(--color-accent-700)">Refund credited <span style="font-weight:400;color:var(--color-neutral-600)">· Dikreditkan</span></div><div style="font-size:12px;margin-top:4px" class="text-muted">RM 1,842 to Maybank ···8807, 17 days after filing.</div></div>
+</div>
+<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:2px;background:var(--color-divider);border:2px solid var(--color-divider);margin-top:28px">
+<div style="background:var(--color-surface);padding:16px"><div class="kick" style="color:var(--color-neutral-700)">Refund · Bayaran balik</div><div style="font-family:var(--font-heading);font-weight:800;font-size:30px;margin-top:4px" class="mono">RM 1,842</div><div style="font-size:12px" class="text-muted">PCB withheld RM 7,702 − tax RM 5,860</div></div>
+<div style="background:var(--color-surface);padding:16px"><div class="kick" style="color:var(--color-neutral-700)">Time to refund</div><div style="font-family:var(--font-heading);font-weight:800;font-size:30px;margin-top:4px">17 days</div><div style="font-size:12px" class="text-muted">YA2023 took 34 days</div></div>
+<div style="background:var(--color-surface);padding:16px"><div class="kick" style="color:var(--color-neutral-700)">Documents</div><div style="font-family:var(--font-heading);font-weight:800;font-size:30px;margin-top:4px">4 files</div><div style="font-size:12px" class="text-muted">BE acknowledgment, EA form, tax computation, refund advice</div></div>
+</div>
+<h6 style="margin:28px 0 8px">History · Sejarah</h6>
+<table class="table">
+<thead><tr><th>YA</th><th>Filed · Difailkan</th><th>Method</th><th style="text-align:right">Tax payable</th><th style="text-align:right">Refund</th><th>Outcome</th></tr></thead>
+<tbody>
+<tr><td class="mono" style="font-weight:800;font-family:var(--font-heading)">YA2024</td><td class="mono">28 Mar 2025</td><td>e-Filing · BE</td><td style="text-align:right" class="mono">RM 5,860</td><td style="text-align:right" class="mono">RM 1,842</td><td><span class="tag tag-accent">Refund credited</span></td></tr>
+<tr><td class="mono" style="font-weight:800;font-family:var(--font-heading)">YA2023</td><td class="mono">12 Apr 2024</td><td>e-Filing · BE</td><td style="text-align:right" class="mono">RM 5,214</td><td style="text-align:right" class="mono">RM 310</td><td><span class="tag tag-neutral">Closed · Selesai</span></td></tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+
+<div class="dv-opt" id="1g">
+<div class="dv-olabel"><a class="dv-oid" href="#1g">1g</a>Income summary — employment + rental, computation to refund estimate</div>
+<div class="dv-card" style="width:1240px">
+<div class="nav"><span class="nav-brand">CukaiKu<span style="color:var(--color-accent)">.</span></span><a href="#1a">Dashboard</a><a href="#1d">Claims</a><a href="#1e">Receipts</a><a href="#1f">Status</a><a href="#1g" aria-current="page">Income · Pendapatan</a><button class="btn btn-primary">+ New claim</button></div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:0">
+<div style="padding:28px 32px;border-right:2px solid var(--color-divider)">
+<div class="kick">YA2025 · Income sources · Punca pendapatan</div>
+<h6 style="margin:18px 0 8px">Employment · Penggajian</h6>
+<table class="table" style="font-size:13px">
+<tbody>
+<tr><td>Salary · Gaji <span class="text-muted">(EA form, Sect. B1)</span></td><td style="text-align:right" class="mono">RM 86,400</td></tr>
+<tr><td>Bonus · Bonus</td><td style="text-align:right" class="mono">RM 7,200</td></tr>
+<tr><td>PCB / MTD withheld <span class="bm">· Potongan bulanan</span></td><td style="text-align:right" class="mono">RM 7,704</td></tr>
+</tbody>
+</table>
+<h6 style="margin:22px 0 8px">Rental · Sewaan</h6>
+<table class="table" style="font-size:13px">
+<tbody>
+<tr><td>Gross rent — Seri Maya condo <span class="text-muted">(12 × RM 1,600)</span></td><td style="text-align:right" class="mono">RM 19,200</td></tr>
+<tr><td>Allowable expenses <span class="bm">· Perbelanjaan dibenarkan</span> <span class="text-muted">(repairs, mgmt fee, assessment, interest)</span></td><td style="text-align:right" class="mono">− RM 6,300</td></tr>
+<tr><td style="font-weight:800;font-family:var(--font-heading)">Net rental income</td><td style="text-align:right;font-weight:800;font-family:var(--font-heading)" class="mono">RM 12,900</td></tr>
+</tbody>
+</table>
+<div style="border:2px dashed var(--color-divider);padding:12px 14px;margin-top:18px;font-size:12px" class="text-muted">2 rental expense receipts in the vault · statements auto-summed per property.</div>
+</div>
+<div style="padding:28px 32px;background:var(--color-surface)">
+<div class="kick">Computation · Pengiraan (placeholder rates)</div>
+<table class="table" style="font-size:13px;margin-top:14px">
+<tbody>
+<tr><td>Total income · Jumlah pendapatan</td><td style="text-align:right" class="mono">RM 106,500</td></tr>
+<tr><td>Aggregate income after donations</td><td style="text-align:right" class="mono">RM 106,000</td></tr>
+<tr><td>Reliefs claimed · Pelepasan <a href="#1d" style="font-size:11px">(detail)</a></td><td style="text-align:right" class="mono">− RM 22,980</td></tr>
+<tr><td style="font-weight:800;font-family:var(--font-heading)">Chargeable income · Pendapatan bercukai</td><td style="text-align:right;font-weight:800;font-family:var(--font-heading)" class="mono">RM 83,020</td></tr>
+<tr><td>Tax on chargeable income <span class="text-muted">(resident scale)</span></td><td style="text-align:right" class="mono">RM 8,264</td></tr>
+<tr><td>Rebates &amp; zakat · Rebat</td><td style="text-align:right" class="mono">− RM 0</td></tr>
+<tr><td>PCB / MTD already paid</td><td style="text-align:right" class="mono">− RM 7,704</td></tr>
+</tbody>
+</table>
+<div style="background:var(--color-accent);color:var(--color-bg);padding:18px;margin-top:18px">
+<div style="font-size:10px;letter-spacing:.1em;text-transform:uppercase;font-family:var(--font-heading);font-weight:800">Estimated balance · Anggaran baki</div>
+<div style="display:flex;align-items:baseline;justify-content:space-between"><div style="font-family:var(--font-heading);font-weight:800;font-size:40px" class="mono">RM 560</div><div style="font-size:13px">payable by 30 Apr 2026 · perlu dibayar</div></div>
+</div>
+<div style="font-size:11.5px;margin-top:10px" class="text-muted">Estimate only — placeholder tax scale; updates as claims are added. Anggaran sahaja.</div>
+</div>
+</div>
+</div>
+</div>
+
+</div>
+<p class="dv-next">Try next: "go deeper on <a class="dv-oid" href="#1a">1a</a> as the main direction" · "make the add-claim panel in <a class="dv-oid" href="#1d">1d</a> a dialog instead" · "swap placeholder caps for real YA2025 figures"</p>
+</section>
+
+</x-dc>
+</body>
+</html>
