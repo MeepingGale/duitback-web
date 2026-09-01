@@ -1,7 +1,9 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
 <meta charset="utf-8">
+<title>DuitBack — Malaysian Tax Relief Tracker</title>
+<meta name="description" content="Track Malaysian income tax relief claims against the LHDN caps — receipts, refund estimate, and a MyTax filing pack. All data stays in your browser.">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <script src="./support.js"></script>
 </head>
@@ -14,29 +16,35 @@
 <script src="_ds/modernist-02a5774f-c73c-4c43-8a74-d0d33a570e64/_ds_bundle.js"></script>
 <style>
 body{margin:0;background:var(--color-bg)}
-a{color:var(--color-accent)}a:hover{color:var(--color-accent-600)}
+a{color:var(--color-accent-700)}a:hover{color:var(--color-accent-800)}
 .bar{height:8px;background:var(--color-neutral-200);display:flex}
 .bar i{display:block;height:100%;background:var(--color-accent)}
 .bar i.over{background:var(--color-accent-800)}
-.bm{color:var(--color-neutral-600);font-weight:400}
-.kick{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--color-accent);font-family:var(--font-heading);font-weight:800}
+.bm{color:var(--color-neutral-700);font-weight:400}
+.kick{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--color-accent-700);font-family:var(--font-heading);font-weight:800}
 .mono{font-variant-numeric:tabular-nums}
 .navlink{cursor:pointer;user-select:none}
 .yatab{padding:6px 12px;font-size:12px;cursor:pointer;border-left:1px solid var(--color-divider)}
 .yatab:first-child{border-left:0}
-.yatab.on{background:var(--color-accent);color:var(--color-bg);font-family:var(--font-heading);font-weight:800}
+.yatab.on{background:var(--color-accent-700);color:var(--color-bg);font-family:var(--font-heading);font-weight:800}
 .yatab:not(.on):hover{background:color-mix(in srgb, var(--color-text) 7%, transparent)}
 .rrow{cursor:pointer}
 .rrow.sel td{background:var(--color-accent-100)}
 @media (max-width:760px){.pagepad{padding:18px 16px 32px!important}.claimsgrid{grid-template-columns:1fr!important}h1{font-size:26px!important}.nav{gap:10px!important;padding:10px 14px!important}.nav a{font-size:12px!important}.postnum{font-size:40px!important}}
 @media print{.no-print{display:none!important}body{background:#fff}.pagepad{padding:0!important;max-width:100%!important}.dv-card{border:0}}
+
+.text-muted{color:var(--color-neutral-700)}
+.btn-primary{background:var(--color-accent-700)}
+.btn-primary:hover{background:var(--color-accent-800)}
+.btn-ghost{color:var(--color-accent-700)}
+.seg-opt:has(input:checked){background:var(--color-accent-700)}
 </style>
 </helmet>
 
-<div style="min-height:100vh;display:flex;flex-direction:column">
+<div role="main" style="min-height:100vh;display:flex;flex-direction:column">
 <sc-if value="{{ notSetup }}" hint-placeholder-val="{{ true }}">
 <div class="nav no-print" style="flex-wrap:wrap;position:sticky;top:0;background:var(--color-bg);z-index:5">
-<span class="nav-brand" style="display:inline-flex;align-items:center"><a href="../" title="DuitBack — home" aria-label="DuitBack home" style="display:inline-flex;align-items:center"><svg width="132" height="27" viewBox="0 0 320 66" aria-label="duitback"><text x="2" y="56" font-family="Archivo, Arial, sans-serif" font-size="36" font-weight="800" letter-spacing="-1" fill="#201e1d">du&#305;tback<tspan fill="#ec3013">.</tspan></text><g transform="translate(50,24)"><g fill="#ec3013"><ellipse cx="0" cy="-5.4" rx="3.4" ry="5.4"></ellipse><ellipse cx="0" cy="-5.4" rx="3.4" ry="5.4" transform="rotate(72)"></ellipse><ellipse cx="0" cy="-5.4" rx="3.4" ry="5.4" transform="rotate(144)"></ellipse><ellipse cx="0" cy="-5.4" rx="3.4" ry="5.4" transform="rotate(216)"></ellipse><ellipse cx="0" cy="-5.4" rx="3.4" ry="5.4" transform="rotate(288)"></ellipse></g><circle r="1.8" fill="#201e1d"></circle><line x1="0.7" y1="-1" x2="5.8" y2="-7.1" stroke="#201e1d" stroke-width="0.9"></line><g fill="#201e1d"><circle cx="6.4" cy="-7.8" r="0.8"></circle><circle cx="7.8" cy="-7.8" r="0.8"></circle><circle cx="6.4" cy="-9.1" r="0.8"></circle><circle cx="7.8" cy="-9.1" r="0.8"></circle></g></g></svg></a></span>
+<span class="nav-brand" style="display:inline-flex;align-items:center"><a href="../" title="duıtback — home" aria-label="duıtback. — home" style="display:inline-flex;align-items:center"><svg width="132" height="27" viewBox="0 0 320 66" aria-label="duitback"><text x="2" y="56" font-family="Archivo, Arial, sans-serif" font-size="36" font-weight="800" letter-spacing="-1" fill="#201e1d">du&#305;tback<tspan fill="#ec3013">.</tspan></text><g transform="translate(50,24)"><g fill="#ec3013"><ellipse cx="0" cy="-5.4" rx="3.4" ry="5.4"></ellipse><ellipse cx="0" cy="-5.4" rx="3.4" ry="5.4" transform="rotate(72)"></ellipse><ellipse cx="0" cy="-5.4" rx="3.4" ry="5.4" transform="rotate(144)"></ellipse><ellipse cx="0" cy="-5.4" rx="3.4" ry="5.4" transform="rotate(216)"></ellipse><ellipse cx="0" cy="-5.4" rx="3.4" ry="5.4" transform="rotate(288)"></ellipse></g><circle r="1.8" fill="#201e1d"></circle><line x1="0.7" y1="-1" x2="5.8" y2="-7.1" stroke="#201e1d" stroke-width="0.9"></line><g fill="#201e1d"><circle cx="6.4" cy="-7.8" r="0.8"></circle><circle cx="7.8" cy="-7.8" r="0.8"></circle><circle cx="6.4" cy="-9.1" r="0.8"></circle><circle cx="7.8" cy="-9.1" r="0.8"></circle></g></g></svg></a></span>
 <a class="navlink" onClick="{{ goDash }}" aria-current="{{ curDash }}">Dashboard</a>
 <a class="navlink" onClick="{{ goClaims }}" aria-current="{{ curClaims }}">Claims · Tuntutan</a>
 <a class="navlink" onClick="{{ goReceipts }}" aria-current="{{ curReceipts }}">Receipts · Resit</a>
@@ -49,7 +57,7 @@ a{color:var(--color-accent)}a:hover{color:var(--color-accent-600)}
 </sc-if>
 
 <sc-if value="{{ isDemo }}" hint-placeholder-val="{{ false }}">
-<div class="no-print" style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;padding:9px 36px;background:var(--color-accent);color:var(--color-bg)">
+<div class="no-print" style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;padding:9px 36px;background:var(--color-accent-700);color:var(--color-bg)">
 <span style="font-size:12px;font-family:var(--font-heading);font-weight:800;letter-spacing:.08em;text-transform:uppercase">Demo mode · Mod demo</span>
 <span style="font-size:12.5px;opacity:.92">Amirah's sample data — nothing here is yours · Data contoh sahaja</span>
 <button class="btn" style="margin-left:auto;background:var(--color-bg);color:var(--color-text);padding:5px 12px;font-size:12px" onClick="{{ clearAll }}">Exit demo &amp; set up →</button>
@@ -85,7 +93,7 @@ a{color:var(--color-accent)}a:hover{color:var(--color-accent-600)}
 <div><div class="kick">Year of assessment · Tahun taksiran</div><h1 style="margin:6px 0 2px;font-size:34px">Hello, {{ profileName }}</h1><p class="text-muted" style="font-size:13px;margin:0">{{ deadlineLine }}</p></div>
 <div style="display:inline-flex;border:1px solid var(--color-divider)"><sc-for list="{{ yaTabs }}" as="t" hint-placeholder-count="3"><span class="yatab {{ t.cls }}" onClick="{{ t.pick }}">{{ t.label }}</span></sc-for><span class="yatab" onClick="{{ addYear }}" title="Add next year">+</span></div>
 </div>
-<div style="background:var(--color-accent);color:var(--color-bg);padding:26px 28px;margin-top:20px">
+<div style="background:var(--color-accent-700);color:var(--color-bg);padding:26px 28px;margin-top:20px">
 <div style="font-size:10px;letter-spacing:.1em;text-transform:uppercase;font-family:var(--font-heading);font-weight:800">{{ ya }} · reliefs you've claimed · pelepasan dituntut</div>
 <div style="display:flex;align-items:baseline;gap:24px;flex-wrap:wrap">
 <div class="mono postnum" style="font-family:var(--font-heading);font-weight:800;font-size:64px;letter-spacing:-.02em;line-height:1.05">{{ totalClaimedL }}</div>
@@ -882,7 +890,7 @@ class Component extends DCLogic {
     vals.cp500L=fmt(c.inc.cp500||0);
     vals.taxNetL=fmt(c.taxNet);
     vals.paidL=fmt(c.paid);
-    vals.balBg=c.balance<0?'var(--color-neutral-900)':'var(--color-accent)';
+    vals.balBg=c.balance<0?'var(--color-neutral-900)':'var(--color-accent-700)';
     vals.balLabel=c.balance<0?'Estimated refund · Anggaran bayaran balik':'Estimated balance payable · Anggaran baki';
     vals.balL=fmt(Math.abs(c.balance));
     vals.balSub=c.balance<0?'credited after LHDN processes your return':('payable by '+dlLabel+' · perlu dibayar');

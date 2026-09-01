@@ -16,6 +16,9 @@ body { margin: 0; background: var(--color-bg); color: var(--color-text); }
 }
 
 .hero { padding: 64px 0 48px; }
+/* Red-filled CTAs run display-grade: at ≥19px/800 the brand red's 3.75:1 on
+   white clears the 3:1 large-text bar. Small red-filled text cannot. */
+.hero .btn-primary, .section .btn-primary { font-size: 19px; font-weight: 800; }
 .hero h1 {
   font-family: var(--font-heading); font-weight: 800; letter-spacing: -0.02em;
   font-size: clamp(38px, 6vw, 64px); line-height: 1.04; margin: 14px 0 18px; max-width: 780px;
@@ -48,7 +51,7 @@ body { margin: 0; background: var(--color-bg); color: var(--color-text); }
 .section h2 { font-family: var(--font-heading); font-weight: 800; letter-spacing: -0.01em; font-size: clamp(24px, 3.4vw, 34px); margin: 8px 0 22px; }
 
 .site-footer { border-top: 2px solid var(--color-divider); padding: 22px 0 40px; font-size: 12.5px; color: var(--color-neutral-700); display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
-.site-footer a { color: var(--color-accent); }
+.site-footer a { color: var(--color-accent-700); }
 
 @media (max-width: 640px) {
   .hero { padding: 40px 0 32px; }

@@ -26,16 +26,19 @@ export function Wordmark({ width = 158 }: { width?: number }) {
 }
 
 export function Kicker({ children, onRed = false }: { children: ReactNode; onRed?: boolean }) {
+  // Small accent text uses the deep ramp step (DS guidance: the base accent is
+  // only 3.75:1 on this ground — enough for large text, not small). On the red
+  // poster the kicker goes display-grade instead, where 3:1 is the bar.
   return (
     <div
       className="kick"
       style={{
-        color: onRed ? 'inherit' : 'var(--color-accent)',
+        color: onRed ? 'inherit' : 'var(--color-accent-700)',
         textTransform: 'uppercase',
         letterSpacing: '.1em',
         fontFamily: 'var(--font-heading)',
         fontWeight: 800,
-        fontSize: 11,
+        fontSize: onRed ? 19 : 11,
       }}
     >
       {children}

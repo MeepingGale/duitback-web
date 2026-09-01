@@ -55,10 +55,12 @@ export default function Home() {
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
 
       <header className="wrap site-nav">
-        <a href="./" aria-label="DuitBack home" style={{ display: 'inline-flex' }}>
+        <a href="./" aria-label="duıtback. — home" style={{ display: 'inline-flex' }}>
           <Wordmark />
         </a>
-        <CtaLink href={APP}>Open the tracker →</CtaLink>
+        <CtaLink href={APP} variant="secondary">
+          Open the tracker →
+        </CtaLink>
       </header>
 
       <main>
@@ -86,7 +88,7 @@ export default function Home() {
             width={2880}
             height={1920}
           />
-          <p style={{ fontSize: 11.5, color: 'var(--color-neutral-600)', marginTop: 8 }}>Shown with demo data.</p>
+          <p style={{ fontSize: 11.5, color: 'var(--color-neutral-700)', marginTop: 8 }}>Shown with demo data.</p>
         </section>
 
         <section className="poster">
@@ -96,7 +98,7 @@ export default function Home() {
               Every relief cap resets on 31 December — use it or lose it. Most people find out what they had left in March,
               over a shoebox of receipts.
             </p>
-            <p style={{ fontSize: 14, maxWidth: 640, margin: 0, opacity: 0.92 }}>
+            <p style={{ fontSize: 19, fontWeight: 700, lineHeight: 1.4, maxWidth: 680, margin: 0 }}>
               DuitBack flips the timing: see &ldquo;RM 1,812 left on Lifestyle&rdquo; in September, while you can still do
               something about it.
             </p>

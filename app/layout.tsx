@@ -37,14 +37,14 @@ export const metadata: Metadata = {
     title: 'DuitBack — Malaysian Tax Relief Tracker',
     description:
       'Log relief claims as you spend, watch every LHDN cap, and file from a one-page cheat-sheet when e-Filing opens. Local-first — your tax data never leaves your browser.',
-    images: [{ url: '/og.png', width: 2880, height: 1920, alt: 'DuitBack dashboard' }],
+    images: [{ url: '/shots-dashboard.png', width: 2880, height: 1920, alt: 'DuitBack dashboard' }],
   },
   twitter: {
     card: 'summary_large_image',
     title: 'DuitBack — Malaysian Tax Relief Tracker',
     description:
       'Track relief claims against real LHDN caps all year, file from a cheat-sheet in March. Free, private, browser-only.',
-    images: ['/og.png'],
+    images: ['/shots-dashboard.png'],
   },
   robots: { index: true, follow: true },
   icons: { icon: 'icon.svg' },
