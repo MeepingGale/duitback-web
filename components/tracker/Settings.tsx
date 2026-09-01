@@ -8,6 +8,7 @@ export function Settings({ api, lockNow }: { api: Api; lockNow: () => void }) {
   const { d, mut, save, clearAll, dataMsg, setDataMsg } = api;
   const [pinNew, setPinNew] = useState('');
   const [pinConfirm, setPinConfirm] = useState('');
+  const [pinMsg, setPinMsg] = useState('');
   const pb = (k: 'name' | 'taxNo' | 'bank') => (e: React.ChangeEvent<HTMLInputElement>) => mut((x) => { x.profile[k] = e.target.value; });
 
   return (
@@ -63,20 +64,21 @@ export function Settings({ api, lockNow }: { api: Api; lockNow: () => void }) {
             </div>
             <button className="btn btn-secondary" onClick={() => {
               const p = pinNew.trim();
-              if (p.length < 4) { setDataMsg('Passcode must be at least 4 characters. · Kod mesti sekurang-kurangnya 4 aksara.'); return; }
-              if (p !== pinConfirm.trim()) { setDataMsg('Passcodes don’t match — type the same code twice. · Kod tidak sepadan — taip kod yang sama dua kali.'); return; }
+              if (p.length < 4) { setPinMsg('Passcode must be at least 4 characters. · Kod mesti sekurang-kurangnya 4 aksara.'); return; }
+              if (p !== pinConfirm.trim()) { setPinMsg('Passcodes don’t match — type the same code twice. · Kod tidak sepadan — taip kod yang sama dua kali.'); return; }
               mut((x) => { x.profile.pin = p; });
               setPinNew('');
               setPinConfirm('');
-              setDataMsg('Passcode set — the app will ask for it on next open. · Kod ditetapkan.');
+              setPinMsg('Passcode set — the app will ask for it on next open. · Kod ditetapkan.');
             }}>Set passcode · Tetapkan</button>
           </div>
         ) : (
           <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
             <button className="btn btn-secondary" onClick={lockNow}>Lock now · Kunci sekarang</button>
-            <button className="btn btn-ghost" onClick={() => { mut((x) => { delete x.profile.pin; }); setDataMsg('Passcode removed. · Kod dibuang.'); }}>Remove passcode</button>
+            <button className="btn btn-ghost" onClick={() => { mut((x) => { delete x.profile.pin; }); setPinMsg('Passcode removed. · Kod dibuang.'); }}>Remove passcode</button>
           </div>
         )}
+        {pinMsg && <div style={{ fontSize: 12, marginTop: 10, color: 'var(--color-accent-700)' }}>{pinMsg}</div>}
       </div>
 
       <div style={{ border: '2px solid var(--color-divider)', borderTop: 0, padding: 24 }}>
