@@ -100,9 +100,7 @@ export function Receipts({ api, setTag, setViewer }: { api: Api; setTag: (t: Tag
                     {!r.cat && (
                       <button className="navlink linkbtn" style={{ fontSize: 12, marginLeft: 'auto' }} onClick={() => { setTag({ rid: r.id, cat: 'lifestyle', merchant: '', amount: '', makeClaim: true }); setDlg('tag'); }}>Tag →</button>
                     )}
-                    {r.cat && (
-                      <button className="navlink linkbtn" style={{ fontSize: 11, marginLeft: 'auto' }} onClick={() => ask('Delete this receipt? · Padam resit ini?', () => { delFile(r.id); mut((dd) => { dd.receipts = dd.receipts.filter((q) => q.id !== r.id); }); })}>Delete</button>
-                    )}
+                    <button className="navlink linkbtn" style={{ fontSize: 11, marginLeft: r.cat ? 'auto' : 0 }} onClick={() => ask('Delete this receipt? · Padam resit ini?', () => { delFile(r.id); mut((dd) => { dd.receipts = dd.receipts.filter((q) => q.id !== r.id); }); })}>Delete</button>
                   </div>
                 </div>
               </div>

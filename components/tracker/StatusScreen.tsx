@@ -31,9 +31,9 @@ export function StatusScreen({ api, c, demo }: { api: Api; c: CalcResult; demo: 
       <p className="text-muted" style={{ fontSize: 12.5, margin: '8px 0 0' }}>{dl.formLine}</p>
       <hr className="hr" style={{ margin: '16px 0 24px' }} />
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(200px,1fr))', gap: '0 16px' }}>
+      <div className="steps">
         {steps.map((s, i) => (
-          <div key={s.title} style={{ borderTop: '6px solid ' + (i <= stageIdx ? (i === stageIdx ? 'var(--color-accent-700)' : 'var(--color-accent)') : 'var(--color-neutral-300)'), padding: '12px 0 0', background: i === stageIdx ? 'var(--color-accent-100)' : 'transparent', paddingLeft: i === stageIdx ? 14 : 0 }}>
+          <div key={s.title} className={'step' + (i === stageIdx ? ' on' : '')} style={{ ['--step-c' as string]: i <= stageIdx ? (i === stageIdx ? 'var(--color-accent-700)' : 'var(--color-accent)') : 'var(--color-neutral-300)' } as React.CSSProperties}>
             <div style={{ fontSize: 11 }} className="text-muted mono">{s.date}</div>
             <div style={{ ...heading800, marginTop: 2, color: i === stageIdx ? 'var(--color-accent-700)' : 'var(--color-text)' }}>
               {s.title} <span className="bm" style={{ fontWeight: 400 }}>· {s.bm}</span>

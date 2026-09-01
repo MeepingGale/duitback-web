@@ -293,6 +293,16 @@ input.input[type='date']::-webkit-date-and-time-value { text-align: left; }
 /* paired form fields: two columns, stacking on narrow phones so wrapped labels can't misalign inputs */
 .fields2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 @media (max-width: 480px) { .fields2 { grid-template-columns: 1fr; } }
+/* filing-status stepper: coloured top rail as columns on wide screens,
+   rotating to a left-rail timeline when the steps stack on phones */
+.steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0 16px; }
+.step { border-top: 6px solid var(--step-c); padding: 12px 0 0; }
+.step.on { background: var(--color-accent-100); padding-left: 14px; }
+@media (max-width: 760px) {
+  .steps { grid-template-columns: 1fr; gap: 16px 0; }
+  .step { border-top: 0; border-left: 6px solid var(--step-c); padding: 2px 0 4px 14px; }
+  .step.on { padding: 10px 12px 12px 14px; }
+}
 @media (max-width: 760px) {
   .demobar { padding: 7px 14px !important; gap: 6px 10px !important; }
   .demobar span { font-size: 11px !important; }
