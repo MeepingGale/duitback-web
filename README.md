@@ -2,6 +2,8 @@
 
 *Duit* is Malay for money; DuitBack is about getting yours back. It tracks a Malaysian personal income tax return (Form BE) through the year — relief claims against the real LHDN caps, receipts in one vault, a live refund/balance estimate — then hands you a cheat-sheet with every number to type into MyTax when e-Filing opens. The whole app is one self-contained HTML file, and all data stays in your browser: no backend, no account, no tracking.
 
+**[Live app →](https://meepinggale.github.io/duitback-web/)** · [![deploy](https://github.com/MeepingGale/duitback-web/actions/workflows/deploy.yml/badge.svg)](https://github.com/MeepingGale/duitback-web/actions/workflows/deploy.yml)
+
 ![Dashboard — reliefs counted against caps, with the returns table below](docs/screenshots/dashboard.png)
 
 Malaysian reliefs are use-it-or-lose-it: whatever cap you haven't spent to by 31 December is gone. But most people only find out what they had left in March, staring at e-Filing over a shoebox of receipts. DuitBack flips the timing — log claims as you spend, see "RM 1,812 left on Lifestyle" in September while you can still do something about it, and file in March from a one-page pack instead of a reconstruction. Tax records are exactly the kind of data that shouldn't sit in someone else's database, so nothing ever leaves the device.
@@ -75,7 +77,6 @@ open "DuitBack App.dc.html"    # the design canvases open the same way
 
 ## Roadmap
 
-- Deploy to GitHub Pages
 - YA2027 schedule once the Budget is gazetted
 
 ## License
