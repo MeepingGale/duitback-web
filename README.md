@@ -24,7 +24,7 @@ Malaysian reliefs are use-it-or-lose-it: whatever cap you haven't spent to by 31
 **Data & portability**
 - Everything persists in `localStorage`; receipts are stored as data URLs inside the same blob — and a failed write warns you instead of silently dropping data
 - JSON export and import for backup or moving devices
-- First run is a minute of setup — name, tax number, marital status — or one click loads a demo taxpayer ("Amirah") to explore; Settings → Clear everything returns you to setup
+- First run is a minute of setup — name, tax number, marital status — or one click loads a demo taxpayer ("Amirah") to explore; demo mode wears an unmissable banner with a one-click exit, and Settings → Clear everything always returns you to setup
 - Bilingual throughout — English · Bahasa Melayu
 
 ## Screenshots

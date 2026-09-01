@@ -48,6 +48,14 @@ a{color:var(--color-accent)}a:hover{color:var(--color-accent-600)}
 </div>
 </sc-if>
 
+<sc-if value="{{ isDemo }}" hint-placeholder-val="{{ false }}">
+<div class="no-print" style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;padding:9px 36px;background:var(--color-accent);color:var(--color-bg)">
+<span style="font-size:12px;font-family:var(--font-heading);font-weight:800;letter-spacing:.08em;text-transform:uppercase">Demo mode · Mod demo</span>
+<span style="font-size:12.5px;opacity:.92">Amirah's sample data — nothing here is yours · Data contoh sahaja</span>
+<button class="btn" style="margin-left:auto;background:var(--color-bg);color:var(--color-text);padding:5px 12px;font-size:12px" onClick="{{ clearAll }}">Exit demo &amp; set up →</button>
+</div>
+</sc-if>
+
 <sc-if value="{{ isSetup }}" hint-placeholder-val="{{ false }}">
 <div class="pagepad" data-screen-label="Setup" style="padding:56px 24px 48px;max-width:600px;width:100%;margin:0 auto;box-sizing:border-box">
 <span style="display:inline-flex;align-items:center"><svg width="132" height="27" viewBox="0 0 320 66" aria-label="duitback"><text x="2" y="56" font-family="Archivo, Arial, sans-serif" font-size="36" font-weight="800" letter-spacing="-1" fill="#201e1d">du&#305;tback<tspan fill="#ec3013">.</tspan></text><g transform="translate(50,24)"><g fill="#ec3013"><ellipse cx="0" cy="-5.4" rx="3.4" ry="5.4"></ellipse><ellipse cx="0" cy="-5.4" rx="3.4" ry="5.4" transform="rotate(72)"></ellipse><ellipse cx="0" cy="-5.4" rx="3.4" ry="5.4" transform="rotate(144)"></ellipse><ellipse cx="0" cy="-5.4" rx="3.4" ry="5.4" transform="rotate(216)"></ellipse><ellipse cx="0" cy="-5.4" rx="3.4" ry="5.4" transform="rotate(288)"></ellipse></g><circle r="1.8" fill="#201e1d"></circle><line x1="0.7" y1="-1" x2="5.8" y2="-7.1" stroke="#201e1d" stroke-width="0.9"></line><g fill="#201e1d"><circle cx="6.4" cy="-7.8" r="0.8"></circle><circle cx="7.8" cy="-7.8" r="0.8"></circle><circle cx="6.4" cy="-9.1" r="0.8"></circle><circle cx="7.8" cy="-9.1" r="0.8"></circle></g></g></svg></span>
@@ -545,6 +553,7 @@ function blankInc(){return {salary:0,bonus:0,pcb:0,zakat:0,rent:0,rentExp:0,othe
 function demoData(){
   const inc=(o)=>Object.assign(blankInc(),o);
   return {
+    demo:true,
     profile:{name:'Amirah', taxNo:'SG 1234567-08', bank:'Maybank ···8807', marital:'single'},
     ya:'YA2026',
     income:{
@@ -702,6 +711,7 @@ class Component extends DCLogic {
     const yaNum=+ya.slice(2);
     vals.ya=ya;
     vals.isSetup=false; vals.notSetup=true;
+    vals.isDemo=!!d.demo||(d.profile&&d.profile.taxNo==='SG 1234567-08');
     vals.formType=c.formType;
     vals.profileName=d.profile.name||'there';
     vals.profileTaxNo=d.profile.taxNo||'—';
