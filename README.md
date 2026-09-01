@@ -40,17 +40,13 @@ Malaysian reliefs are use-it-or-lose-it: whatever cap you haven't spent to by 31
 
 ## How it's built
 
-This repo is the whole design process, not just the shipped product. The site is a Next.js static export: a server-rendered landing page (full SEO metadata, Open Graph, JSON-LD, sitemap) at `/`, with the tracker served at `/app/` and its header logo linking back home:
+The site is a Next.js static export: a server-rendered landing page (full SEO metadata, Open Graph, JSON-LD, sitemap) at `/`, with the tracker served at `/app/` and its header logo linking back home:
 
 | File | What it is |
 | --- | --- |
-| `app/` + `components/ui.tsx` | The Next.js landing — App Router, shared UI components, Archivo self-hosted via `next/font`, styled by the same Modernist token sheet as the app |
+| `app/` + `components/ui.tsx` | The Next.js landing — App Router, shared UI components, Archivo self-hosted via `next/font`, styled by the Modernist token sheet |
 | `public/app/index.html` | The tracker — one ~320 KB self-contained file with the React 18 runtime, design system, fonts and every screen inlined. Works offline from `file://` too. |
-| `DuitBack App.dc.html` | The design canvas the app was built in |
-| `Tax Portal Mockups.dc.html` | Where it started — the "CukaiKu" concept: three dashboard directions, then the seven core screens |
-| `DuitBack Logos.dc.html` | The logo exploration — seventeen directions (wau kite, ringgit note, "balik" U-turn road sign…) before the bunga raya line-flower won the wordmark |
-| `_ds/modernist-…/` | The Modernist design system: Archivo everywhere, one red, zero corner radius, strong 2px rules, everything flush left |
-| `support.js` | The canvas runtime — lets the `.dc.html` files above render locally |
+| [`duitback-mockup`](https://github.com/MeepingGale/duitback-mockup) | The whole design process, in its own repo — the app's working canvas, the "CukaiKu"-era explorations, seventeen logo directions and the Modernist design system |
 
 ![Logo exploration — line-flower variations with rationale](docs/screenshots/logo-exploration.png)
 
@@ -73,7 +69,6 @@ Choices I'd defend, and where their ceilings are:
 ```bash
 npm install && npm run dev     # full site at http://localhost:3000/duitback-web/
 open public/app/index.html     # or just the tracker — no install, no build, no server
-open "DuitBack App.dc.html"    # the design canvases open the same way
 ```
 
 `npm run build` exports the static site to `out/` — the same thing CI deploys.
