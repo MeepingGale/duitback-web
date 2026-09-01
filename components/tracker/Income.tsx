@@ -1,4 +1,4 @@
-import { CalcResult, IncomeYear, blankInc, fmt, jointComparison } from '@/lib/tax';
+import { CalcResult, IncomeYear, blankInc, fmt, jointComparison, to2dp } from '@/lib/tax';
 import { Api } from './App';
 import { Kick, YaTabs, pagepad, yaHead, right, heading800 } from './bits';
 import { deadlineInfo, yearsOf } from './derive';
@@ -11,7 +11,7 @@ function NumField({ label, value, onChange }: { label: React.ReactNode; value: n
   return (
     <div className="field">
       <label>{label}</label>
-      <input className="input mono" type="number" min={0} value={value} onChange={onChange} />
+      <input className="input mono" type="number" min={0} step="0.01" value={value} onChange={onChange} />
     </div>
   );
 }
@@ -33,7 +33,7 @@ export function Income({ api, c }: { api: Api; c: CalcResult }) {
   const bind = (k: keyof IncomeYear) => (e: React.ChangeEvent<HTMLInputElement>) =>
     mut((x) => {
       x.income[ya] = Object.assign(blankInc(), x.income[ya]);
-      (x.income[ya] as IncomeYear)[k] = +e.target.value || 0;
+      (x.income[ya] as IncomeYear)[k] = to2dp(+e.target.value || 0);
     });
 
   const jc = isMarried ? jointComparison(c) : null;
@@ -92,6 +92,7 @@ export function Income({ api, c }: { api: Api; c: CalcResult }) {
 
         <div style={{ padding: 24, background: 'var(--color-surface)' }}>
           <Kick>Computation · Pengiraan ({ya} · {c.formType} · resident scale)</Kick>
+          <div style={{ overflowX: 'auto' }}>
           <table className="table" style={{ fontSize: 13, marginTop: 12 }}>
             <tbody>
               <Row label="Total income · Jumlah pendapatan" value={fmt(c.totalIncome)} />
@@ -105,6 +106,7 @@ export function Income({ api, c }: { api: Api; c: CalcResult }) {
               <Row label="CP500 instalments paid" value={'− ' + fmt(c.inc.cp500 || 0)} />
             </tbody>
           </table>
+          </div>
 
           <div style={{ background: c.balance < 0 ? 'var(--color-neutral-900)' : 'var(--color-accent-700)', color: 'var(--color-bg)', padding: 16, marginTop: 16 }}>
             <div style={{ fontSize: 10, letterSpacing: '.1em', textTransform: 'uppercase', ...heading800 }}>
@@ -119,12 +121,14 @@ export function Income({ api, c }: { api: Api; c: CalcResult }) {
           {isMarried && jc && (
             <div style={{ border: '2px solid var(--color-divider)', padding: '14px 16px', marginTop: 16, background: 'var(--color-bg)' }}>
               <Kick style={{ color: 'var(--color-neutral-700)' }}>Joint vs separate · Taksiran bersama vs berasingan</Kick>
-              <table className="table" style={{ fontSize: 13, marginTop: 8 }}>
+              <div style={{ overflowX: 'auto' }}>
+          <table className="table" style={{ fontSize: 13, marginTop: 8 }}>
                 <tbody>
                   <Row label="Separate — you + spouse each assessed" value={fmt(jc.sep)} />
                   <Row label="Joint — combined income, RM4,000 spouse relief" value={fmt(jc.joint)} />
                 </tbody>
               </table>
+          </div>
               <div style={{ fontSize: 12.5, marginTop: 6, ...heading800 }}>{jointVerdict}</div>
               <div style={{ fontSize: 11, marginTop: 4 }} className="text-muted">Rough comparison — under joint assessment the spouse&apos;s own reliefs beyond RM4,000 are ignored here. <span lang="ms">Perbandingan kasar sahaja — pelepasan pasangan selain RM4,000 tidak diambil kira.</span></div>
             </div>

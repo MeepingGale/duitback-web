@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { blankInc, calc, capFor, composeTin, Data, jointComparison, looksLikeTin, medSum, parseTin, taxOn } from './tax';
+import { blankInc, calc, capFor, clamp2dpStr, composeTin, Data, jointComparison, looksLikeTin, medSum, parseTin, taxOn, to2dp } from './tax';
 import { demoData, parseImport, pruneEmptyFutureYears } from './data';
 
 describe('taxOn — YA2025 resident scale', () => {
@@ -165,6 +165,21 @@ describe('looksLikeTin — advisory Malaysian TIN check', () => {
     ['990101-14-5678', false], // that is a MyKad number
   ])('%s → %s', (input, ok) => {
     expect(looksLikeTin(input)).toBe(ok);
+  });
+});
+
+describe('two-decimal money enforcement', () => {
+  it('to2dp rounds to sen', () => {
+    expect(to2dp(123.456)).toBe(123.46);
+    expect(to2dp(0.005)).toBe(0.01);
+    expect(to2dp(100)).toBe(100);
+  });
+  it('clamp2dpStr limits typed amounts to two decimals and strips junk', () => {
+    expect(clamp2dpStr('123.456')).toBe('123.45');
+    expect(clamp2dpStr('12.3')).toBe('12.3');
+    expect(clamp2dpStr('1e5')).toBe('15');
+    expect(clamp2dpStr('abc')).toBe('');
+    expect(clamp2dpStr('88.90')).toBe('88.90');
   });
 });
 

@@ -31,6 +31,7 @@ export function FilingPack({ api, c }: { api: Api; c: CalcResult }) {
       <hr className="hr" />
 
       <h6 style={{ margin: '18px 0 6px' }}>1 · Income to declare · Pendapatan</h6>
+      <div style={{ overflowX: 'auto' }}>
       <table className="table" style={{ fontSize: 13 }}>
         <tbody>
           <tr><td>Employment (salary + bonus) · Penggajian</td><td style={right} className="mono">{fmt((+c.inc.salary || 0) + (+c.inc.bonus || 0))}</td></tr>
@@ -40,8 +41,10 @@ export function FilingPack({ api, c }: { api: Api; c: CalcResult }) {
           <tr><td style={heading800}>Total · Jumlah</td><td style={{ ...right, ...heading800 }} className="mono">{fmt(c.totalIncome)}</td></tr>
         </tbody>
       </table>
+      </div>
 
       <h6 style={{ margin: '22px 0 6px' }}>2 · Reliefs to type into MyTax · Pelepasan</h6>
+      <div style={{ overflowX: 'auto' }}>
       <table className="table" style={{ fontSize: 13 }}>
         <thead>
           <tr><th>Relief line</th><th style={right}>Amount to enter</th><th style={right}>Your receipts total</th><th>Evidence in vault</th></tr>
@@ -60,8 +63,10 @@ export function FilingPack({ api, c }: { api: Api; c: CalcResult }) {
           })}
         </tbody>
       </table>
+      </div>
 
       <h6 style={{ margin: '22px 0 6px' }}>3 · Result · Keputusan</h6>
+      <div style={{ overflowX: 'auto' }}>
       <table className="table" style={{ fontSize: 13 }}>
         <tbody>
           <tr><td>Chargeable income · Pendapatan bercukai</td><td style={right} className="mono">{fmt(c.chargeable)}</td></tr>
@@ -70,6 +75,7 @@ export function FilingPack({ api, c }: { api: Api; c: CalcResult }) {
           <tr><td style={heading800}>{balLabel}</td><td style={{ ...right, ...heading800 }} className="mono">{fmt(Math.abs(c.balance))}</td></tr>
         </tbody>
       </table>
+      </div>
 
       <h6 style={{ margin: '22px 0 6px' }}>4 · Receipts on file · Resit ({recAll.length})</h6>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(150px,1fr))', gap: 10 }}>

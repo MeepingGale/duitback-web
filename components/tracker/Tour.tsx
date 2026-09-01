@@ -144,10 +144,12 @@ export function Tour({ step, onNext, onBack, onDone }: { step: number; onNext: (
           border: '2px solid var(--color-text)',
           padding: '18px 20px',
           boxShadow: 'var(--shadow-lg)',
+          maxHeight: 'calc(100vh - 32px)',
+          overflowY: 'auto',
           ...(rect
             ? below
-              ? { top: Math.min(rect.top + rect.height + GAP, vh - 240), left: cardLeft }
-              : { bottom: vh - rect.top + GAP, left: cardLeft }
+              ? { top: Math.min(rect.top + rect.height + GAP, vh - 340), left: cardLeft }
+              : { bottom: Math.min(vh - rect.top + GAP, vh - 16), left: cardLeft }
             : { top: '50%', left: '50%', transform: 'translate(-50%,-50%)' }),
         }}
       >

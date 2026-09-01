@@ -1,4 +1,4 @@
-import { CATS, CHILDSUB, MEDSUB, CalcResult, capFor, fmt, today, uid } from '@/lib/tax';
+import { CATS, CHILDSUB, MEDSUB, CalcResult, capFor, clamp2dpStr, fmt, to2dp, today, uid } from '@/lib/tax';
 import { putFile, readFiles } from '@/lib/data';
 import { Api } from './App';
 
@@ -69,7 +69,7 @@ export function AddClaimDialog({ api, c, add, setAdd, onSaved }: { api: Api; c: 
   }
 
   const saveClaim = () => {
-    const amt = +add.amount || 0;
+    const amt = to2dp(+add.amount || 0);
     if (!amt) { setDlg(null); return; }
     let recId: string | null = null;
     if (add.fileName) { recId = uid(); if (add.fileFull) putFile(recId, add.fileFull); }
@@ -120,7 +120,7 @@ export function AddClaimDialog({ api, c, add, setAdd, onSaved }: { api: Api; c: 
         )}
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
           <div className="field"><label>Date · Tarikh</label><input className="input" type="date" value={add.date} onChange={(e) => setAdd({ ...add, date: e.target.value })} /></div>
-          <div className="field"><label>Amount · Jumlah (RM)</label><input className="input mono" type="number" min={0} value={add.amount} onChange={(e) => setAdd({ ...add, amount: e.target.value })} /></div>
+          <div className="field"><label>Amount · Jumlah (RM)</label><input className="input mono" type="number" min={0} step="0.01" value={add.amount} onChange={(e) => setAdd({ ...add, amount: clamp2dpStr(e.target.value) })} /></div>
         </div>
         <div className="field"><label>Description · Keterangan</label><input className="input" placeholder="e.g. broadband bill — Unifi" value={add.desc} onChange={(e) => setAdd({ ...add, desc: e.target.value })} /></div>
         <label className="radio">
@@ -161,7 +161,7 @@ export function TagDialog({ api, tag, setTag }: { api: Api; tag: TagState; setTa
       const r = dd.receipts.find((x) => x.id === tag.rid);
       if (!r) return;
       r.cat = tag.cat;
-      const amt = +tag.amount || 0;
+      const amt = to2dp(+tag.amount || 0);
       r.sub = (tag.merchant || 'Receipt') + (amt ? ' · ' + fmt(amt) : '');
       if (tag.makeClaim && amt) dd.claims.unshift({ id: uid(), ya: dd.ya, cat: tag.cat, sub: tag.cat === 'medical' ? 'general' : undefined, date: today(), desc: tag.merchant || r.name, amount: amt, receipt: r.name });
     });
@@ -181,7 +181,7 @@ export function TagDialog({ api, tag, setTag }: { api: Api; tag: TagState; setTa
         </div>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
           <div className="field"><label>Merchant · Kedai</label><input className="input" value={tag.merchant} onChange={(e) => setTag({ ...tag, merchant: e.target.value })} /></div>
-          <div className="field"><label>Amount · Jumlah (RM)</label><input className="input mono" type="number" min={0} value={tag.amount} onChange={(e) => setTag({ ...tag, amount: e.target.value })} /></div>
+          <div className="field"><label>Amount · Jumlah (RM)</label><input className="input mono" type="number" min={0} step="0.01" value={tag.amount} onChange={(e) => setTag({ ...tag, amount: clamp2dpStr(e.target.value) })} /></div>
         </div>
         <label className="radio" style={{ marginTop: 4 }}>
           <input type="checkbox" checked={tag.makeClaim} onChange={(e) => setTag({ ...tag, makeClaim: e.target.checked })} />

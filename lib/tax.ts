@@ -181,6 +181,17 @@ export function composeTin(prefix: TinPrefix, digits: string): string {
   return d ? prefix + d : '';
 }
 
+/** Money precision: two decimal places, always. */
+export function to2dp(n: number): number {
+  return Math.round(n * 100) / 100;
+}
+
+/** Constrain a typed amount string to digits with at most two decimals. */
+export function clamp2dpStr(s: string): string {
+  const m = s.replace(/[^\d.]/g, '').match(/^\d*(\.\d{0,2})?/);
+  return m ? m[0] : '';
+}
+
 export function uid(): string {
   return Math.random().toString(36).slice(2, 9);
 }
