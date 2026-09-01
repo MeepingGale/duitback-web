@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://meepinggale.github.io/duitback-web/sitemap.xml

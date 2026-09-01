@@ -36,7 +36,7 @@ a{color:var(--color-accent)}a:hover{color:var(--color-accent-600)}
 <div style="min-height:100vh;display:flex;flex-direction:column">
 <sc-if value="{{ notSetup }}" hint-placeholder-val="{{ true }}">
 <div class="nav no-print" style="flex-wrap:wrap;position:sticky;top:0;background:var(--color-bg);z-index:5">
-<span class="nav-brand" style="display:inline-flex;align-items:center"><svg width="132" height="27" viewBox="0 0 320 66" aria-label="duitback"><text x="2" y="56" font-family="Archivo, Arial, sans-serif" font-size="36" font-weight="800" letter-spacing="-1" fill="#201e1d">du&#305;tback<tspan fill="#ec3013">.</tspan></text><g transform="translate(50,24)"><g fill="#ec3013"><ellipse cx="0" cy="-5.4" rx="3.4" ry="5.4"></ellipse><ellipse cx="0" cy="-5.4" rx="3.4" ry="5.4" transform="rotate(72)"></ellipse><ellipse cx="0" cy="-5.4" rx="3.4" ry="5.4" transform="rotate(144)"></ellipse><ellipse cx="0" cy="-5.4" rx="3.4" ry="5.4" transform="rotate(216)"></ellipse><ellipse cx="0" cy="-5.4" rx="3.4" ry="5.4" transform="rotate(288)"></ellipse></g><circle r="1.8" fill="#201e1d"></circle><line x1="0.7" y1="-1" x2="5.8" y2="-7.1" stroke="#201e1d" stroke-width="0.9"></line><g fill="#201e1d"><circle cx="6.4" cy="-7.8" r="0.8"></circle><circle cx="7.8" cy="-7.8" r="0.8"></circle><circle cx="6.4" cy="-9.1" r="0.8"></circle><circle cx="7.8" cy="-9.1" r="0.8"></circle></g></g></svg></span>
+<span class="nav-brand" style="display:inline-flex;align-items:center"><a href="../" title="DuitBack — home" aria-label="DuitBack home" style="display:inline-flex;align-items:center"><svg width="132" height="27" viewBox="0 0 320 66" aria-label="duitback"><text x="2" y="56" font-family="Archivo, Arial, sans-serif" font-size="36" font-weight="800" letter-spacing="-1" fill="#201e1d">du&#305;tback<tspan fill="#ec3013">.</tspan></text><g transform="translate(50,24)"><g fill="#ec3013"><ellipse cx="0" cy="-5.4" rx="3.4" ry="5.4"></ellipse><ellipse cx="0" cy="-5.4" rx="3.4" ry="5.4" transform="rotate(72)"></ellipse><ellipse cx="0" cy="-5.4" rx="3.4" ry="5.4" transform="rotate(144)"></ellipse><ellipse cx="0" cy="-5.4" rx="3.4" ry="5.4" transform="rotate(216)"></ellipse><ellipse cx="0" cy="-5.4" rx="3.4" ry="5.4" transform="rotate(288)"></ellipse></g><circle r="1.8" fill="#201e1d"></circle><line x1="0.7" y1="-1" x2="5.8" y2="-7.1" stroke="#201e1d" stroke-width="0.9"></line><g fill="#201e1d"><circle cx="6.4" cy="-7.8" r="0.8"></circle><circle cx="7.8" cy="-7.8" r="0.8"></circle><circle cx="6.4" cy="-9.1" r="0.8"></circle><circle cx="7.8" cy="-9.1" r="0.8"></circle></g></g></svg></a></span>
 <a class="navlink" onClick="{{ goDash }}" aria-current="{{ curDash }}">Dashboard</a>
 <a class="navlink" onClick="{{ goClaims }}" aria-current="{{ curClaims }}">Claims · Tuntutan</a>
 <a class="navlink" onClick="{{ goReceipts }}" aria-current="{{ curReceipts }}">Receipts · Resit</a>
@@ -492,7 +492,21 @@ a{color:var(--color-accent)}a:hover{color:var(--color-accent-600)}
 </sc-if>
 
 
-<template id="__bundler_thumbnail"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" fill="#ec3013"></rect><text x="50" y="62" font-family="Archivo, Arial, sans-serif" font-size="30" font-weight="800" fill="#f3f2f2" text-anchor="middle">DB</text></svg></template></x-dc>
+<template id="__bundler_thumbnail"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" fill="#ec3013"></rect><text x="50" y="62" font-family="Archivo, Arial, sans-serif" font-size="30" font-weight="800" fill="#f3f2f2" text-anchor="middle">DB</text></svg></template>
+<sc-if value="{{ tutOn }}" hint-placeholder-val="{{ false }}">
+<div class="dialog-backdrop" style="z-index:60">
+<div class="dialog" style="max-width:480px;width:calc(100vw - 48px)">
+<div class="kick">Quick tour · Jom tengok · {{ tutStepL }}</div>
+<h3 style="font-family:var(--font-heading);font-weight:800;font-size:20px;margin:10px 0 8px">{{ tutTitle }}</h3>
+<p style="font-size:13.5px;line-height:1.55;margin:0 0 20px;color:var(--color-neutral-800)">{{ tutBody }}</p>
+<div style="display:flex;gap:10px;align-items:center">
+<sc-if value="{{ tutNotLast }}" hint-placeholder-val="{{ true }}"><button class="btn btn-primary" onClick="{{ tutNext }}">Next →</button><button class="btn btn-ghost" onClick="{{ tutDone }}">Skip tour</button></sc-if>
+<sc-if value="{{ tutLast }}" hint-placeholder-val="{{ false }}"><button class="btn btn-primary" onClick="{{ tutDone }}">Start tracking →</button></sc-if>
+</div>
+</div>
+</div>
+</sc-if>
+</x-dc>
 <script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1280,&quot;height&quot;:900}}">
 const CATS = [
   {id:'individual', en:'Individual & dependents', bm:'Individu', cap:9000, auto:true, note:'Automatic RM9,000 for every resident taxpayer — no receipts needed.'},
@@ -625,7 +639,7 @@ function emptyData(){
   return {profile:{name:'there',taxNo:'',bank:'',marital:'single'},ya:'YA'+y,income,claims:[],receipts:[],docs:[],status};
 }
 class Component extends DCLogic {
-  state = {screen:'dash', data:null, setup:{name:'',taxNo:'',marital:'single'}, rFilter:'all', rSearch:'', selCat:'lifestyle', dlg:null, dataMsg:'', locked:false, pinEntry:'', pinErr:'', pinNew:'',
+  state = {screen:'dash', data:null, tut:0, setup:{name:'',taxNo:'',marital:'single'}, rFilter:'all', rSearch:'', selCat:'lifestyle', dlg:null, dataMsg:'', locked:false, pinEntry:'', pinErr:'', pinNew:'',
     add:{cat:'lifestyle',sub:'general',date:today(),amount:'',desc:'',fileName:null,fileThumb:null,fileFull:null,monthly:false},
     tag:{rid:null,cat:'lifestyle',merchant:'',amount:'',makeClaim:true},
     viewer:{id:null,name:'',sub:'',src:null,note:''}};
@@ -704,7 +718,7 @@ class Component extends DCLogic {
       vals.suSingle=su.marital!=='married'; vals.suMarried=su.marital==='married';
       vals.suSetSingle=()=>this.setState({setup:{...su,marital:'single'}});
       vals.suSetMarried=()=>this.setState({setup:{...su,marital:'married'}});
-      vals.suStart=()=>{const f=emptyData(); f.profile.name=(su.name||'').trim()||'there'; f.profile.taxNo=(su.taxNo||'').trim(); f.profile.marital=su.marital; this.save(f,'Welcome'+(f.profile.name!=='there'?', '+f.profile.name:'')+' — add your first claim when ready.');};
+      vals.suStart=()=>{const f=emptyData(); f.profile.name=(su.name||'').trim()||'there'; f.profile.taxNo=(su.taxNo||'').trim(); f.profile.marital=su.marital; this.save(f,'Welcome'+(f.profile.name!=='there'?', '+f.profile.name:'')+' — add your first claim when ready.'); this.setState({tut:1});};
       vals.suDemo=()=>this.save(demoData(),'Demo data loaded — Settings → Clear everything starts you fresh.');
       return vals;}
     const ya=d.ya, c=this.calc(d,ya);
@@ -908,12 +922,26 @@ class Component extends DCLogic {
     vals.setPin=()=>{const p=(st.pinNew||'').trim(); if(p.length>=4){this.mut(x=>{x.profile.pin=p;}); this.setState({pinNew:'',dataMsg:'Passcode set — the app will ask for it on next open.'});} else this.setState({dataMsg:'Passcode must be at least 4 characters.'});};
     vals.removePin=()=>{this.mut(x=>{delete x.profile.pin;}); this.setState({dataMsg:'Passcode removed.'});};
     vals.lockNow=()=>this.setState({locked:true,pinEntry:'',pinErr:'',screen:'dash'});
-    vals.exportJson=()=>{const blob=new Blob([JSON.stringify(d,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='duitback-data.json';a.click();};
+    vals.exportJson=()=>{const blob=new Blob([JSON.stringify(d,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='duitback-data.json';a.click();URL.revokeObjectURL(a.href);};
     vals.onImport=e=>{const f=e.target.files[0]; if(!f)return; const rd=new FileReader();
       rd.onload=()=>{try{const j=JSON.parse(rd.result); if(j&&Array.isArray(j.claims)&&j.income){if(!j.income[j.ya])j.ya=Object.keys(j.income)[0]; this.save(j,'Imported '+f.name+' — '+j.claims.length+' claims, '+(j.receipts||[]).length+' receipts.');}else this.setState({dataMsg:'That file is not a DuitBack export.'});}catch(err){this.setState({dataMsg:'Could not read that file as JSON.'});}};
       rd.readAsText(f); e.target.value='';};
     vals.loadDemo=()=>this.save(demoData(),'Demo data loaded.');
     vals.clearAll=()=>{try{localStorage.removeItem(KEY);}catch(e){} this.setState({data:null,screen:'dash',setup:{name:'',taxNo:'',marital:'single'},dataMsg:''});};
+    // first-run tour
+    const TUT=[
+      {t:'Add claims as you spend',b:'Hit “+ New claim” whenever you spend on something claimable — books, clinic visits, PRS top-ups. Totals, caps and the refund estimate update live.'},
+      {t:'Watch your caps',b:'The Claims screen lists every LHDN relief with its cap and what is left this year. Over-cap entries are saved but flagged — only the allowed amount counts.'},
+      {t:'Drop receipts in the vault',b:'Drag receipts into the Receipts screen and tag them to a relief. LHDN can audit up to 7 years back — the vault keeps the evidence next to the claim.'},
+      {t:'File from the pack in March',b:'When e-Filing opens, the Filing pack shows every number to type into MyTax, with the receipts behind each line. Print it or save as PDF — and always confirm figures in MyTax.'}
+    ];
+    vals.tutOn=st.tut>0;
+    const ti=Math.max(0,Math.min(st.tut,TUT.length)-1);
+    vals.tutTitle=TUT[ti].t; vals.tutBody=TUT[ti].b;
+    vals.tutStepL=st.tut+' of '+TUT.length;
+    vals.tutLast=st.tut>=TUT.length; vals.tutNotLast=st.tut>0&&st.tut<TUT.length;
+    vals.tutNext=()=>this.setState({tut:st.tut+1});
+    vals.tutDone=()=>this.setState({tut:0});
     // dialogs
     vals.dlgAdd=st.dlg==='add'; vals.dlgTag=st.dlg==='tag'; vals.dlgView=st.dlg==='view';
     vals.closeDlg=()=>this.setState({dlg:null});

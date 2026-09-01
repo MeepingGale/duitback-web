@@ -2,7 +2,7 @@
 
 *Duit* is Malay for money; DuitBack is about getting yours back. It tracks a Malaysian personal income tax return (Form BE) through the year — relief claims against the real LHDN caps, receipts in one vault, a live refund/balance estimate — then hands you a cheat-sheet with every number to type into MyTax when e-Filing opens. The whole app is one self-contained HTML file, and all data stays in your browser: no backend, no account, no tracking.
 
-**[Live app →](https://meepinggale.github.io/duitback-web/)** · [![deploy](https://github.com/MeepingGale/duitback-web/actions/workflows/deploy.yml/badge.svg)](https://github.com/MeepingGale/duitback-web/actions/workflows/deploy.yml)
+**[Live site →](https://meepinggale.github.io/duitback-web/)** · **[Open the tracker →](https://meepinggale.github.io/duitback-web/app/)** · [![deploy](https://github.com/MeepingGale/duitback-web/actions/workflows/deploy.yml/badge.svg)](https://github.com/MeepingGale/duitback-web/actions/workflows/deploy.yml)
 
 ![Dashboard — reliefs counted against caps, with the returns table below](docs/screenshots/dashboard.png)
 
@@ -24,7 +24,7 @@ Malaysian reliefs are use-it-or-lose-it: whatever cap you haven't spent to by 31
 **Data & portability**
 - Everything persists in `localStorage`; receipts are stored as data URLs inside the same blob — and a failed write warns you instead of silently dropping data
 - JSON export and import for backup or moving devices
-- First run is a minute of setup — name, tax number, marital status — or one click loads a demo taxpayer ("Amirah") to explore; demo mode wears an unmissable banner with a one-click exit, and Settings → Clear everything always returns you to setup
+- First run is a minute of setup — name, tax number, marital status — followed by a four-step tour of the claims → receipts → filing-pack loop; or one click loads a demo taxpayer ("Amirah") to explore. Demo mode wears an unmissable banner with a one-click exit, and Settings → Clear everything always returns you to setup
 - Bilingual throughout — English · Bahasa Melayu
 
 ## Screenshots
@@ -40,11 +40,12 @@ Malaysian reliefs are use-it-or-lose-it: whatever cap you haven't spent to by 31
 
 ## How it's built
 
-This repo is the whole design process, not just the shipped file:
+This repo is the whole design process, not just the shipped product. The site is a Next.js static export: a server-rendered landing page (full SEO metadata, Open Graph, JSON-LD, sitemap) at `/`, with the tracker served at `/app/` and its header logo linking back home:
 
 | File | What it is |
 | --- | --- |
-| `DuitBack.html` | The app — one ~320 KB self-contained file with the runtime, design system, Archivo fonts and every screen inlined. Works offline from `file://`. |
+| `app/` + `components/ui.tsx` | The Next.js landing — App Router, shared UI components, Archivo self-hosted via `next/font`, styled by the same Modernist token sheet as the app |
+| `public/app/index.html` | The tracker — one ~320 KB self-contained file with the React 18 runtime, design system, fonts and every screen inlined. Works offline from `file://` too. |
 | `DuitBack App.dc.html` | The design canvas the app was built in |
 | `Tax Portal Mockups.dc.html` | Where it started — the "CukaiKu" concept: three dashboard directions, then the seven core screens |
 | `DuitBack Logos.dc.html` | The logo exploration — seventeen directions (wau kite, ringgit note, "balik" U-turn road sign…) before the bunga raya line-flower won the wordmark |
@@ -70,9 +71,12 @@ Choices I'd defend, and where their ceilings are:
 ## Run locally
 
 ```bash
-open DuitBack.html             # the app — no install, no build, no server
+npm install && npm run dev     # full site at http://localhost:3000/duitback-web/
+open public/app/index.html     # or just the tracker — no install, no build, no server
 open "DuitBack App.dc.html"    # the design canvases open the same way
 ```
+
+`npm run build` exports the static site to `out/` — the same thing CI deploys.
 
 ## Roadmap
 
