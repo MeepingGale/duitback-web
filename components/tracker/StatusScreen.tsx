@@ -31,9 +31,9 @@ export function StatusScreen({ api, c, demo }: { api: Api; c: CalcResult; demo: 
       <p className="text-muted" style={{ fontSize: 12.5, margin: '8px 0 0' }}>{dl.formLine}</p>
       <hr className="hr" style={{ margin: '16px 0 24px' }} />
 
-      <div className="steps">
+      <div className="fsteps">
         {steps.map((s, i) => (
-          <div key={s.title} className={'step' + (i === stageIdx ? ' on' : '')} style={{ ['--step-c' as string]: i <= stageIdx ? (i === stageIdx ? 'var(--color-accent-700)' : 'var(--color-accent)') : 'var(--color-neutral-300)' } as React.CSSProperties}>
+          <div key={s.title} className={'fstep' + (i === stageIdx ? ' on' : '')} style={{ ['--step-c' as string]: i <= stageIdx ? (i === stageIdx ? 'var(--color-accent-700)' : 'var(--color-accent)') : 'var(--color-neutral-300)' } as React.CSSProperties}>
             <div style={{ fontSize: 11 }} className="text-muted mono">{s.date}</div>
             <div style={{ ...heading800, marginTop: 2, color: i === stageIdx ? 'var(--color-accent-700)' : 'var(--color-text)' }}>
               {s.title} <span className="bm" style={{ fontWeight: 400 }}>· {s.bm}</span>
