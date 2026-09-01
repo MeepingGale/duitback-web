@@ -9,6 +9,7 @@ beforeEach(() => {
   cleanup();
   localStorage.clear();
   Element.prototype.scrollIntoView = vi.fn();
+  vi.stubGlobal('confirm', vi.fn(() => true)); // deletes are confirm-gated
 });
 
 async function completeSetup(name = 'Testy') {
@@ -197,6 +198,34 @@ describe('TrackerApp smoke', () => {
     fireEvent.change(screen.getByLabelText('Account number digits'), { target: { value: '1234-5678 9012abc' } });
     await screen.findByText(/Maybank account numbers are 12 digits/);
     expect(JSON.parse(localStorage.getItem(KEY)!).profile.bank).toBe('Maybank 123456789012');
+  });
+
+  it('claims can be edited in place, and deletes ask for confirmation', async () => {
+    await completeSetup();
+    fireEvent.click(screen.getByText('Skip tour'));
+    fireEvent.click(screen.getByText('+ New claim'));
+    await screen.findByText('New claim · Tuntutan baharu');
+    fireEvent.change(screen.getByLabelText('Amount · Jumlah (RM)'), { target: { value: '688' } });
+    fireEvent.click(screen.getByText('Save claim · Simpan'));
+    await screen.findAllByText('RM 688');
+    // open the claim for editing from the Claims panel
+    fireEvent.click(screen.getByText('Claims · Tuntutan'));
+    fireEvent.click(await screen.findByText('Edit · Sunting'));
+    await screen.findByText('Edit claim · Sunting tuntutan');
+    fireEvent.change(screen.getByLabelText('Amount · Jumlah (RM)'), { target: { value: '750.50' } });
+    fireEvent.change(screen.getByPlaceholderText(/broadband/), { target: { value: 'Unifi fixed' } });
+    fireEvent.click(screen.getByText('Save claim · Simpan'));
+    await screen.findAllByText('RM 750.50');
+    const stored = JSON.parse(localStorage.getItem(KEY)!);
+    expect(stored.claims).toHaveLength(1); // edited, not duplicated
+    expect(stored.claims[0].amount).toBe(750.5);
+    expect(stored.claims[0].desc).toBe('Unifi fixed');
+    // delete asks for confirmation; declining keeps the claim
+    (window.confirm as ReturnType<typeof vi.fn>).mockReturnValueOnce(false);
+    fireEvent.click(screen.getByText('Delete'));
+    expect(JSON.parse(localStorage.getItem(KEY)!).claims).toHaveLength(1);
+    fireEvent.click(screen.getByText('Delete')); // stub returns true now
+    await waitFor(() => expect(JSON.parse(localStorage.getItem(KEY)!).claims).toHaveLength(0));
   });
 
   it('returning visitors skip setup and keep their data', async () => {

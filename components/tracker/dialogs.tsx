@@ -1,4 +1,4 @@
-import { CATS, CHILDSUB, MEDSUB, CalcResult, capFor, fmt, to2dp, today, uid } from '@/lib/tax';
+import { CATS, CHILDSUB, Claim, MEDSUB, CalcResult, capFor, fmt, medSum, to2dp, today, uid } from '@/lib/tax';
 import { putFile, readFiles } from '@/lib/data';
 import { Api } from './App';
 import { MoneyInput } from './bits';
@@ -14,11 +14,24 @@ export interface AddState {
   fileThumb: string | null;
   fileFull: string | null;
   monthly: boolean;
+  editId?: string;
 }
 
 export const freshAdd = (cat?: string): AddState => ({
   cat: cat || 'lifestyle', sub: 'general', childSub: 'u18', date: today(), amount: '', desc: '',
   fileName: null, fileThumb: null, fileFull: null, monthly: false,
+});
+
+/** Prefill the dialog from an existing claim for in-place editing. */
+export const editState = (cl: Claim): AddState => ({
+  cat: cl.cat,
+  sub: cl.sub || 'general',
+  childSub: CHILDSUB.find((m) => m.amt === cl.amount)?.id || 'u18',
+  date: cl.date,
+  amount: String(cl.amount),
+  desc: cl.desc === '(no description)' ? '' : cl.desc,
+  fileName: null, fileThumb: null, fileFull: null, monthly: false,
+  editId: cl.id,
 });
 
 export interface TagState {
@@ -53,7 +66,10 @@ export function AddClaimDialog({ api, c, add, setAdd, onSaved }: { api: Api; c: 
 
   let capNote = '', capNoteCls = 'text-muted';
   if (addCt) {
-    const already = add.cat === 'medical' ? c.sums.medical || 0 : c.sums[add.cat] || 0;
+    const others = c.claims.filter((x) => x.id !== add.editId);
+    const already = add.cat === 'medical'
+      ? medSum(others.filter((x) => x.cat === 'medical'))
+      : others.filter((x) => x.cat === add.cat).reduce((a, x) => a + (+x.amount || 0), 0);
     const cap = add.cat === 'donation' ? c.donCap : capFor(add.cat, yaNum);
     const each = +add.amount || 0;
     const total = add.monthly ? each * 12 : each;
@@ -76,9 +92,32 @@ export function AddClaimDialog({ api, c, add, setAdd, onSaved }: { api: Api; c: 
     }
   }
 
+  const editTarget = add.editId ? api.d.claims.find((q) => q.id === add.editId) : undefined;
+
   const saveClaim = () => {
     const amt = to2dp(+add.amount || 0);
     if (!amt) { setDlg(null); return; }
+    if (add.editId) {
+      const attach = add.fileName && editTarget && !editTarget.receipt;
+      const recId2 = attach ? uid() : null;
+      if (attach && add.fileFull) putFile(recId2!, add.fileFull);
+      mut((dd) => {
+        const cl = dd.claims.find((q) => q.id === add.editId);
+        if (!cl) return;
+        cl.cat = add.cat;
+        cl.sub = add.cat === 'medical' ? add.sub : undefined;
+        cl.date = add.date || cl.date;
+        cl.desc = add.desc || '(no description)';
+        cl.amount = amt;
+        if (attach) {
+          cl.receipt = add.fileName;
+          dd.receipts.unshift({ id: recId2!, ya: dd.ya, cat: add.cat, name: add.fileName!, sub: (add.desc || '') + ' · ' + fmt(amt), thumb: add.fileThumb, hasFull: !!add.fileFull });
+        }
+      });
+      setDlg(null);
+      onSaved(add.cat);
+      return;
+    }
     let recId: string | null = null;
     if (add.fileName) { recId = uid(); if (add.fileFull) putFile(recId, add.fileFull); }
     mut((dd) => {
@@ -100,7 +139,7 @@ export function AddClaimDialog({ api, c, add, setAdd, onSaved }: { api: Api; c: 
   return (
     <div className="dialog-backdrop" style={{ zIndex: 20 }} onClick={() => setDlg(null)}>
       <div className="dialog" onClick={(e) => e.stopPropagation()}>
-        <div className="dialog-title">New claim · Tuntutan baharu <span className="bm" style={{ fontSize: 13 }}>({ya})</span></div>
+        <div className="dialog-title">{add.editId ? 'Edit claim · Sunting tuntutan' : 'New claim · Tuntutan baharu'} <span className="bm" style={{ fontSize: 13 }}>({ya})</span></div>
         <div className="field">
           <label>Relief category · Kategori</label>
           <select className="input" value={add.cat} onChange={(e) => setAdd({ ...add, cat: e.target.value })}>
@@ -131,11 +170,19 @@ export function AddClaimDialog({ api, c, add, setAdd, onSaved }: { api: Api; c: 
           <div className="field"><label>Amount · Jumlah (RM)</label><MoneyInput ariaLabel="Amount · Jumlah (RM)" value={add.amount} onChange={(v) => setAdd({ ...add, amount: v })} /></div>
         </div>
         <div className="field"><label>Description · Keterangan</label><input className="input" placeholder="e.g. broadband bill — Unifi" value={add.desc} onChange={(e) => setAdd({ ...add, desc: e.target.value })} /></div>
-        <label className="radio">
-          <input type="checkbox" checked={add.monthly} onChange={(e) => setAdd({ ...add, monthly: e.target.checked })} />
-          <span className="dot" style={{ borderRadius: 0 }} />
-          Recurring — create 12 monthly lines (Jan–Dec) · Bulanan
-        </label>
+        {!add.editId && (
+          <label className="radio">
+            <input type="checkbox" checked={add.monthly} onChange={(e) => setAdd({ ...add, monthly: e.target.checked })} />
+            <span className="dot" style={{ borderRadius: 0 }} />
+            Recurring — create 12 monthly lines (Jan–Dec) · Bulanan
+          </label>
+        )}
+        {add.editId && editTarget?.receipt ? (
+          <div className="field">
+            <label>Receipt · Resit</label>
+            <div style={{ fontSize: 12.5 }}><span className="tag tag-neutral">{editTarget.receipt}</span> <span className="text-muted">linked · dipaut</span></div>
+          </div>
+        ) : (
         <div className="field">
           <label>Receipt · Resit (optional)</label>
           <label style={{ border: '2px dashed var(--color-divider)', padding: 14, display: 'block', cursor: 'pointer', background: 'var(--color-bg)' }}>
@@ -149,8 +196,16 @@ export function AddClaimDialog({ api, c, add, setAdd, onSaved }: { api: Api; c: 
             }} />
           </label>
         </div>
+        )}
         <div style={{ fontSize: 11.5 }} className={capNoteCls}>{capNote}</div>
         <div className="dialog-actions">
+          {add.editId && (
+            <button className="btn btn-ghost" style={{ marginRight: 'auto' }} onClick={() => {
+              if (!window.confirm('Delete this claim? · Padam tuntutan ini?')) return;
+              mut((dd) => { dd.claims = dd.claims.filter((q) => q.id !== add.editId); });
+              setDlg(null);
+            }}>Delete · Padam</button>
+          )}
           <button className="btn btn-secondary" onClick={() => setDlg(null)}>Cancel</button>
           <button className="btn btn-primary" disabled={!(+add.amount > 0)} onClick={saveClaim}>Save claim · Simpan</button>
         </div>

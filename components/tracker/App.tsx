@@ -1,6 +1,6 @@
 'use client';
 import { useEffect, useState } from 'react';
-import { Data, calc, fmt, today, uid } from '@/lib/tax';
+import { Claim, Data, calc, fmt, today, uid } from '@/lib/tax';
 import { bumpChanges, demoData, emptyData, exportJson, isDemo, loadData, persist, pruneEmptyFutureYears, wipe } from '@/lib/data';
 import { Kick, TinInput, Wordmark } from './bits';
 import { SiteFooter } from '@/components/ui';
@@ -11,7 +11,7 @@ import { StatusScreen } from './StatusScreen';
 import { Income } from './Income';
 import { FilingPack } from './FilingPack';
 import { Settings } from './Settings';
-import { AddClaimDialog, TagDialog, ViewerDialog, AddState, TagState, ViewerState, freshAdd } from './dialogs';
+import { AddClaimDialog, TagDialog, ViewerDialog, AddState, TagState, ViewerState, editState, freshAdd } from './dialogs';
 import { TOUR, Tour } from './Tour';
 
 export type Screen = 'dash' | 'claims' | 'receipts' | 'status' | 'income' | 'pack' | 'settings';
@@ -33,6 +33,7 @@ export interface Api {
   mut: (fn: (d: Data) => void) => void;
   go: (s: Screen) => void;
   openAdd: (cat?: string) => void;
+  openEdit: (cl: Claim) => void;
   setDlg: (d: null | 'add' | 'tag' | 'view') => void;
   clearAll: () => void;
   startTour: () => void;
@@ -96,6 +97,10 @@ export default function TrackerApp() {
   };
   const openAdd = (cat?: string) => {
     setAdd(freshAdd(cat && cat !== 'individual' ? cat : undefined));
+    setDlg('add');
+  };
+  const openEdit = (cl: Claim) => {
+    setAdd(editState(cl));
     setDlg('add');
   };
 
@@ -169,7 +174,7 @@ export default function TrackerApp() {
   const d = data;
   const ya = d.ya;
   const c = calc(d, ya);
-  const api: Api = { d, ya, save, mut, go: setScreen, openAdd, setDlg, clearAll, startTour: () => setTut(1), dataMsg, setDataMsg };
+  const api: Api = { d, ya, save, mut, go: setScreen, openAdd, openEdit, setDlg, clearAll, startTour: () => setTut(1), dataMsg, setDataMsg };
   const demo = isDemo(d);
 
   return (
