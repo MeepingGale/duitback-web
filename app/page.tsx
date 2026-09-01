@@ -1,7 +1,6 @@
-import { CtaLink, FeatureCell, Kicker, Section, Step, Wordmark } from '@/components/ui';
+import { CtaLink, FeatureCell, Kicker, Section, SiteFooter, SiteHeader, Step } from '@/components/ui';
 
 const APP = 'app/';
-const GITHUB = 'https://github.com/MeepingGale/duitback-web';
 
 const jsonLd = {
   '@context': 'https://schema.org',
@@ -54,14 +53,7 @@ export default function Home() {
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
 
-      <header className="wrap site-nav">
-        <a href="./" aria-label="duıtback. — home" style={{ display: 'inline-flex' }}>
-          <Wordmark />
-        </a>
-        <CtaLink href={APP} variant="secondary">
-          Open the tracker →
-        </CtaLink>
-      </header>
+      <SiteHeader />
 
       <main>
         <section className="wrap hero">
@@ -129,20 +121,7 @@ export default function Home() {
         </Section>
       </main>
 
-      <footer className="wrap site-footer">
-        <span>
-          DuitBack — unofficial tracker · estimates only · not affiliated with LHDN. Confirm every figure in MyTax before
-          filing.
-        </span>
-        <span style={{ display: 'flex', gap: 16 }}>
-          <a href="https://ko-fi.com/duitback" target="_blank" rel="noopener noreferrer">
-            belanja teh tarik →
-          </a>
-          <a href={GITHUB} target="_blank" rel="noopener noreferrer">
-            GitHub
-          </a>
-        </span>
-      </footer>
+      <SiteFooter />
     </>
   );
 }

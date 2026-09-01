@@ -106,3 +106,40 @@ export function Step({ n, title, children }: { n: number; title: ReactNode; chil
     </div>
   );
 }
+
+export function SiteHeader({ home = './' }: { home?: string }) {
+  return (
+    <header className="wrap site-nav">
+      <a href={home} aria-label="duıtback. — home" style={{ display: 'inline-flex' }}>
+        <Wordmark />
+      </a>
+      <span style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
+        <CtaLink href={home + 'reliefs/'} variant="ghost">
+          Relief list · Pelepasan
+        </CtaLink>
+        <CtaLink href={home + 'app/'} variant="secondary">
+          Open the tracker →
+        </CtaLink>
+      </span>
+    </header>
+  );
+}
+
+export function SiteFooter() {
+  return (
+    <footer className="wrap site-footer">
+      <span>
+        DuitBack — unofficial tracker · estimates only · not affiliated with LHDN. Confirm every figure in MyTax before
+        filing.
+      </span>
+      <span style={{ display: 'flex', gap: 16 }}>
+        <a href="https://ko-fi.com/duitback" target="_blank" rel="noopener noreferrer">
+          belanja teh tarik →
+        </a>
+        <a href="https://github.com/MeepingGale/duitback-web" target="_blank" rel="noopener noreferrer">
+          GitHub
+        </a>
+      </span>
+    </footer>
+  );
+}

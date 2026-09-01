@@ -23,7 +23,8 @@ Malaysian reliefs are use-it-or-lose-it: whatever cap you haven't spent to by 31
 
 **Data & portability**
 - Everything persists in `localStorage`; receipts are stored as data URLs inside the same blob — and a failed write warns you instead of silently dropping data
-- JSON export and import for backup or moving devices
+- JSON export and import for backup or moving devices — with backup nudges: the dashboard flags when changes pile up since your last export, and Settings shows the last-backup date
+- Installable PWA: offline after first load, with a camera button for snapping receipts straight into the vault on your phone
 - First run is a minute of setup — name, tax number, marital status — followed by a guided tour that walks the actual screens, spotlighting the claim button, the caps table, the receipt vault and the filing pack in place (replayable from Settings); or one click loads a demo taxpayer ("Amirah") to explore. Demo mode wears an unmissable banner with a one-click exit, and Settings → Clear everything always returns you to setup
 - Bilingual throughout — English · Bahasa Melayu
 
@@ -45,6 +46,7 @@ The site is a Next.js static export: a server-rendered landing page (full SEO me
 | File | What it is |
 | --- | --- |
 | `app/` + `components/ui.tsx` | The Next.js landing — App Router, shared UI components, Archivo self-hosted via `next/font`, styled by the Modernist token sheet |
+| `app/reliefs/` | The bilingual YA2026 relief-schedule reference page — prerendered straight from the engine's own data, so it can never drift from what the tracker enforces |
 | `components/tracker/` | The tracker — typed React screens (dashboard, claims, receipts, status, income, filing pack, settings) plus dialogs, tour and passcode lock |
 | `lib/tax.ts` + `lib/data.ts` | The engine — pure, unit-tested tax math (brackets, per-YA caps, sub-limits, rebates, joint assessment) and the storage layer (same keys as every earlier build, so nobody loses data) |
 | [`duitback-mockup`](https://github.com/MeepingGale/duitback-mockup) | The whole design process, in its own repo — the app's working canvas, the "CukaiKu"-era explorations, seventeen logo directions and the Modernist design system |
@@ -76,7 +78,7 @@ npm test                       # the tax-engine suite (Vitest)
 
 ## Tests & CI
 
-Vitest concentrates where breakage is expensive — the money math: the YA2025 bracket scale checked against LHDN's cumulative figures, per-YA cap overrides, medical sub-limits, the 10%-of-aggregate donation cap, rebates and zakat, joint-vs-separate assessment, and the demo dataset's exact shipped numbers. Every push runs the suite before the build; a red test blocks the deploy.
+Vitest concentrates where breakage is expensive — the money math: the YA2025 bracket scale checked against LHDN's cumulative figures, per-YA cap overrides, medical sub-limits, the 10%-of-aggregate donation cap, rebates and zakat, joint-vs-separate assessment, and the demo dataset's exact shipped numbers — plus Testing Library smoke tests over the screens (setup, the claims dialog and its bilingual over-cap warning, demo mode, returning-visitor persistence). Every push runs the suite before the build; a red test blocks the deploy.
 
 ## Roadmap
 

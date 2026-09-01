@@ -1,7 +1,7 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { Data, calc, fmt, today, uid } from '@/lib/tax';
-import { demoData, emptyData, exportJson, isDemo, loadData, persist, wipe } from '@/lib/data';
+import { bumpChanges, demoData, emptyData, exportJson, isDemo, loadData, persist, wipe } from '@/lib/data';
 import { Kick, Wordmark } from './bits';
 import { Dashboard } from './Dashboard';
 import { Claims } from './Claims';
@@ -62,6 +62,9 @@ export default function TrackerApp() {
       setLocked(!!d.profile.pin);
     }
     setBooted(true);
+    if ('serviceWorker' in navigator && process.env.NODE_ENV === 'production') {
+      navigator.serviceWorker.register('/duitback-web/sw.js', { scope: '/duitback-web/' }).catch(() => {});
+    }
   }, []);
 
   // the tour drives the screen: each step lands on the screen it teaches
@@ -72,6 +75,7 @@ export default function TrackerApp() {
   const save = (d: Data, msg?: string) => {
     setData(d);
     const err = persist(d);
+    bumpChanges();
     setDataMsg(err || msg || '');
   };
   const mut = (fn: (d: Data) => void) => {

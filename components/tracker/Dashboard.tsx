@@ -1,4 +1,5 @@
 import { CATS, CalcResult, calc, fmt } from '@/lib/tax';
+import { exportJson, getBackupMeta, isDemo } from '@/lib/data';
 import { Api } from './App';
 import { Bar, Kick, YaTabs, pagepad, yaHead, right, heading800 } from './bits';
 import { STATUS_TAG, deadlineInfo, reliefRows, yearsOf } from './derive';
@@ -93,6 +94,20 @@ export function Dashboard({ api, c }: { api: Api; c: CalcResult }) {
           </div>
         </div>
       )}
+
+      {(() => {
+        const meta = getBackupMeta();
+        if (isDemo(d) || meta.changesSince < 20) return null;
+        return (
+          <div className="no-print" style={{ display: 'flex', gap: 10, alignItems: 'baseline', flexWrap: 'wrap', border: '1px solid var(--color-divider)', padding: '10px 14px', marginTop: 20, fontSize: 12.5 }}>
+            <span className="text-muted">
+              {meta.changesSince} changes since your last backup{meta.lastExport ? ' (' + meta.lastExport + ')' : ' — you have never exported'}.{' '}
+              <span lang="ms">Banyak perubahan sejak sandaran terakhir.</span>
+            </span>
+            <button className="navlink linkbtn" style={{ fontSize: 12.5, fontWeight: 800 }} onClick={() => { exportJson(d); api.setDataMsg('Backup exported. · Sandaran dieksport.'); }}>Export JSON now →</button>
+          </div>
+        );
+      })()}
 
       <hr className="hr" style={{ margin: '28px 0 20px' }} />
       <Kick style={{ marginBottom: 10 }}>Your returns · Penyata anda</Kick>

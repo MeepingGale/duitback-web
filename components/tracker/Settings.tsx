@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Api } from './App';
-import { demoData, exportJson, parseImport } from '@/lib/data';
+import { demoData, exportJson, getBackupMeta, parseImport } from '@/lib/data';
 import { Kick, pagepad } from './bits';
 
 export function Settings({ api, lockNow }: { api: Api; lockNow: () => void }) {
@@ -68,7 +68,7 @@ export function Settings({ api, lockNow }: { api: Api; lockNow: () => void }) {
           <span lang="ms">Semua data kekal dalam pelayar ini — tiada apa-apa dihantar ke pelayan. Eksport JSON untuk pindah peranti.</span>
         </p>
         <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
-          <button className="btn btn-secondary" onClick={() => exportJson(d)}>Export all data (JSON)</button>
+          <button className="btn btn-secondary" onClick={() => { exportJson(d); setDataMsg('Backup exported. · Sandaran dieksport.'); }}>Export all data (JSON)</button>
           <label className="btn btn-secondary" style={{ cursor: 'pointer' }}>
             Import data (JSON)
             <input type="file" accept=".json,application/json" style={{ display: 'none' }} onChange={(e) => {
@@ -87,6 +87,14 @@ export function Settings({ api, lockNow }: { api: Api; lockNow: () => void }) {
           <button className="btn btn-secondary" onClick={() => save(demoData(), 'Demo data loaded. · Data demo dimuatkan.')}>Load demo data · Muat demo</button>
           <button className="btn btn-ghost" onClick={clearAll}>Clear everything · Padam semua</button>
         </div>
+        {(() => {
+          const meta = getBackupMeta();
+          return (
+            <div className="text-muted" style={{ fontSize: 12, marginTop: 10 }}>
+              Last backup · Sandaran terakhir: {meta.lastExport || 'never · belum pernah'} · {meta.changesSince} changes since · {meta.changesSince} perubahan
+            </div>
+          );
+        })()}
         <div style={{ fontSize: 12, marginTop: 10, color: 'var(--color-accent-700)' }}>{dataMsg}</div>
       </div>
 

@@ -47,7 +47,15 @@ export const metadata: Metadata = {
     images: ['/shots-dashboard.png'],
   },
   robots: { index: true, follow: true },
-  icons: { icon: 'icon.svg' },
+  icons: {
+    icon: [{ url: 'icon.svg', type: 'image/svg+xml' }, { url: 'icon-192.png', sizes: '192x192', type: 'image/png' }],
+    apple: 'apple-touch-icon.png',
+  },
+  manifest: '/duitback-web/manifest.webmanifest',
+};
+
+export const viewport = {
+  themeColor: '#f3f2f2',
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

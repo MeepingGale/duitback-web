@@ -104,7 +104,36 @@ export function persist(d: Data): string {
 }
 
 export function wipe(): void {
-  try { localStorage.removeItem(KEY); } catch {}
+  try { localStorage.removeItem(KEY); localStorage.removeItem(META_KEY); } catch {}
+}
+
+// ---- backup meta: nudge users to export before localStorage betrays them ----
+const META_KEY = 'duitback_meta';
+
+export interface BackupMeta {
+  lastExport: string | null;
+  changesSince: number;
+}
+
+export function getBackupMeta(): BackupMeta {
+  try {
+    const m = JSON.parse(localStorage.getItem(META_KEY) || 'null');
+    if (m && typeof m.changesSince === 'number') return m as BackupMeta;
+  } catch {}
+  return { lastExport: null, changesSince: 0 };
+}
+
+function setBackupMeta(m: BackupMeta): void {
+  try { localStorage.setItem(META_KEY, JSON.stringify(m)); } catch {}
+}
+
+export function bumpChanges(): void {
+  const m = getBackupMeta();
+  setBackupMeta({ ...m, changesSince: m.changesSince + 1 });
+}
+
+function noteExport(): void {
+  setBackupMeta({ lastExport: new Date().toISOString().slice(0, 10), changesSince: 0 });
 }
 
 // legacy demo saves predate the demo flag — recognise them by the demo tax no.
@@ -190,6 +219,7 @@ export function exportJson(d: Data): void {
   a.download = 'duitback-data.json';
   a.click();
   URL.revokeObjectURL(a.href);
+  noteExport();
 }
 
 /** Validate an imported blob; returns the data or an error message. */

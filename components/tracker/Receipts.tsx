@@ -70,6 +70,10 @@ export function Receipts({ api, setTag, setViewer }: { api: Api; setTag: (t: Tag
           Browse files
           <input type="file" accept="image/*,.pdf" multiple style={{ display: 'none' }} onChange={(e) => { readFiles(e.target.files!, addReceipt); e.target.value = ''; }} />
         </label>
+        <label className="btn btn-secondary" style={{ cursor: 'pointer' }}>
+          Camera · Kamera
+          <input type="file" accept="image/*" capture="environment" style={{ display: 'none' }} onChange={(e) => { readFiles(e.target.files!, addReceipt); e.target.value = ''; }} />
+        </label>
       </div>
 
       {recs.length > 0 ? (
