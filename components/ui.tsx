@@ -107,38 +107,43 @@ export function Step({ n, title, children }: { n: number; title: ReactNode; chil
   );
 }
 
+// One header bar for the whole site — the same .nav shell the tracker uses,
+// so landing, reliefs page and app read as one product.
 export function SiteHeader({ home = './' }: { home?: string }) {
   return (
-    <header className="wrap site-nav">
-      <a href={home} aria-label="duıtback. — home" style={{ display: 'inline-flex' }}>
-        <Wordmark />
-      </a>
-      <span style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
-        <CtaLink href={home + 'reliefs/'} variant="ghost">
-          Relief list · Pelepasan
-        </CtaLink>
-        <CtaLink href={home + 'app/'} variant="secondary">
-          Open the tracker →
-        </CtaLink>
+    <header className="nav" style={{ flexWrap: 'wrap', position: 'sticky', top: 0, background: 'var(--color-bg)', zIndex: 5 }}>
+      <span className="nav-brand" style={{ display: 'inline-flex', alignItems: 'center' }}>
+        <a href={home} aria-label="duıtback. — home" style={{ display: 'inline-flex', alignItems: 'center' }}>
+          <Wordmark width={132} />
+        </a>
       </span>
+      <a href={home + 'reliefs/'}>Relief list · Pelepasan</a>
+      <a className="btn btn-primary" href={home + 'app/'} style={{ fontSize: 14 }}>
+        Open the tracker →
+      </a>
     </header>
   );
 }
 
-export function SiteFooter() {
+// One footer everywhere; the app passes the tax-file number it shows.
+export function SiteFooter({ taxNo, wide = false }: { taxNo?: string; wide?: boolean }) {
   return (
-    <footer className="wrap site-footer">
+    <footer
+      className={wide ? 'site-footer no-print' : 'wrap site-footer no-print'}
+      style={wide ? { paddingInline: 36, marginTop: 'auto' } : undefined}
+    >
       <span>
-        DuitBack — unofficial tracker · estimates only · not affiliated with LHDN. Confirm every figure in MyTax before
-        filing.
+        DuitBack — unofficial tracker · YA2025 schedule · estimates only · <span lang="ms">anggaran sahaja</span> · not
+        affiliated with LHDN — confirm every figure in MyTax before filing.
       </span>
-      <span style={{ display: 'flex', gap: 16 }}>
-        <a href="https://ko-fi.com/duitback" target="_blank" rel="noopener noreferrer">
-          belanja teh tarik →
+      <span style={{ display: 'flex', gap: 16, alignItems: 'center' }}>
+        <a href="https://ko-fi.com/duitback" target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none' }}>
+          DuitBack is free · belanja teh tarik →
         </a>
         <a href="https://github.com/MeepingGale/duitback-web" target="_blank" rel="noopener noreferrer">
           GitHub
         </a>
+        {taxNo ? <span style={{ color: 'var(--color-neutral-700)' }}>{taxNo}</span> : null}
       </span>
     </footer>
   );

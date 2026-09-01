@@ -158,6 +158,15 @@ export function fmt(n: number): string {
   return 'RM ' + Math.round(n).toLocaleString('en-MY');
 }
 
+// Malaysian individual TIN: "IG" + 9–11 digits since 2 Jan 2023 (legacy
+// numbers used SG/OG). Validation is advisory only — never block the field.
+export const TIN_RE = /^(IG|SG|OG)\s?\d{9,12}$/i;
+
+export function looksLikeTin(s: string): boolean {
+  const t = s.trim();
+  return t === '' || TIN_RE.test(t);
+}
+
 export function uid(): string {
   return Math.random().toString(36).slice(2, 9);
 }

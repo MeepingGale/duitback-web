@@ -1,8 +1,9 @@
 'use client';
 import { useEffect, useState } from 'react';
-import { Data, calc, fmt, today, uid } from '@/lib/tax';
-import { bumpChanges, demoData, emptyData, exportJson, isDemo, loadData, persist, wipe } from '@/lib/data';
+import { Data, calc, fmt, looksLikeTin, today, uid } from '@/lib/tax';
+import { bumpChanges, demoData, emptyData, exportJson, isDemo, loadData, persist, pruneEmptyFutureYears, wipe } from '@/lib/data';
 import { Kick, Wordmark } from './bits';
+import { SiteFooter } from '@/components/ui';
 import { Dashboard } from './Dashboard';
 import { Claims } from './Claims';
 import { Receipts } from './Receipts';
@@ -58,6 +59,7 @@ export default function TrackerApp() {
   useEffect(() => {
     const d = loadData();
     if (d) {
+      if (pruneEmptyFutureYears(d)) persist(d);
       setData(d);
       setLocked(!!d.profile.pin);
     }
@@ -101,8 +103,9 @@ export default function TrackerApp() {
   if (!data) {
     return (
       <div role="main" style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
-        <div className="pagepad" style={{ padding: '56px 24px 48px', maxWidth: 600, width: '100%', margin: '0 auto', boxSizing: 'border-box' }}>
-          <span style={{ display: 'inline-flex', alignItems: 'center' }}><Wordmark /></span>
+        <div className="pagepad" style={{ padding: '32px 24px 48px', maxWidth: 600, width: '100%', margin: '0 auto', boxSizing: 'border-box' }}>
+          <a className="btn btn-ghost" href="../" style={{ marginLeft: -8, marginBottom: 22 }}>← Back to home · Kembali</a>
+          <div><span style={{ display: 'inline-flex', alignItems: 'center' }}><Wordmark /></span></div>
           <Kick style={{ marginTop: 26 }}>Welcome · Selamat datang</Kick>
           <h1 style={{ margin: '8px 0 6px', fontSize: 34 }}>Set up your tracker</h1>
           <p className="text-muted" style={{ fontSize: 13.5, margin: '0 0 24px', maxWidth: 460 }}>
@@ -117,7 +120,12 @@ export default function TrackerApp() {
               <label>
                 Income tax no. · No. cukai <span className="bm">(optional — from MyTax)</span>
               </label>
-              <input className="input" placeholder="SG 12345678-09" value={setup.taxNo} onChange={(e) => setSetup({ ...setup, taxNo: e.target.value })} />
+              <input className="input" placeholder="e.g. IG845462070" value={setup.taxNo} onChange={(e) => setSetup({ ...setup, taxNo: e.target.value })} />
+              {!looksLikeTin(setup.taxNo) && (
+                <div style={{ fontSize: 11.5, marginTop: 4, color: 'var(--color-accent-700)' }}>
+                  Doesn&apos;t look like an LHDN TIN — IG followed by 9–11 digits (older numbers start SG/OG). Saved either way. <span lang="ms">Format: IG diikuti 9–11 digit.</span>
+                </div>
+              )}
             </div>
             <div className="field" style={{ marginTop: 14 }}>
               <label>Marital status · Status perkahwinan</label>
@@ -158,7 +166,7 @@ export default function TrackerApp() {
             <span className="text-muted" style={{ fontSize: 11.5 }}>Unofficial tracker · estimates only</span>
           </div>
         </div>
-        <Footer taxNo="" />
+        <SiteFooter wide />
       </div>
     );
   }
@@ -203,7 +211,7 @@ export default function TrackerApp() {
       {screen === 'pack' && <FilingPack api={api} c={c} />}
       {screen === 'settings' && <Settings api={api} lockNow={() => { setLocked(true); setPinEntry(''); setPinErr(''); setScreen('dash'); }} />}
 
-      <Footer taxNo={d.profile.taxNo || ''} />
+      <SiteFooter wide taxNo={d.profile.taxNo || ''} />
 
       {locked && (
         <div style={{ position: 'fixed', inset: 0, background: 'var(--color-bg)', zIndex: 40, display: 'grid', placeItems: 'center' }}>
@@ -223,6 +231,7 @@ export default function TrackerApp() {
             <div style={{ fontSize: 12, color: 'var(--color-accent-700)', minHeight: 16 }}>{pinErr}</div>
             <button className="btn btn-primary btn-block" style={{ marginTop: 10 }} onClick={tryUnlock}>Unlock · Buka</button>
             <p className="text-muted" style={{ fontSize: 11, marginTop: 14 }}>Cosmetic lock — data in this browser is not encrypted.</p>
+            <a href="../" className="navlink" style={{ fontSize: 12 }}>← Back to home · Kembali</a>
           </div>
         </div>
       )}
@@ -249,20 +258,6 @@ export default function TrackerApp() {
       setPinErr('');
     } else setPinErr('Wrong passcode · Kod salah');
   }
-}
-
-function Footer({ taxNo }: { taxNo: string }) {
-  return (
-    <div className="no-print" style={{ marginTop: 'auto', borderTop: '2px solid var(--color-divider)', padding: '14px 36px', display: 'flex', justifyContent: 'space-between', gap: 10, flexWrap: 'wrap', fontSize: 11.5 }}>
-      <span className="text-muted">DuitBack — unofficial tracker · YA2025 schedule · estimates only · <span lang="ms">anggaran sahaja</span></span>
-      <span style={{ display: 'flex', gap: 14, alignItems: 'center' }}>
-        <a href="https://ko-fi.com/duitback" target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none' }}>
-          DuitBack is free · belanja teh tarik →
-        </a>
-        <span className="text-muted">{taxNo}</span>
-      </span>
-    </div>
-  );
 }
 
 export { fmt, today, uid };

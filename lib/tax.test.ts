@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { blankInc, calc, capFor, Data, jointComparison, medSum, taxOn } from './tax';
-import { demoData, parseImport } from './data';
+import { blankInc, calc, capFor, Data, jointComparison, looksLikeTin, medSum, taxOn } from './tax';
+import { demoData, parseImport, pruneEmptyFutureYears } from './data';
 
 describe('taxOn — YA2025 resident scale', () => {
   // cumulative tax at each bracket edge, per the LHDN schedule
@@ -148,6 +148,47 @@ describe('jointComparison', () => {
     expect(sep).toBe(c.taxNet + 0);
     const jCh = c.totalIncome + 30000 - c.donAllowed - c.reliefsNonDon - 4000;
     expect(joint).toBe(taxOn(jCh));
+  });
+});
+
+describe('looksLikeTin — advisory Malaysian TIN check', () => {
+  it.each([
+    ['', true], // optional field
+    ['IG845462070', true],
+    ['IG57303584070', true],
+    ['ig845462070', true], // case-insensitive
+    ['IG 845462070', true], // space after prefix
+    ['SG10234567890', true], // legacy prefix
+    ['OG12345678901', true],
+    ['IG12345', false], // too short
+    ['C20880050010', false], // company TIN, not an individual
+    ['990101-14-5678', false], // that is a MyKad number
+  ])('%s → %s', (input, ok) => {
+    expect(looksLikeTin(input)).toBe(ok);
+  });
+});
+
+describe('pruneEmptyFutureYears', () => {
+  it('removes empty scaffolds beyond the current calendar year and repairs the selection', () => {
+    const d = demoData();
+    d.income.YA2031 = blankInc();
+    d.status.YA2031 = { stage: 'tracking' };
+    d.income.YA2032 = blankInc();
+    d.status.YA2032 = { stage: 'tracking' };
+    d.ya = 'YA2032';
+    expect(pruneEmptyFutureYears(d, 2026)).toBe(true);
+    expect(d.income.YA2031).toBeUndefined();
+    expect(d.income.YA2032).toBeUndefined();
+    expect(d.ya).toBe('YA2026');
+  });
+
+  it('never touches a future year that holds user data, or any past year', () => {
+    const d = demoData();
+    d.income.YA2027 = { ...blankInc(), salary: 1000 };
+    d.status.YA2027 = { stage: 'tracking' };
+    expect(pruneEmptyFutureYears(d, 2026)).toBe(false);
+    expect(d.income.YA2027).toBeTruthy();
+    expect(d.income.YA2023).toBeTruthy();
   });
 });
 

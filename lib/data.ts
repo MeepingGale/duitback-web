@@ -141,6 +141,29 @@ export function isDemo(d: Data): boolean {
   return !!d.demo || (!!d.profile && d.profile.taxNo === 'SG 1234567-08');
 }
 
+/** Remove year scaffolds beyond the current calendar year that hold no user
+ *  data at all (no claims, receipts, docs, or income). Returns true if changed. */
+export function pruneEmptyFutureYears(d: Data, currentYear = new Date().getFullYear()): boolean {
+  let changed = false;
+  for (const ya of Object.keys(d.income)) {
+    const n = +ya.slice(2);
+    if (!(n > currentYear)) continue;
+    const hasStuff =
+      d.claims.some((c) => c.ya === ya) ||
+      d.receipts.some((r) => r.ya === ya) ||
+      d.docs.some((x) => x.ya === ya) ||
+      Object.entries(d.income[ya] || {}).some(([k, v]) => k !== 'spRel' && typeof v === 'number' && v > 0);
+    if (hasStuff) continue;
+    delete d.income[ya];
+    delete d.status[ya];
+    changed = true;
+  }
+  if (changed && !d.income[d.ya]) {
+    d.ya = Object.keys(d.income).sort((a, b) => b.localeCompare(a))[0];
+  }
+  return changed;
+}
+
 // ---- IndexedDB: full-size receipt files (thumbnails live in the JSON blob) ----
 let dbPromise: Promise<IDBDatabase | null> | null = null;
 function idb(): Promise<IDBDatabase | null> {

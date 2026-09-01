@@ -17,10 +17,14 @@ export function Dashboard({ api, c }: { api: Api; c: CalcResult }) {
   const capClaimable = CATS.reduce((a, ct) => a + (ct.cap || 0), 0) + c.donCap - 9000;
   const usedPct = capClaimable ? Math.min(100, Math.round((claimedByYou / capClaimable) * 100)) : 0;
 
+  // years can be added only up to the current calendar year — a YA can't
+  // exist before anyone has lived it
+  const nextYaNum = Math.max(...years.map((y) => +y.slice(2))) + 1;
+  const canAddYear = nextYaNum <= new Date().getFullYear();
   const addYear = () =>
     mut((x) => {
-      const next = 'YA' + (Math.max(...Object.keys(x.income).map((k) => +k.slice(2))) + 1);
-      if (!x.income[next]) {
+      const next = 'YA' + nextYaNum;
+      if (nextYaNum <= new Date().getFullYear() && !x.income[next]) {
         x.income[next] = blankInc();
         x.status[next] = { stage: 'tracking' };
         x.ya = next;
@@ -35,7 +39,7 @@ export function Dashboard({ api, c }: { api: Api; c: CalcResult }) {
           <h1 style={{ margin: '6px 0 2px', fontSize: 34 }}>Hello, {d.profile.name || 'there'}</h1>
           <p className="text-muted" style={{ fontSize: 13, margin: 0 }}>{dl.dline}</p>
         </div>
-        <YaTabs tabs={years.map((y) => ({ label: y, on: y === ya, pick: () => mut((x) => { x.ya = y; }) }))} onAddYear={addYear} />
+        <YaTabs tabs={years.map((y) => ({ label: y, on: y === ya, pick: () => mut((x) => { x.ya = y; }) }))} onAddYear={canAddYear ? addYear : undefined} />
       </div>
 
       <div data-tour="poster" style={{ background: 'var(--color-accent-700)', color: 'var(--color-bg)', padding: '26px 28px', marginTop: 20 }}>
