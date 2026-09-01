@@ -34,6 +34,7 @@ a{color:var(--color-accent)}a:hover{color:var(--color-accent-600)}
 </helmet>
 
 <div style="min-height:100vh;display:flex;flex-direction:column">
+<sc-if value="{{ notSetup }}" hint-placeholder-val="{{ true }}">
 <div class="nav no-print" style="flex-wrap:wrap;position:sticky;top:0;background:var(--color-bg);z-index:5">
 <span class="nav-brand" style="display:inline-flex;align-items:center"><svg width="132" height="27" viewBox="0 0 320 66" aria-label="duitback"><text x="2" y="56" font-family="Archivo, Arial, sans-serif" font-size="36" font-weight="800" letter-spacing="-1" fill="#201e1d">du&#305;tback<tspan fill="#ec3013">.</tspan></text><g transform="translate(50,24)"><g fill="#ec3013"><ellipse cx="0" cy="-5.4" rx="3.4" ry="5.4"></ellipse><ellipse cx="0" cy="-5.4" rx="3.4" ry="5.4" transform="rotate(72)"></ellipse><ellipse cx="0" cy="-5.4" rx="3.4" ry="5.4" transform="rotate(144)"></ellipse><ellipse cx="0" cy="-5.4" rx="3.4" ry="5.4" transform="rotate(216)"></ellipse><ellipse cx="0" cy="-5.4" rx="3.4" ry="5.4" transform="rotate(288)"></ellipse></g><circle r="1.8" fill="#201e1d"></circle><line x1="0.7" y1="-1" x2="5.8" y2="-7.1" stroke="#201e1d" stroke-width="0.9"></line><g fill="#201e1d"><circle cx="6.4" cy="-7.8" r="0.8"></circle><circle cx="7.8" cy="-7.8" r="0.8"></circle><circle cx="6.4" cy="-9.1" r="0.8"></circle><circle cx="7.8" cy="-9.1" r="0.8"></circle></g></g></svg></span>
 <a class="navlink" onClick="{{ goDash }}" aria-current="{{ curDash }}">Dashboard</a>
@@ -45,6 +46,30 @@ a{color:var(--color-accent)}a:hover{color:var(--color-accent-600)}
 <a class="navlink" onClick="{{ goSettings }}" aria-current="{{ curSettings }}">Settings</a>
 <button class="btn btn-primary" onClick="{{ openAdd }}">+ New claim</button>
 </div>
+</sc-if>
+
+<sc-if value="{{ isSetup }}" hint-placeholder-val="{{ false }}">
+<div class="pagepad" data-screen-label="Setup" style="padding:56px 24px 48px;max-width:600px;width:100%;margin:0 auto;box-sizing:border-box">
+<span style="display:inline-flex;align-items:center"><svg width="132" height="27" viewBox="0 0 320 66" aria-label="duitback"><text x="2" y="56" font-family="Archivo, Arial, sans-serif" font-size="36" font-weight="800" letter-spacing="-1" fill="#201e1d">du&#305;tback<tspan fill="#ec3013">.</tspan></text><g transform="translate(50,24)"><g fill="#ec3013"><ellipse cx="0" cy="-5.4" rx="3.4" ry="5.4"></ellipse><ellipse cx="0" cy="-5.4" rx="3.4" ry="5.4" transform="rotate(72)"></ellipse><ellipse cx="0" cy="-5.4" rx="3.4" ry="5.4" transform="rotate(144)"></ellipse><ellipse cx="0" cy="-5.4" rx="3.4" ry="5.4" transform="rotate(216)"></ellipse><ellipse cx="0" cy="-5.4" rx="3.4" ry="5.4" transform="rotate(288)"></ellipse></g><circle r="1.8" fill="#201e1d"></circle><line x1="0.7" y1="-1" x2="5.8" y2="-7.1" stroke="#201e1d" stroke-width="0.9"></line><g fill="#201e1d"><circle cx="6.4" cy="-7.8" r="0.8"></circle><circle cx="7.8" cy="-7.8" r="0.8"></circle><circle cx="6.4" cy="-9.1" r="0.8"></circle><circle cx="7.8" cy="-9.1" r="0.8"></circle></g></g></svg></span>
+<div class="kick" style="margin-top:26px">Welcome · Selamat datang</div>
+<h1 style="margin:8px 0 6px;font-size:34px">Set up your tracker</h1>
+<p class="text-muted" style="font-size:13.5px;margin:0 0 24px;max-width:460px">A minute of setup, then DuitBack tracks your relief claims against the LHDN caps all year. Everything stays in this browser — nothing is sent anywhere. · Semua kekal dalam pelayar ini.</p>
+<div style="border:2px solid var(--color-divider);padding:24px">
+<div class="field"><label>Your name · Nama</label><input class="input" placeholder="e.g. Amirah" value="{{ suName }}" onChange="{{ onSuName }}"></div>
+<div class="field" style="margin-top:14px"><label>Income tax no. · No. cukai <span class="bm">(optional — from MyTax)</span></label><input class="input" placeholder="SG 12345678-09" value="{{ suTaxNo }}" onChange="{{ onSuTaxNo }}"></div>
+<div class="field" style="margin-top:14px"><label>Marital status · Status perkahwinan</label>
+<div class="seg"><label class="seg-opt"><input type="radio" name="sumarital" checked="{{ suSingle }}" onChange="{{ suSetSingle }}">Single · Bujang</label><label class="seg-opt"><input type="radio" name="sumarital" checked="{{ suMarried }}" onChange="{{ suSetMarried }}">Married · Berkahwin</label></div>
+<div style="font-size:11.5px;margin-top:6px" class="text-muted">Married unlocks the joint-assessment comparison. Change any of this later in Settings.</div>
+</div>
+<button class="btn btn-primary btn-block" style="margin-top:20px" onClick="{{ suStart }}">Start tracking · Mula menjejak</button>
+</div>
+<div style="display:flex;align-items:baseline;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-top:14px">
+<button class="btn btn-ghost" onClick="{{ suDemo }}">Just exploring? Load the demo →</button>
+<span class="text-muted" style="font-size:11.5px">Unofficial tracker · estimates only</span>
+</div>
+</div>
+</sc-if>
+
 
 <sc-if value="{{ isDash }}" hint-placeholder-val="{{ true }}">
 <div class="pagepad" data-screen-label="Dashboard" style="padding:28px 36px 40px;max-width:1200px;width:100%;margin:0 auto;box-sizing:border-box">
@@ -591,15 +616,14 @@ function emptyData(){
   return {profile:{name:'there',taxNo:'',bank:'',marital:'single'},ya:'YA'+y,income,claims:[],receipts:[],docs:[],status};
 }
 class Component extends DCLogic {
-  state = {screen:'dash', data:null, rFilter:'all', rSearch:'', selCat:'lifestyle', dlg:null, dataMsg:'', locked:false, pinEntry:'', pinErr:'', pinNew:'',
+  state = {screen:'dash', data:null, setup:{name:'',taxNo:'',marital:'single'}, rFilter:'all', rSearch:'', selCat:'lifestyle', dlg:null, dataMsg:'', locked:false, pinEntry:'', pinErr:'', pinNew:'',
     add:{cat:'lifestyle',sub:'general',date:today(),amount:'',desc:'',fileName:null,fileThumb:null,fileFull:null,monthly:false},
     tag:{rid:null,cat:'lifestyle',merchant:'',amount:'',makeClaim:true},
     viewer:{id:null,name:'',sub:'',src:null,note:''}};
   componentDidMount(){
     let d=null;
     try{d=JSON.parse(localStorage.getItem(KEY));}catch(e){}
-    const dd=d && d.claims ? d : demoData();
-    this.setState({data:dd, locked:!!(dd.profile&&dd.profile.pin)});
+    if(d && d.claims)this.setState({data:d, locked:!!(d.profile&&d.profile.pin)});
   }
   save(d,msg){this.setState({data:d,dataMsg:msg||''}); try{localStorage.setItem(KEY,JSON.stringify(d));}catch(e){this.setState({dataMsg:'Browser storage is full — delete some receipts or export + clear.'});}}
   mut(fn){const d=JSON.parse(JSON.stringify(this.state.data)); fn(d); this.save(d);}
@@ -663,10 +687,21 @@ class Component extends DCLogic {
       vals['go'+K]=go(s);
       vals['cur'+K]=st.screen===s?'page':undefined;
     });
-    if(!d){vals.profileName='…'; vals.yaTabs=[]; vals.deadlineLine=''; vals.totalClaimedL=''; vals.posterSub=''; vals.usedPct='0%'; vals.usedLine=''; vals.hasClaims=false; vals.noClaims=false; vals.yearRows=[]; vals.topRows=[]; vals.ya=''; vals.addYear=()=>{}; vals.openAdd=()=>{}; return vals;}
+    if(!d){vals.profileName='…'; vals.yaTabs=[]; vals.deadlineLine=''; vals.totalClaimedL=''; vals.posterSub=''; vals.usedPct='0%'; vals.usedLine=''; vals.hasClaims=false; vals.noClaims=false; vals.yearRows=[]; vals.topRows=[]; vals.ya=''; vals.addYear=()=>{}; vals.openAdd=()=>{};
+      vals.profileTaxNo=''; vals.isSetup=true; vals.notSetup=false;
+      const su=st.setup;
+      vals.suName=su.name; vals.onSuName=e=>this.setState({setup:{...su,name:e.target.value}});
+      vals.suTaxNo=su.taxNo; vals.onSuTaxNo=e=>this.setState({setup:{...su,taxNo:e.target.value}});
+      vals.suSingle=su.marital!=='married'; vals.suMarried=su.marital==='married';
+      vals.suSetSingle=()=>this.setState({setup:{...su,marital:'single'}});
+      vals.suSetMarried=()=>this.setState({setup:{...su,marital:'married'}});
+      vals.suStart=()=>{const f=emptyData(); f.profile.name=(su.name||'').trim()||'there'; f.profile.taxNo=(su.taxNo||'').trim(); f.profile.marital=su.marital; this.save(f,'Welcome'+(f.profile.name!=='there'?', '+f.profile.name:'')+' — add your first claim when ready.');};
+      vals.suDemo=()=>this.save(demoData(),'Demo data loaded — Settings → Clear everything starts you fresh.');
+      return vals;}
     const ya=d.ya, c=this.calc(d,ya);
     const yaNum=+ya.slice(2);
     vals.ya=ya;
+    vals.isSetup=false; vals.notSetup=true;
     vals.formType=c.formType;
     vals.profileName=d.profile.name||'there';
     vals.profileTaxNo=d.profile.taxNo||'—';
@@ -865,7 +900,7 @@ class Component extends DCLogic {
       rd.onload=()=>{try{const j=JSON.parse(rd.result); if(j&&Array.isArray(j.claims)&&j.income){if(!j.income[j.ya])j.ya=Object.keys(j.income)[0]; this.save(j,'Imported '+f.name+' — '+j.claims.length+' claims, '+(j.receipts||[]).length+' receipts.');}else this.setState({dataMsg:'That file is not a DuitBack export.'});}catch(err){this.setState({dataMsg:'Could not read that file as JSON.'});}};
       rd.readAsText(f); e.target.value='';};
     vals.loadDemo=()=>this.save(demoData(),'Demo data loaded.');
-    vals.clearAll=()=>this.save(emptyData(),'Cleared. You are starting fresh.');
+    vals.clearAll=()=>{try{localStorage.removeItem(KEY);}catch(e){} this.setState({data:null,screen:'dash',setup:{name:'',taxNo:'',marital:'single'},dataMsg:''});};
     // dialogs
     vals.dlgAdd=st.dlg==='add'; vals.dlgTag=st.dlg==='tag'; vals.dlgView=st.dlg==='view';
     vals.closeDlg=()=>this.setState({dlg:null});
