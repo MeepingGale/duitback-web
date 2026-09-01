@@ -50,7 +50,6 @@ This repo is the whole design process, not just the shipped file:
 | `DuitBack Logos.dc.html` | The logo exploration — seventeen directions (wau kite, ringgit note, "balik" U-turn road sign…) before the bunga raya line-flower won the wordmark |
 | `_ds/modernist-…/` | The Modernist design system: Archivo everywhere, one red, zero corner radius, strong 2px rules, everything flush left |
 | `support.js` | The canvas runtime — lets the `.dc.html` files above render locally |
-| `uploads/` | Reference imagery — the wau bulan from the old RM1 note, the 1 sen bunga raya |
 
 ![Logo exploration — line-flower variations with rationale](docs/screenshots/logo-exploration.png)
 
