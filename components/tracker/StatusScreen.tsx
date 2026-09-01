@@ -5,7 +5,7 @@ import { Kick, YaTabs, pagepad, yaHead, right, heading800 } from './bits';
 import { deadlineInfo, yearsOf } from './derive';
 
 export function StatusScreen({ api, c, demo }: { api: Api; c: CalcResult; demo: boolean }) {
-  const { d, ya, mut, go } = api;
+  const { d, ya, mut, go, ask } = api;
   const years = yearsOf(d);
   const yaNum = +ya.slice(2);
   const dl = deadlineInfo(d, ya, c);
@@ -110,7 +110,7 @@ export function StatusScreen({ api, c, demo }: { api: Api; c: CalcResult; demo: 
                 <td style={{ width: '44%' }}><span style={{ ...heading800, fontSize: 13 }}>{x.name}</span></td>
                 <td className="text-muted" style={{ fontSize: 12 }}>{x.kind}</td>
                 <td className="mono text-muted" style={{ fontSize: 12 }}>{x.date}</td>
-                <td style={right}><button className="navlink linkbtn" onClick={() => { if (window.confirm('Remove this document? · Buang dokumen ini?')) mut((dd) => { dd.docs = dd.docs.filter((q) => q.id !== x.id); }); }} style={{ fontSize: 11 }}>Remove</button></td>
+                <td style={right}><button className="navlink linkbtn" onClick={() => ask('Remove this document? · Buang dokumen ini?', () => mut((dd) => { dd.docs = dd.docs.filter((q) => q.id !== x.id); }))} style={{ fontSize: 11 }}>Remove</button></td>
               </tr>
             ))}
           </tbody>

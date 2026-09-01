@@ -60,7 +60,7 @@ function catOptions(yaNum: number) {
 }
 
 export function AddClaimDialog({ api, c, add, setAdd, onSaved }: { api: Api; c: CalcResult; add: AddState; setAdd: (a: AddState) => void; onSaved: (cat: string) => void }) {
-  const { ya, mut, setDlg } = api;
+  const { ya, mut, setDlg, ask } = api;
   const yaNum = +ya.slice(2);
   const addCt = CATS.find((x) => x.id === add.cat);
 
@@ -200,11 +200,10 @@ export function AddClaimDialog({ api, c, add, setAdd, onSaved }: { api: Api; c: 
         <div style={{ fontSize: 11.5 }} className={capNoteCls}>{capNote}</div>
         <div className="dialog-actions">
           {add.editId && (
-            <button className="btn btn-ghost" style={{ marginRight: 'auto' }} onClick={() => {
-              if (!window.confirm('Delete this claim? · Padam tuntutan ini?')) return;
+            <button className="btn btn-ghost" style={{ marginRight: 'auto' }} onClick={() => ask('Delete this claim? · Padam tuntutan ini?', () => {
               mut((dd) => { dd.claims = dd.claims.filter((q) => q.id !== add.editId); });
               setDlg(null);
-            }}>Delete · Padam</button>
+            })}>Delete · Padam</button>
           )}
           <button className="btn btn-secondary" onClick={() => setDlg(null)}>Cancel</button>
           <button className="btn btn-primary" disabled={!(+add.amount > 0)} onClick={saveClaim}>Save claim · Simpan</button>

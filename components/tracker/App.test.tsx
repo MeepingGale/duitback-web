@@ -9,7 +9,6 @@ beforeEach(() => {
   cleanup();
   localStorage.clear();
   Element.prototype.scrollIntoView = vi.fn();
-  vi.stubGlobal('confirm', vi.fn(() => true)); // deletes are confirm-gated
 });
 
 async function completeSetup(name = 'Testy') {
@@ -220,11 +219,14 @@ describe('TrackerApp smoke', () => {
     expect(stored.claims).toHaveLength(1); // edited, not duplicated
     expect(stored.claims[0].amount).toBe(750.5);
     expect(stored.claims[0].desc).toBe('Unifi fixed');
-    // delete asks for confirmation; declining keeps the claim
-    (window.confirm as ReturnType<typeof vi.fn>).mockReturnValueOnce(false);
+    // delete opens the styled confirm modal; cancelling keeps the claim
     fireEvent.click(screen.getByText('Delete'));
+    await screen.findByText('Delete this claim? · Padam tuntutan ini?');
+    fireEvent.click(screen.getByText('Cancel · Batal'));
     expect(JSON.parse(localStorage.getItem(KEY)!).claims).toHaveLength(1);
-    fireEvent.click(screen.getByText('Delete')); // stub returns true now
+    fireEvent.click(screen.getByText('Delete'));
+    await screen.findByText('Delete this claim? · Padam tuntutan ini?');
+    fireEvent.click(screen.getByText('Delete · Padam'));
     await waitFor(() => expect(JSON.parse(localStorage.getItem(KEY)!).claims).toHaveLength(0));
   });
 

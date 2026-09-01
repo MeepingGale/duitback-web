@@ -7,7 +7,7 @@ import { yearsOf } from './derive';
 import type { TagState, ViewerState } from './dialogs';
 
 export function Receipts({ api, setTag, setViewer }: { api: Api; setTag: (t: TagState) => void; setViewer: (v: ViewerState) => void }) {
-  const { d, ya, mut, setDlg } = api;
+  const { d, ya, mut, setDlg, ask } = api;
   const years = yearsOf(d);
   const [rFilter, setRFilter] = useState('all');
   const [rSearch, setRSearch] = useState('');
@@ -101,7 +101,7 @@ export function Receipts({ api, setTag, setViewer }: { api: Api; setTag: (t: Tag
                       <button className="navlink linkbtn" style={{ fontSize: 12, marginLeft: 'auto' }} onClick={() => { setTag({ rid: r.id, cat: 'lifestyle', merchant: '', amount: '', makeClaim: true }); setDlg('tag'); }}>Tag →</button>
                     )}
                     {r.cat && (
-                      <button className="navlink linkbtn" style={{ fontSize: 11, marginLeft: 'auto' }} onClick={() => { if (!window.confirm('Delete this receipt? · Padam resit ini?')) return; delFile(r.id); mut((dd) => { dd.receipts = dd.receipts.filter((q) => q.id !== r.id); }); }}>Delete</button>
+                      <button className="navlink linkbtn" style={{ fontSize: 11, marginLeft: 'auto' }} onClick={() => ask('Delete this receipt? · Padam resit ini?', () => { delFile(r.id); mut((dd) => { dd.receipts = dd.receipts.filter((q) => q.id !== r.id); }); })}>Delete</button>
                     )}
                   </div>
                 </div>

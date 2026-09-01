@@ -37,6 +37,7 @@ export interface Api {
   setDlg: (d: null | 'add' | 'tag' | 'view') => void;
   clearAll: () => void;
   startTour: () => void;
+  ask: (msg: string, onYes: () => void) => void;
   dataMsg: string;
   setDataMsg: (m: string) => void;
 }
@@ -58,6 +59,7 @@ export default function TrackerApp() {
   const [pinErr, setPinErr] = useState('');
   const [forgotOpen, setForgotOpen] = useState(false);
   const [eraseArmed, setEraseArmed] = useState(false);
+  const [confirmReq, setConfirmReq] = useState<{ msg: string; onYes: () => void } | null>(null);
 
   useEffect(() => {
     const d = loadData();
@@ -174,7 +176,7 @@ export default function TrackerApp() {
   const d = data;
   const ya = d.ya;
   const c = calc(d, ya);
-  const api: Api = { d, ya, save, mut, go: setScreen, openAdd, openEdit, setDlg, clearAll, startTour: () => setTut(1), dataMsg, setDataMsg };
+  const api: Api = { d, ya, save, mut, go: setScreen, openAdd, openEdit, setDlg, clearAll, startTour: () => setTut(1), ask: (msg, onYes) => setConfirmReq({ msg, onYes }), dataMsg, setDataMsg };
   const demo = isDemo(d);
 
   return (
@@ -263,6 +265,18 @@ export default function TrackerApp() {
       )}
 
       {dlg === 'add' && <AddClaimDialog api={api} c={c} add={add} setAdd={setAdd} onSaved={(cat) => setSelCat(cat)} />}
+      {confirmReq && (
+        <div className="dialog-backdrop" style={{ zIndex: 70 }} onClick={() => setConfirmReq(null)}>
+          <div className="dialog" style={{ maxWidth: 420 }} onClick={(e) => e.stopPropagation()}>
+            <div className="dialog-title" style={{ fontSize: 17 }}>{confirmReq.msg}</div>
+            <p className="text-muted" style={{ fontSize: 12.5, margin: '4px 0 14px' }}>This cannot be undone. <span lang="ms">Tindakan ini tidak boleh dibatalkan.</span></p>
+            <div className="dialog-actions">
+              <button className="btn btn-secondary" onClick={() => setConfirmReq(null)}>Cancel · Batal</button>
+              <button className="btn btn-primary" onClick={() => { confirmReq.onYes(); setConfirmReq(null); }}>Delete · Padam</button>
+            </div>
+          </div>
+        </div>
+      )}
       {dlg === 'tag' && <TagDialog api={api} tag={tag} setTag={setTag} />}
       {dlg === 'view' && <ViewerDialog api={api} viewer={viewer} setViewer={setViewer} />}
 

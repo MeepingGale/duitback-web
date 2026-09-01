@@ -4,7 +4,7 @@ import { Bar, Kick, YaTabs, pagepad, yaHead, right, heading800 } from './bits';
 import { reliefRows, yearsOf } from './derive';
 
 export function Claims({ api, c, selCat, setSelCat }: { api: Api; c: CalcResult; selCat: string; setSelCat: (s: string) => void }) {
-  const { d, ya, mut, openAdd, openEdit } = api;
+  const { d, ya, mut, openAdd, openEdit, ask } = api;
   const years = yearsOf(d);
   const yaNum = +ya.slice(2);
   const rows = reliefRows(c, ya);
@@ -83,7 +83,7 @@ export function Claims({ api, c, selCat, setSelCat }: { api: Api; c: CalcResult;
                     <span style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
                       {x.receipt && <span className="tag tag-neutral" style={{ fontSize: 10 }}>{x.receipt}</span>}
                       <button className="navlink linkbtn" onClick={() => openEdit(x)} style={{ fontSize: 11 }}>Edit · Sunting</button>
-                      <button className="navlink linkbtn" onClick={() => { if (window.confirm('Delete this claim? · Padam tuntutan ini?')) mut((dd) => { dd.claims = dd.claims.filter((q) => q.id !== x.id); }); }} style={{ fontSize: 11 }}>Delete</button>
+                      <button className="navlink linkbtn" onClick={() => ask('Delete this claim? · Padam tuntutan ini?', () => mut((dd) => { dd.claims = dd.claims.filter((q) => q.id !== x.id); }))} style={{ fontSize: 11 }}>Delete</button>
                     </span>
                   </div>
                 </div>
