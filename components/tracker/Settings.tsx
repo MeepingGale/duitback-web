@@ -53,16 +53,18 @@ export function Settings({ api, lockNow }: { api: Api; lockNow: () => void }) {
           <span lang="ms">Kod yang dilupakan tidak boleh dipulihkan — eksport sandaran JSON dahulu.</span>
         </p>
         {!d.profile.pin ? (
-          <div style={{ display: 'flex', gap: 10, alignItems: 'flex-end', flexWrap: 'wrap' }}>
-            <div className="field" style={{ margin: 0 }}>
-              <label>New passcode (min 4 characters)</label>
-              <input className="input mono" type="password" value={pinNew} onChange={(e) => setPinNew(e.target.value)} />
+          <div style={{ maxWidth: 520 }}>
+            <div className="fields2">
+              <div className="field" style={{ margin: 0 }}>
+                <label>New passcode (min 4 characters)</label>
+                <input className="input mono" type="password" value={pinNew} onChange={(e) => setPinNew(e.target.value)} />
+              </div>
+              <div className="field" style={{ margin: 0 }}>
+                <label>Confirm passcode · Sahkan</label>
+                <input className="input mono" type="password" value={pinConfirm} onChange={(e) => setPinConfirm(e.target.value)} />
+              </div>
             </div>
-            <div className="field" style={{ margin: 0 }}>
-              <label>Confirm passcode · Sahkan</label>
-              <input className="input mono" type="password" value={pinConfirm} onChange={(e) => setPinConfirm(e.target.value)} />
-            </div>
-            <button className="btn btn-secondary" onClick={() => {
+            <button className="btn btn-secondary" style={{ marginTop: 12 }} onClick={() => {
               const p = pinNew.trim();
               if (p.length < 4) { setPinMsg('Passcode must be at least 4 characters. · Kod mesti sekurang-kurangnya 4 aksara.'); return; }
               if (p !== pinConfirm.trim()) { setPinMsg('Passcodes don’t match — type the same code twice. · Kod tidak sepadan — taip kod yang sama dua kali.'); return; }
