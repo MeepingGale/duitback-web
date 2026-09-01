@@ -213,8 +213,8 @@ a{color:var(--color-accent)}a:hover{color:var(--color-accent-600)}
 </sc-for>
 </div>
 <div style="display:flex;gap:10px;margin-top:20px;flex-wrap:wrap">
-<sc-if value="{{ canSubmit }}" hint-placeholder-val="{{ false }}"><button class="btn btn-primary" onClick="{{ doSubmit }}">Simulate e-Filing submission · Hantar</button></sc-if>
-<sc-if value="{{ canRefund }}" hint-placeholder-val="{{ false }}"><button class="btn btn-primary" onClick="{{ doRefund }}">Simulate refund credited · Kreditkan</button></sc-if>
+<sc-if value="{{ canSubmit }}" hint-placeholder-val="{{ false }}"><button class="btn btn-primary" onClick="{{ doSubmit }}">{{ submitLabel }}</button></sc-if>
+<sc-if value="{{ canRefund }}" hint-placeholder-val="{{ false }}"><button class="btn btn-primary" onClick="{{ doRefund }}">{{ refundLabel }}</button></sc-if>
 <sc-if value="{{ canReopen }}" hint-placeholder-val="{{ false }}"><button class="btn btn-secondary" onClick="{{ doReopen }}">Reset to tracking</button></sc-if>
 <button class="btn btn-ghost" onClick="{{ goPack }}">Open filing pack →</button>
 </div>
@@ -819,7 +819,7 @@ class Component extends DCLogic {
     const stageIdx={tracking:0,submitted:1,processing:2,refund:3}[sd.stage];
     const stepDefs=[
       {title:'Draft prepared',bm:'Draf',date:sd.drafted||'now · live totals',desc:c.formType+' form pre-filled from your claims and income records.'},
-      {title:'Submitted',bm:'Dihantar',date:sd.submitted||vals.filingWindow,desc:sd.ack?('Via e-Filing. Acknowledgement no. '+sd.ack):'Submit through MyTax e-Filing, then record it here.'},
+      {title:'Submitted',bm:'Dihantar',date:sd.submitted||vals.filingWindow,desc:sd.ack?('Via e-Filing. Acknowledgement no. '+sd.ack):(sd.submitted?'Recorded — submitted via MyTax e-Filing.':'Submit through MyTax e-Filing, then record it here.')},
       {title:'Processing',bm:'Diproses',date:sd.processing||'—',desc:'Assessment under review by LHDN. Queries would appear in MyTax.'},
       {title:'Refund credited',bm:'Dikreditkan',date:sd.refunded||'—',desc:c.balance<0?(fmt(-c.balance)+' to '+(d.profile.bank||'your bank')+'.'):'Applies when PCB paid exceeds final tax.'}
     ];
@@ -828,11 +828,13 @@ class Component extends DCLogic {
       bgC:i===stageIdx?'var(--color-accent-100)':'transparent',
       padL:i===stageIdx?'14px':'0px',
       titleC:i===stageIdx?'var(--color-accent-700)':'var(--color-text)'}));
+    vals.submitLabel=vals.isDemo?'Simulate e-Filing submission · Hantar':'Mark as submitted in MyTax · Sudah dihantar';
+    vals.refundLabel=vals.isDemo?'Simulate refund credited · Kreditkan':'Mark refund received · Kredit diterima';
     vals.canSubmit=sd.stage==='tracking';
     vals.canRefund=sd.stage==='submitted'||sd.stage==='processing';
     vals.canReopen=sd.stage!=='tracking';
     vals.showTehTarik=sd.stage==='refund'&&c.balance<0;
-    vals.doSubmit=()=>this.mut(x=>{const t=today(); x.status[ya]={stage:'processing',drafted:t,submitted:t,processing:t,ack:'EF-'+(yaNum+1)+'-'+Math.floor(1000000+Math.random()*9000000)};});
+    vals.doSubmit=()=>this.mut(x=>{const t=today(); x.status[ya]={stage:'processing',drafted:t,submitted:t,processing:t}; if(x.demo)x.status[ya].ack='EF-'+(yaNum+1)+'-'+Math.floor(1000000+Math.random()*9000000);});
     vals.doRefund=()=>this.mut(x=>{x.status[ya]={...x.status[ya],stage:'refund',refunded:today()};});
     vals.doReopen=()=>this.mut(x=>{x.status[ya]={stage:'tracking'};});
     vals.balTileLabel=c.balance<0?'Est. refund · Bayaran balik':'Est. balance payable · Baki';
