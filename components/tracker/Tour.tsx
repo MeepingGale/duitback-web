@@ -7,6 +7,7 @@ export interface TourStep {
   target: string;
   t: string;
   b: string;
+  bm: string;
 }
 
 // The guided tour: each step switches to a screen and spotlights the element
@@ -15,32 +16,37 @@ export const TOUR: TourStep[] = [
   {
     screen: 'dash',
     target: 'new-claim',
-    t: 'Add claims as you spend',
+    t: 'Add claims as you spend · Tambah sambil berbelanja',
     b: 'This button follows you on every screen. Hit it whenever you spend on something claimable — books, clinic visits, PRS top-ups — and totals, caps and the refund estimate update live.',
+    bm: 'Tekan butang ini setiap kali anda berbelanja untuk sesuatu yang boleh dituntut — jumlah, had dan anggaran bayaran balik dikemas kini serta-merta.',
   },
   {
     screen: 'claims',
     target: 'caps-table',
-    t: 'Watch your caps',
+    t: 'Watch your caps · Pantau had anda',
     b: 'Every LHDN relief with its cap and what is left this year. Click a row to see the claim lines behind it; over-cap entries are saved but flagged — only the allowed amount counts.',
+    bm: 'Setiap pelepasan LHDN dengan hadnya dan baki tahun ini. Tuntutan melebihi had disimpan tetapi ditanda — hanya jumlah dibenarkan dikira.',
   },
   {
     screen: 'receipts',
     target: 'drop-zone',
-    t: 'Drop receipts in the vault',
+    t: 'Drop receipts in the vault · Simpan resit dalam peti',
     b: 'Drag receipts here and tag them to a relief. LHDN can audit up to 7 years back — the vault keeps the evidence next to the claim.',
+    bm: 'Seret resit ke sini dan tag kepada pelepasan. LHDN boleh audit sehingga 7 tahun — peti ini simpan bukti bersama tuntutan.',
   },
   {
     screen: 'pack',
     target: 'pack-sheet',
-    t: 'File from the pack in March',
+    t: 'File from the pack in March · Failkan pada Mac',
     b: 'When e-Filing opens, this cheat-sheet shows every number to type into MyTax, with the receipts behind each line. Print it or save as PDF — and always confirm figures in MyTax.',
+    bm: 'Bila e-Filing dibuka, helaian ini tunjuk setiap angka untuk ditaip ke MyTax. Cetak atau simpan sebagai PDF — dan sentiasa sahkan angka dalam MyTax.',
   },
   {
     screen: 'dash',
     target: 'poster',
-    t: 'Your running total',
-    b: 'This block keeps score all year — what you have claimed and the live refund estimate. That is the whole loop. Jom mula!',
+    t: 'Your running total · Jumlah terkini anda',
+    b: 'This block keeps score all year — what you have claimed and the live refund estimate. That is the whole loop.',
+    bm: 'Blok ini jejak tuntutan dan anggaran bayaran balik anda sepanjang tahun. Itulah keseluruhannya — jom mula!',
   },
 ];
 
@@ -147,7 +153,8 @@ export function Tour({ step, onNext, onBack, onDone }: { step: number; onNext: (
       >
         <Kick>Quick tour · Jom tengok · {step} of {TOUR.length}</Kick>
         <h3 style={{ fontFamily: 'var(--font-heading)', fontWeight: 800, fontSize: 19, margin: '8px 0 6px' }}>{info.t}</h3>
-        <p style={{ fontSize: 13.5, lineHeight: 1.55, margin: '0 0 16px', color: 'var(--color-neutral-800)' }}>{info.b}</p>
+        <p style={{ fontSize: 13.5, lineHeight: 1.55, margin: '0 0 8px', color: 'var(--color-neutral-800)' }}>{info.b}</p>
+        <p lang="ms" style={{ fontSize: 12.5, lineHeight: 1.5, margin: '0 0 16px', color: 'var(--color-neutral-700)' }}>{info.bm}</p>
         <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
           {last ? (
             <button className="btn btn-primary" onClick={onDone}>Start tracking →</button>

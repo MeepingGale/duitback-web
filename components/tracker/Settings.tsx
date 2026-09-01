@@ -38,7 +38,8 @@ export function Settings({ api, lockNow }: { api: Api; lockNow: () => void }) {
       <div style={{ border: '2px solid var(--color-divider)', borderTop: 0, padding: 24 }}>
         <Kick>Passcode lock · Kunci</Kick>
         <p className="text-muted" style={{ fontSize: 12.5, margin: '8px 0 14px' }}>
-          Asks for a passcode when the app opens. Cosmetic only — data in this browser is not encrypted, so treat it as a privacy curtain, not security.
+          Asks for a passcode when the app opens. Cosmetic only — data in this browser is not encrypted, so treat it as a privacy curtain, not security.{' '}
+          <span lang="ms">Kunci kosmetik sahaja — data dalam pelayar ini tidak disulitkan.</span>
         </p>
         {!d.profile.pin ? (
           <div style={{ display: 'flex', gap: 10, alignItems: 'flex-end', flexWrap: 'wrap' }}>
@@ -48,14 +49,14 @@ export function Settings({ api, lockNow }: { api: Api; lockNow: () => void }) {
             </div>
             <button className="btn btn-secondary" onClick={() => {
               const p = pinNew.trim();
-              if (p.length >= 4) { mut((x) => { x.profile.pin = p; }); setPinNew(''); setDataMsg('Passcode set — the app will ask for it on next open.'); }
-              else setDataMsg('Passcode must be at least 4 characters.');
+              if (p.length >= 4) { mut((x) => { x.profile.pin = p; }); setPinNew(''); setDataMsg('Passcode set — the app will ask for it on next open. · Kod ditetapkan.'); }
+              else setDataMsg('Passcode must be at least 4 characters. · Kod mesti sekurang-kurangnya 4 aksara.');
             }}>Set passcode · Tetapkan</button>
           </div>
         ) : (
           <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
             <button className="btn btn-secondary" onClick={lockNow}>Lock now · Kunci sekarang</button>
-            <button className="btn btn-ghost" onClick={() => { mut((x) => { delete x.profile.pin; }); setDataMsg('Passcode removed.'); }}>Remove passcode</button>
+            <button className="btn btn-ghost" onClick={() => { mut((x) => { delete x.profile.pin; }); setDataMsg('Passcode removed. · Kod dibuang.'); }}>Remove passcode</button>
           </div>
         )}
       </div>
@@ -63,7 +64,8 @@ export function Settings({ api, lockNow }: { api: Api; lockNow: () => void }) {
       <div style={{ border: '2px solid var(--color-divider)', borderTop: 0, padding: 24 }}>
         <Kick>Data · Data</Kick>
         <p className="text-muted" style={{ fontSize: 12.5, margin: '8px 0 14px' }}>
-          Claims and thumbnails live in this browser&apos;s localStorage; full-size receipt images in IndexedDB. Nothing is sent to a server — each visitor to a hosted copy gets their own private data. Export JSON to move devices (full-size files stay behind; thumbnails travel).
+          Claims and thumbnails live in this browser&apos;s localStorage; full-size receipt images in IndexedDB. Nothing is sent to a server — each visitor to a hosted copy gets their own private data. Export JSON to move devices (full-size files stay behind; thumbnails travel).{' '}
+          <span lang="ms">Semua data kekal dalam pelayar ini — tiada apa-apa dihantar ke pelayan. Eksport JSON untuk pindah peranti.</span>
         </p>
         <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
           <button className="btn btn-secondary" onClick={() => exportJson(d)}>Export all data (JSON)</button>
@@ -82,7 +84,7 @@ export function Settings({ api, lockNow }: { api: Api; lockNow: () => void }) {
               e.target.value = '';
             }} />
           </label>
-          <button className="btn btn-secondary" onClick={() => save(demoData(), 'Demo data loaded.')}>Load demo data · Muat demo</button>
+          <button className="btn btn-secondary" onClick={() => save(demoData(), 'Demo data loaded. · Data demo dimuatkan.')}>Load demo data · Muat demo</button>
           <button className="btn btn-ghost" onClick={clearAll}>Clear everything · Padam semua</button>
         </div>
         <div style={{ fontSize: 12, marginTop: 10, color: 'var(--color-accent-700)' }}>{dataMsg}</div>
@@ -100,7 +102,8 @@ export function Settings({ api, lockNow }: { api: Api; lockNow: () => void }) {
       <div style={{ border: '2px solid var(--color-divider)', borderTop: 0, padding: 24 }}>
         <Kick>About · Perihal</Kick>
         <p className="text-muted" style={{ fontSize: 12.5, margin: '8px 0 0' }}>
-          DuitBack is an unofficial personal tracker for Malaysian resident individual (BE/B) returns. Caps follow each year&apos;s LHDN schedule (YA2023/24 use approximate historical caps; YA2025+ the current one), incl. medical sub-limits and per-child relief; the tax scale is the YA2025 resident scale. Not affiliated with LHDN; no tax advice — always confirm figures in MyTax before filing.
+          DuitBack is an unofficial personal tracker for Malaysian resident individual (BE/B) returns. Caps follow each year&apos;s LHDN schedule (YA2023/24 use approximate historical caps; YA2025+ the current one), incl. medical sub-limits and per-child relief; the tax scale is the YA2025 resident scale. Not affiliated with LHDN; no tax advice — always confirm figures in MyTax before filing.{' '}
+          <span lang="ms">Penjejak peribadi tidak rasmi — tiada kaitan dengan LHDN dan bukan nasihat cukai. Sentiasa sahkan angka dalam MyTax sebelum memfailkan.</span>
         </p>
       </div>
     </div>

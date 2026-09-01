@@ -84,7 +84,8 @@ export function Dashboard({ api, c }: { api: Api; c: CalcResult }) {
         <div style={{ border: '2px dashed var(--color-divider)', padding: 36, marginTop: 28, maxWidth: 560 }}>
           <div style={{ ...heading800, fontSize: 20 }}>No claims yet for {ya} · Tiada tuntutan lagi</div>
           <p className="text-muted" style={{ fontSize: 13, margin: '8px 0 16px' }}>
-            Add your first relief claim or drop a receipt into the vault — totals, caps and the refund estimate update live.
+            Add your first relief claim or drop a receipt into the vault — totals, caps and the refund estimate update live.{' '}
+            <span lang="ms">Tambah tuntutan pertama anda — semua dikemas kini serta-merta.</span>
           </p>
           <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
             <button className="btn btn-primary" onClick={() => openAdd()}>Add a claim · Tambah tuntutan</button>

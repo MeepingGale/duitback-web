@@ -60,8 +60,8 @@ export function deadlineInfo(d: Data, ya: string, c: CalcResult): DeadlineInfo {
   const dTo = (x: Date) => Math.ceil((x.getTime() - now.getTime()) / 86400000);
   const stg = (d.status[ya] || {}).stage || 'tracking';
   let dline: string;
-  if (stg === 'refund') dline = ya + ' return filed and refund credited — history on the Status page.';
-  else if (stg !== 'tracking') dline = ya + ' return submitted — track it on the Status page.';
+  if (stg === 'refund') dline = ya + ' return filed and refund credited — history on the Status page. · Bayaran balik telah dikreditkan.';
+  else if (stg !== 'tracking') dline = ya + ' return submitted — track it on the Status page. · Penyata telah dihantar.';
   else if (now < open) dline = 'e-Filing opens 1 Mar ' + (yaNum + 1) + ' — in ' + dTo(open) + ' days · ' + dTo(open) + ' hari lagi';
   else if (now <= dl) dline = 'e-Filing open · ' + c.formType + ' deadline ' + dlLabel + ' — ' + dTo(dl) + ' days left · ' + dTo(dl) + ' hari lagi';
   else dline = ya + ' filing window closed ' + dlLabel + ' · Tempoh e-Filing telah tamat';
@@ -70,8 +70,8 @@ export function deadlineInfo(d: Data, ya: string, c: CalcResult): DeadlineInfo {
     filingWindow: now > dl ? 'window closed ' + dlLabel : '1 Mar – ' + dlLabel,
     formLine:
       c.formType === 'B'
-        ? 'Form B (business income) — deadline ' + dlLabel + ', e-Filing grace to mid-Jul.'
-        : 'Form BE (no business income) — deadline ' + dlLabel + ', e-Filing grace to mid-May.',
+        ? 'Form B (business income) — deadline ' + dlLabel + ', e-Filing grace to mid-Jul. · Borang B — tarikh akhir ' + dlLabel + '.'
+        : 'Form BE (no business income) — deadline ' + dlLabel + ', e-Filing grace to mid-May. · Borang BE — tarikh akhir ' + dlLabel + '.',
     dlLabel,
   };
 }

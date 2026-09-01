@@ -99,7 +99,7 @@ export function persist(d: Data): string {
     localStorage.setItem(KEY, JSON.stringify(d));
     return '';
   } catch {
-    return 'Browser storage is full — delete some receipts or export + clear.';
+    return 'Browser storage is full — delete some receipts or export + clear. · Storan pelayar penuh — padam resit atau eksport dahulu.';
   }
 }
 
@@ -200,8 +200,8 @@ export function parseImport(text: string): { data?: Data; error?: string } {
       if (!j.income[j.ya]) j.ya = Object.keys(j.income)[0];
       return { data: j as Data };
     }
-    return { error: 'That file is not a DuitBack export.' };
+    return { error: 'That file is not a DuitBack export. · Fail itu bukan eksport DuitBack.' };
   } catch {
-    return { error: 'Could not read that file as JSON.' };
+    return { error: 'Could not read that file as JSON. · Fail tidak dapat dibaca sebagai JSON.' };
   }
 }

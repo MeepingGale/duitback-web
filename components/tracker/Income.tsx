@@ -115,7 +115,7 @@ export function Income({ api, c }: { api: Api; c: CalcResult }) {
                 </tbody>
               </table>
               <div style={{ fontSize: 12.5, marginTop: 6, ...heading800 }}>{jointVerdict}</div>
-              <div style={{ fontSize: 11, marginTop: 4 }} className="text-muted">Rough comparison — under joint assessment the spouse&apos;s own reliefs beyond RM4,000 are ignored here.</div>
+              <div style={{ fontSize: 11, marginTop: 4 }} className="text-muted">Rough comparison — under joint assessment the spouse&apos;s own reliefs beyond RM4,000 are ignored here. <span lang="ms">Perbandingan kasar sahaja — pelepasan pasangan selain RM4,000 tidak diambil kira.</span></div>
             </div>
           )}
           <div style={{ fontSize: 11.5, marginTop: 10 }} className="text-muted">Estimate only, not tax advice — confirm in MyTax e-Filing. Anggaran sahaja.</div>

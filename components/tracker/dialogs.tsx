@@ -59,12 +59,12 @@ export function AddClaimDialog({ api, c, add, setAdd, onSaved }: { api: Api; c: 
     const after = already + total;
     const sub = MEDSUB.find((m) => m.id === add.sub);
     if (cap === Infinity) capNote = addCt.note || '';
-    else if (cap === 0) { capNote = 'This relief is not available for ' + ya + ' — it can be saved for your records but counts RM 0.'; capNoteCls = ''; }
+    else if (cap === 0) { capNote = 'This relief is not available for ' + ya + ' — it can be saved for your records but counts RM 0. · Pelepasan ini tiada untuk ' + ya + ' — dikira RM 0.'; capNoteCls = ''; }
     else if (after > cap) {
-      capNote = (add.monthly ? '12 × ' + fmt(each) + ' = ' + fmt(total) + '. ' : '') + 'This takes ' + addCt.en + ' to ' + fmt(after) + ' — ' + fmt(after - cap) + ' over the ' + fmt(cap) + ' cap. Saved and flagged; only ' + fmt(cap) + ' counts.';
+      capNote = (add.monthly ? '12 × ' + fmt(each) + ' = ' + fmt(total) + '. ' : '') + 'This takes ' + addCt.en + ' to ' + fmt(after) + ' — ' + fmt(after - cap) + ' over the ' + fmt(cap) + ' cap. Saved and flagged; only ' + fmt(cap) + ' counts. · Melebihi had ' + fmt(cap) + ' — disimpan dan ditanda; hanya ' + fmt(cap) + ' dikira.';
       capNoteCls = '';
     } else {
-      capNote = (add.monthly ? '12 × ' + fmt(each) + ' = ' + fmt(total) + '. ' : '') + fmt(cap - after) + ' left under the ' + fmt(cap) + ' cap after this. ' + (add.cat === 'medical' && sub && sub.cap ? 'Sub-limit for this type: ' + fmt(sub.cap) + '. ' : '') + (addCt.note || '');
+      capNote = (add.monthly ? '12 × ' + fmt(each) + ' = ' + fmt(total) + '. ' : '') + fmt(cap - after) + ' left under the ' + fmt(cap) + ' cap after this. · Baki ' + fmt(cap - after) + ' di bawah had. ' + (add.cat === 'medical' && sub && sub.cap ? 'Sub-limit for this type · Had kecil jenis ini: ' + fmt(sub.cap) + '. ' : '') + (addCt.note || '');
     }
   }
 
@@ -132,7 +132,7 @@ export function AddClaimDialog({ api, c, add, setAdd, onSaved }: { api: Api; c: 
           <label>Receipt · Resit (optional)</label>
           <label style={{ border: '2px dashed var(--color-divider)', padding: 14, display: 'block', cursor: 'pointer', background: 'var(--color-bg)' }}>
             <span style={{ fontFamily: 'var(--font-heading)', fontWeight: 800, fontSize: 13 }}>{add.fileName ? 'Attached: ' + add.fileName : 'Attach receipt · Lampirkan resit'}</span>
-            <span style={{ display: 'block', fontSize: 11.5 }} className="text-muted">JPG, PNG or PDF — saved to the vault, linked to this claim</span>
+            <span style={{ display: 'block', fontSize: 11.5 }} className="text-muted">JPG, PNG or PDF — saved to the vault, linked to this claim · Disimpan ke peti resit</span>
             <input type="file" accept="image/*,.pdf" style={{ display: 'none' }} onChange={(e) => {
               const f = e.target.files?.[0];
               if (!f) return;
@@ -186,7 +186,7 @@ export function TagDialog({ api, tag, setTag }: { api: Api; tag: TagState; setTa
         <label className="radio" style={{ marginTop: 4 }}>
           <input type="checkbox" checked={tag.makeClaim} onChange={(e) => setTag({ ...tag, makeClaim: e.target.checked })} />
           <span className="dot" style={{ borderRadius: 0 }} />
-          Also create a claim line for this amount
+          Also create a claim line for this amount · Cipta baris tuntutan sekali
         </label>
         <div className="dialog-actions">
           <button className="btn btn-secondary" onClick={() => setDlg(null)}>Cancel</button>

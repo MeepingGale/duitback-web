@@ -128,7 +128,8 @@ export default function TrackerApp() {
                 </label>
               </div>
               <div style={{ fontSize: 11.5, marginTop: 6 }} className="text-muted">
-                Married unlocks the joint-assessment comparison. Change any of this later in Settings.
+                Married unlocks the joint-assessment comparison. Change any of this later in Settings.{' '}
+                <span lang="ms">Boleh ubah kemudian dalam Tetapan.</span>
               </div>
             </div>
             <button
@@ -139,7 +140,7 @@ export default function TrackerApp() {
                 f.profile.name = setup.name.trim() || 'there';
                 f.profile.taxNo = setup.taxNo.trim();
                 f.profile.marital = setup.marital;
-                save(f, 'Welcome' + (f.profile.name !== 'there' ? ', ' + f.profile.name : '') + ' — add your first claim when ready.');
+                save(f, 'Welcome' + (f.profile.name !== 'there' ? ', ' + f.profile.name : '') + ' — add your first claim when ready. · Selamat datang!');
                 setTut(1);
               }}
             >
@@ -249,7 +250,7 @@ export default function TrackerApp() {
 function Footer({ taxNo }: { taxNo: string }) {
   return (
     <div className="no-print" style={{ marginTop: 'auto', borderTop: '2px solid var(--color-divider)', padding: '14px 36px', display: 'flex', justifyContent: 'space-between', gap: 10, flexWrap: 'wrap', fontSize: 11.5 }}>
-      <span className="text-muted">DuitBack — unofficial tracker · YA2025 schedule · estimates only</span>
+      <span className="text-muted">DuitBack — unofficial tracker · YA2025 schedule · estimates only · <span lang="ms">anggaran sahaja</span></span>
       <span style={{ display: 'flex', gap: 14, alignItems: 'center' }}>
         <a href="https://ko-fi.com/duitback" target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none' }}>
           DuitBack is free · belanja teh tarik →

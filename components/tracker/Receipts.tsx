@@ -64,7 +64,7 @@ export function Receipts({ api, setTag, setViewer }: { api: Api; setTag: (t: Tag
         </svg>
         <div style={{ flex: 1, minWidth: 240 }}>
           <span style={{ ...heading800, fontSize: 13 }}>Drop receipts here · Seret resit ke sini</span>{' '}
-          <span className="text-muted" style={{ fontSize: 12 }}>— full-size images go to this browser&apos;s IndexedDB; thumbnails stay in the app. Tag them to a relief and they count.</span>
+          <span className="text-muted" style={{ fontSize: 12 }}>— full-size images go to this browser&apos;s IndexedDB; thumbnails stay in the app. Tag them to a relief and they count. <span lang="ms">Tag kepada pelepasan supaya dikira.</span></span>
         </div>
         <label className="btn btn-secondary" style={{ cursor: 'pointer' }}>
           Browse files
@@ -108,7 +108,7 @@ export function Receipts({ api, setTag, setViewer }: { api: Api; setTag: (t: Tag
       ) : (
         <div style={{ border: '2px dashed var(--color-divider)', padding: 36, maxWidth: 560 }}>
           <div style={{ ...heading800, fontSize: 18 }}>Vault is empty · Peti kosong</div>
-          <p className="text-muted" style={{ fontSize: 13, margin: '6px 0 0' }}>Drop a file above, or add a claim with a receipt attached — everything is kept 7 years for audit.</p>
+          <p className="text-muted" style={{ fontSize: 13, margin: '6px 0 0' }}>Drop a file above, or add a claim with a receipt attached — everything is kept 7 years for audit. <span lang="ms">Semua disimpan 7 tahun untuk audit.</span></p>
         </div>
       )}
 
