@@ -162,6 +162,32 @@ describe('TrackerApp smoke', () => {
     expect(screen.getAllByText('RM 89.90').length).toBeGreaterThan(0);
   });
 
+  it('medical sub-limit overflow warns; empty amount disables Save', async () => {
+    await completeSetup();
+    fireEvent.click(screen.getByText('Skip tour'));
+    fireEvent.click(screen.getByText('+ New claim'));
+    await screen.findByText('New claim · Tuntutan baharu');
+    const save = screen.getByText('Save claim · Simpan') as HTMLButtonElement;
+    expect(save.disabled).toBe(true); // no amount yet
+    const selects = document.querySelectorAll('select');
+    fireEvent.change(selects[0], { target: { value: 'medical' } });
+    fireEvent.change(document.querySelectorAll('select')[1], { target: { value: 'checkup' } });
+    fireEvent.change(screen.getByLabelText('Amount · Jumlah (RM)'), { target: { value: '2000' } });
+    await screen.findByText(/Over the RM 1,000 sub-limit/);
+    await screen.findByText(/Melebihi had kecil RM 1,000/);
+    expect((screen.getByText('Save claim · Simpan') as HTMLButtonElement).disabled).toBe(false);
+  });
+
+  it('donation with no income explains the 10% rule instead of "not available"', async () => {
+    await completeSetup();
+    fireEvent.click(screen.getByText('Skip tour'));
+    fireEvent.click(screen.getByText('+ New claim'));
+    await screen.findByText('New claim · Tuntutan baharu');
+    fireEvent.change(document.querySelectorAll('select')[0], { target: { value: 'donation' } });
+    await screen.findByText(/enter your income first/);
+    expect(screen.queryByText(/not available for YA/)).toBeNull();
+  });
+
   it('returning visitors skip setup and keep their data', async () => {
     await completeSetup('Aisyah');
     cleanup();

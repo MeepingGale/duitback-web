@@ -59,8 +59,15 @@ export function AddClaimDialog({ api, c, add, setAdd, onSaved }: { api: Api; c: 
     const total = add.monthly ? each * 12 : each;
     const after = already + total;
     const sub = MEDSUB.find((m) => m.id === add.sub);
+    const subCap = add.cat === 'medical' && sub && sub.cap ? sub.cap : null;
+    const subAlready = subCap ? c.claims.filter((x) => x.cat === 'medical' && (x.sub || 'general') === add.sub).reduce((a, x) => a + (+x.amount || 0), 0) : 0;
     if (cap === Infinity) capNote = addCt.note || '';
+    else if (cap === 0 && add.cat === 'donation') { capNote = 'Donations count up to 10% of your declared income — enter your income first, or this line counts RM 0 for now. · Derma dikira sehingga 10% pendapatan — isi pendapatan anda dahulu.'; capNoteCls = ''; }
     else if (cap === 0) { capNote = 'This relief is not available for ' + ya + ' — it can be saved for your records but counts RM 0. · Pelepasan ini tiada untuk ' + ya + ' — dikira RM 0.'; capNoteCls = ''; }
+    else if (subCap && subAlready + total > subCap) {
+      capNote = (add.monthly ? '12 × ' + fmt(each) + ' = ' + fmt(total) + '. ' : '') + 'Over the ' + fmt(subCap) + ' sub-limit for this medical type — only ' + fmt(subCap) + ' counts here. Saved and flagged. · Melebihi had kecil ' + fmt(subCap) + ' — hanya ' + fmt(subCap) + ' dikira.';
+      capNoteCls = '';
+    }
     else if (after > cap) {
       capNote = (add.monthly ? '12 × ' + fmt(each) + ' = ' + fmt(total) + '. ' : '') + 'This takes ' + addCt.en + ' to ' + fmt(after) + ' — ' + fmt(after - cap) + ' over the ' + fmt(cap) + ' cap. Saved and flagged; only ' + fmt(cap) + ' counts. · Melebihi had ' + fmt(cap) + ' — disimpan dan ditanda; hanya ' + fmt(cap) + ' dikira.';
       capNoteCls = '';
@@ -145,7 +152,7 @@ export function AddClaimDialog({ api, c, add, setAdd, onSaved }: { api: Api; c: 
         <div style={{ fontSize: 11.5 }} className={capNoteCls}>{capNote}</div>
         <div className="dialog-actions">
           <button className="btn btn-secondary" onClick={() => setDlg(null)}>Cancel</button>
-          <button className="btn btn-primary" onClick={saveClaim}>Save claim · Simpan</button>
+          <button className="btn btn-primary" disabled={!(+add.amount > 0)} onClick={saveClaim}>Save claim · Simpan</button>
         </div>
       </div>
     </div>
