@@ -1,6 +1,58 @@
 import { useRef, useState } from 'react';
 import type { CSSProperties, ReactNode } from 'react';
 import { TinPrefix, clamp2dpStr, composeTin, fmtAmountStr, parseTin } from '@/lib/tax';
+import { BANKS, composeBank, parseBank } from '@/lib/banks';
+
+/** Refund-account entry: pick the bank, then digits only — with the bank's
+ *  verified IBG account length as a live target where we know it. */
+export function BankInput({ value, onChange }: { value: string; onChange: (v: string) => void }) {
+  const { bank, digits } = parseBank(value);
+  const digitsRef = useRef<HTMLInputElement>(null);
+  const meta = BANKS.find((b) => b.name === bank);
+  const n = digits.length;
+  const target = meta?.len;
+  return (
+    <>
+      <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+        <select
+          className="input"
+          aria-label="Bank"
+          style={{ flex: '1 1 150px', minWidth: 0 }}
+          value={bank}
+          onChange={(e) => { onChange(composeBank(e.target.value, digits)); digitsRef.current?.focus(); }}
+        >
+          <option value="">Choose bank · Pilih bank</option>
+          {BANKS.map((b) => <option key={b.name} value={b.name}>{b.name}</option>)}
+        </select>
+        <input
+          ref={digitsRef}
+          className="input mono"
+          inputMode="numeric"
+          autoComplete="off"
+          placeholder="Account no. · No. akaun"
+          aria-label="Account number digits"
+          maxLength={17}
+          style={{ flex: '1 1 160px', minWidth: 0 }}
+          value={digits}
+          onChange={(e) => onChange(composeBank(bank, e.target.value))}
+        />
+      </div>
+      <div className="text-muted" style={{ fontSize: 11.5, marginTop: 4 }}>
+        {n === 0 ? (
+          <>Optional — where LHDN credits your refund · <span lang="ms">Pilihan — akaun untuk bayaran balik</span></>
+        ) : target ? (
+          n === target ? (
+            <>✓ {bank} account numbers are {target} digits · <span lang="ms">Format betul</span></>
+          ) : (
+            <>{n} of {target} digits for {bank} · <span lang="ms">{Math.abs(target - n)} digit {n < target ? 'lagi' : 'lebih'}</span></>
+          )
+        ) : (
+          <>{n} digits — digits only, per your bank statement · <span lang="ms">{n} digit</span></>
+        )}
+      </div>
+    </>
+  );
+}
 
 /** Money entry: raw string while editing (so a trailing "." survives each
  *  keystroke), thousands-grouped on blur (1000.5 → 1,000.50). Accepts at

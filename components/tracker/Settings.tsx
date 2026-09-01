@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Api } from './App';
-import { TinInput } from './bits';
+import { BankInput, TinInput } from './bits';
 import { demoData, exportJson, getBackupMeta, parseImport } from '@/lib/data';
 import { Kick, pagepad } from './bits';
 
@@ -22,7 +22,10 @@ export function Settings({ api, lockNow }: { api: Api; lockNow: () => void }) {
             <label>Income tax no. · No. cukai</label>
             <TinInput value={d.profile.taxNo} onChange={(v) => mut((x) => { x.profile.taxNo = v; })} />
           </div>
-          <div className="field"><label>Refund bank account · Akaun bank</label><input className="input" placeholder="Maybank ···1234" value={d.profile.bank} onChange={pb('bank')} /></div>
+          <div className="field">
+            <label>Refund bank account · Akaun bank</label>
+            <BankInput value={d.profile.bank} onChange={(v) => mut((x) => { x.profile.bank = v; })} />
+          </div>
         </div>
         <div className="field" style={{ marginTop: 16 }}>
           <label>Marital status · Status perkahwinan</label>

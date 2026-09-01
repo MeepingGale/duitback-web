@@ -1,4 +1,5 @@
 import { CalcResult, fmt, today, uid } from '@/lib/tax';
+import { maskBank } from '@/lib/banks';
 import { Api } from './App';
 import { Kick, YaTabs, pagepad, yaHead, right, heading800 } from './bits';
 import { deadlineInfo, yearsOf } from './derive';
@@ -16,7 +17,7 @@ export function StatusScreen({ api, c, demo }: { api: Api; c: CalcResult; demo: 
     { title: 'Draft prepared', bm: 'Draf', date: sd.drafted || 'now · live totals', desc: c.formType + ' form pre-filled from your claims and income records. · Borang diisi awal daripada rekod anda.' },
     { title: 'Submitted', bm: 'Dihantar', date: sd.submitted || dl.filingWindow, desc: sd.ack ? 'Via e-Filing. Acknowledgement no. ' + sd.ack : sd.submitted ? 'Recorded — submitted via MyTax e-Filing. · Direkodkan sebagai dihantar.' : 'Submit through MyTax e-Filing, then record it here. · Hantar melalui MyTax, kemudian rekodkan di sini.' },
     { title: 'Processing', bm: 'Diproses', date: sd.processing || '—', desc: 'Assessment under review by LHDN. Queries would appear in MyTax. · Sedang disemak oleh LHDN.' },
-    { title: 'Refund credited', bm: 'Dikreditkan', date: sd.refunded || '—', desc: c.balance < 0 ? fmt(-c.balance) + ' to ' + (d.profile.bank || 'your bank') + '.' : 'Applies when PCB paid exceeds final tax. · Bila PCB dibayar melebihi cukai akhir.' },
+    { title: 'Refund credited', bm: 'Dikreditkan', date: sd.refunded || '—', desc: c.balance < 0 ? fmt(-c.balance) + ' to ' + (maskBank(d.profile.bank) || 'your bank') + '.' : 'Applies when PCB paid exceeds final tax. · Bila PCB dibayar melebihi cukai akhir.' },
   ];
 
   const docsYa = d.docs.filter((x) => x.ya === ya);

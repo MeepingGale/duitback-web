@@ -188,6 +188,17 @@ describe('TrackerApp smoke', () => {
     expect(screen.queryByText(/not available for YA/)).toBeNull();
   });
 
+  it('bank picker composes and enforces digits with the IBG length hint', async () => {
+    await completeSetup();
+    fireEvent.click(screen.getByText('Skip tour'));
+    fireEvent.click(screen.getByText('Settings'));
+    await screen.findByText('Set passcode · Tetapkan');
+    fireEvent.change(screen.getByLabelText('Bank'), { target: { value: 'Maybank' } });
+    fireEvent.change(screen.getByLabelText('Account number digits'), { target: { value: '1234-5678 9012abc' } });
+    await screen.findByText(/Maybank account numbers are 12 digits/);
+    expect(JSON.parse(localStorage.getItem(KEY)!).profile.bank).toBe('Maybank 123456789012');
+  });
+
   it('returning visitors skip setup and keep their data', async () => {
     await completeSetup('Aisyah');
     cleanup();
