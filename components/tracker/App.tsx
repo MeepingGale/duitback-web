@@ -65,13 +65,17 @@ export default function TrackerApp() {
   const [installEvt, setInstallEvt] = useState<{ prompt: () => void } | null>(null);
 
   useEffect(() => {
-    const d = loadData();
+    let d = loadData();
+    // deep links: /app/?demo=1 loads the demo when nothing is set up; #screen opens that screen
+    if (!d && new URLSearchParams(location.search).get('demo') === '1') { d = demoData(); persist(d); }
     if (d) {
       if (pruneEmptyFutureYears(d)) persist(d);
       setData(d);
       setLocked(!!d.profile.pin);
       askPersistentStorage();
     }
+    const hash = location.hash.slice(1) as Screen;
+    if (NAV.some(([id]) => id === hash)) setScreen(hash);
     setBooted(true);
     const onInstall = (e: Event) => { e.preventDefault(); setInstallEvt(e as unknown as { prompt: () => void }); };
     window.addEventListener('beforeinstallprompt', onInstall);

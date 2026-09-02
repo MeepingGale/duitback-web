@@ -350,6 +350,20 @@ describe('TrackerApp smoke', () => {
     }
   });
 
+  it('deep links: ?demo=1 loads the demo and #pack opens the filing pack', async () => {
+    history.replaceState({}, '', '/?demo=1#pack');
+    try {
+      render(<TrackerApp />);
+      await screen.findByText(/form cheat-sheet/);
+      expect(JSON.parse(localStorage.getItem(KEY)!).demo).toBe(true);
+      // the printed document's letterhead fields are in the DOM (shown by print CSS)
+      expect(screen.getByText('Taxpayer · Pembayar cukai')).toBeTruthy();
+      expect(screen.getByText('Total reliefs allowed · Jumlah pelepasan')).toBeTruthy();
+    } finally {
+      history.replaceState({}, '', '/');
+    }
+  });
+
   it('returning visitors skip setup and keep their data', async () => {
     await completeSetup('Aisyah');
     cleanup();

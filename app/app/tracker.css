@@ -254,7 +254,52 @@ a{color:var(--color-accent-700)}a:hover{color:var(--color-accent-800)}
 .rrow{cursor:pointer}
 .rrow.sel td{background:var(--color-accent-100)}
 @media (max-width:760px){.pagepad{padding:18px 16px 32px!important}.claimsgrid{grid-template-columns:1fr!important}h1{font-size:26px!important}.nav{gap:10px!important;padding:10px 14px!important}.nav a{font-size:12px!important}.postnum{font-size:40px!important}}
-@media print{.no-print{display:none!important}body{background:#fff}.pagepad{padding:0!important;max-width:100%!important}.dv-card{border:0}}
+.print-only { display: none; }
+@media print {
+  @page {
+    size: A4; margin: 14mm 14mm 18mm;
+    @bottom-left { content: "DuitBack · unofficial estimate · anggaran sahaja · confirm in MyTax"; font: 7.5pt Archivo, system-ui, sans-serif; color: #605d5d; }
+    @bottom-right { content: "Page " counter(page) " of " counter(pages); font: 7.5pt Archivo, system-ui, sans-serif; color: #605d5d; }
+  }
+  .no-print { display: none !important; }
+  .print-only { display: block; }
+  table.print-only { display: table; }
+  thead.print-only { display: table-header-group; }
+  html, body { background: #fff !important; color: #111; font-size: 10.5pt; line-height: 1.45; }
+  .pagepad { padding: 0 !important; max-width: 100% !important; }
+  .pack .hr, .pack-note { display: none; }
+  /* letterhead */
+  .pack-head { display: grid; grid-template-columns: 1fr auto; gap: 10mm; align-items: end; padding-bottom: 4mm; border-bottom: 2.5pt solid #111; margin-bottom: 5mm; }
+  .pack-brand { margin-bottom: 6pt; }
+  .pack-head .kick { font-size: 7.5pt; }
+  .pack-head h1 { font-size: 21pt !important; margin: 3pt 0 4pt !important; letter-spacing: -0.02em; }
+  .pack-head .text-muted { font-size: 9pt; color: #444141; }
+  .pack-meta { margin: 0; display: grid; grid-template-columns: auto auto; gap: 2pt 10pt; font-size: 9pt; text-align: left; }
+  .pack-meta dt { color: #605d5d; text-transform: uppercase; letter-spacing: .08em; font-size: 6.5pt; align-self: end; }
+  .pack-meta dd { margin: 0; font-family: var(--font-heading); font-weight: 800; }
+  /* at-a-glance strip */
+  .pack-glance { display: grid; grid-template-columns: repeat(6, 1fr); border: 1.5pt solid #111; margin: 0 0 6mm; break-inside: avoid; }
+  .pack-glance > div { padding: 6pt 8pt; border-left: .75pt solid #bab6b6; }
+  .pack-glance > div:first-child { border-left: 0; }
+  .pack-glance .k { font-size: 6.5pt; letter-spacing: .1em; text-transform: uppercase; color: #ae1800; font-family: var(--font-heading); font-weight: 800; min-height: 17pt; } /* two-line labels keep values on one baseline */
+  .pack-glance .v { font-family: var(--font-heading); font-weight: 800; font-size: 12pt; margin-top: 2pt; white-space: nowrap; }
+  .pack-glance .hero { background: #111; color: #fff; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .pack-glance .hero .k { color: #ffb3a3; }
+  /* sections */
+  .pack h6 { font-size: 7.5pt; letter-spacing: .14em; color: #ae1800; margin: 7mm 0 2mm !important; break-after: avoid; }
+  .pack .table { font-size: 9.5pt !important; }
+  .pack .table th { font-size: 6.5pt; letter-spacing: .1em; color: #444141; border-bottom: 1.5pt solid #111; padding: 3pt 6pt; }
+  .pack .table td { padding: 4pt 6pt; border-bottom: .6pt solid #d7d3d3; vertical-align: top; }
+  .pack .table tr { break-inside: avoid; }
+  .pack .table tr.total { break-before: avoid; } /* never orphan a total row */
+  .pack .keep { break-inside: avoid; } /* short tables travel whole */
+  .pack .table tbody tr:hover { background: transparent; }
+  .pack .table tr.total td { border-top: 1.5pt solid #111; border-bottom: 0; padding-top: 5pt; }
+  .pack .bm, .pack .text-muted { color: #605d5d; }
+  .pack-receipts { margin-top: 0; }
+  .pack-legal { margin-top: 8mm !important; font-size: 8pt !important; border-top: .6pt solid #d7d3d3; padding-top: 4pt; }
+  a { color: inherit; text-decoration: none; }
+}
 
 .text-muted{color:var(--color-neutral-700)}
 .btn-primary{background:var(--color-accent-700)}
