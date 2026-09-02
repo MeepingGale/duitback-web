@@ -134,20 +134,7 @@ figcaption {
 .btn-icon { width: 36px; height: 36px; padding: 0; }
 .btn-block { width: 100%; margin-top: var(--space-2); justify-content: flex-start; text-align: left; }
 
-/* — forms — */
-.field > label {
-  display: block; font-size: 12px; margin-bottom: 5px;
-  color: color-mix(in srgb, var(--color-text) 70%, transparent);
-}
-.input {
-  width: 100%; min-height: 36px; padding: 6px 10px; font: inherit;
-  font-size: 14px; color: var(--color-text); caret-color: var(--color-accent);
-  background: var(--color-surface);
-  border: 1px solid var(--color-divider); border-radius: var(--radius-md);
-}
-.input:hover { border-color: color-mix(in srgb, var(--color-text) 45%, transparent); }
-.input:focus-visible { border-color: var(--color-accent); outline-offset: 0; }
-textarea.input { min-height: 90px; resize: vertical; }
+/* — forms: .field/.input live in ds.css (shared with the public pages) — */
 .radio { display: inline-flex; align-items: center; gap: 8px; cursor: pointer; font-size: 14px; }
 .radio input, .seg-opt input {
   position: absolute; opacity: 0; width: 0; height: 0; pointer-events: none;
@@ -259,7 +246,6 @@ a{color:var(--color-accent-700)}a:hover{color:var(--color-accent-800)}
 .bar i.over{background:var(--color-accent-800)}
 .bm{color:var(--color-neutral-700);font-weight:400}
 .kick{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--color-accent-700);font-family:var(--font-heading);font-weight:800}
-.mono{font-variant-numeric:tabular-nums}
 .navlink{cursor:pointer;user-select:none}
 .yatab{padding:6px 12px;font-size:12px;cursor:pointer;border-left:1px solid var(--color-divider)}
 .yatab:first-child{border-left:0}
@@ -287,13 +273,6 @@ button.linkbtn:hover { color: var(--color-accent-800); }
 /* mobile-audit fixes */
 .vh { left: 0; top: 0; } /* anchor visually-hidden spans so they can't stretch the page */
 .table td.mono, .table th.mono { white-space: nowrap; } /* money never wraps mid-figure */
-.input, select.input { height: 42px; } /* date, number, text and select inputs all one height */
-/* iOS Safari gives date inputs UA height and centers the value — normalise to text-field look */
-input.input[type='date'] { -webkit-appearance: none; appearance: none; }
-input.input[type='date']::-webkit-date-and-time-value { text-align: left; }
-/* paired form fields: two columns, stacking on narrow phones so wrapped labels can't misalign inputs */
-.fields2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-@media (max-width: 480px) { .fields2 { grid-template-columns: 1fr; } }
 /* action-button rows: intrinsic widths side by side, equal full-width when they stack on phones */
 .btnrow { display: flex; gap: 10px; flex-wrap: wrap; }
 @media (max-width: 480px) { .btnrow > .btn { flex: 1 1 100%; } }

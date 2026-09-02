@@ -102,7 +102,7 @@ export function Income({ api, c }: { api: Api; c: CalcResult }) {
           </div>
           {employment > 0 && (
             <div style={{ fontSize: 11.5, marginTop: 8 }}>
-              <div className="text-muted">{pcbNote}</div>
+              <div className="text-muted">{pcbNote} <a href="../pcb/">How PCB is calculated · Cara kiraan →</a></div>
               {!pcbIsAuto && (
                 <button className="navlink linkbtn" style={{ fontSize: 11.5, marginTop: 4 }} onClick={() => mut((x) => {
                   const y = (x.income[ya] = Object.assign(blankInc(), x.income[ya]));

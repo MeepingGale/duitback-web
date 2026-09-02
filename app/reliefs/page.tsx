@@ -133,9 +133,7 @@ export default function ReliefsPage() {
             <p style={{ fontSize: 19, fontWeight: 700, lineHeight: 1.4, maxWidth: 680, margin: '0 0 18px' }}>
               DuitBack tracks your claims against this exact schedule, free, in your browser.
             </p>
-            <a className="btn" style={{ background: 'var(--color-bg)', color: 'var(--color-text)', fontSize: 19, fontWeight: 800 }} href="../app/">
-              Open the tracker · Mula menjejak →
-            </a>
+            <CtaLink href="../app/" variant="onRed">Open the tracker · Mula menjejak →</CtaLink>
           </div>
         </section>
 

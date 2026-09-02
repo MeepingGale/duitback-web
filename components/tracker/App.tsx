@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react';
 import { Claim, Data, calc, fmt, today, uid } from '@/lib/tax';
 import { bumpChanges, demoData, emptyData, exportJson, hasStash, isDemo, loadData, persist, popStash, pruneEmptyFutureYears, wipe } from '@/lib/data';
-import { Kick, TinInput, Wordmark } from './bits';
+import { Kick, TinInput, Wordmark, Modal } from './bits';
 import { SiteFooter } from '@/components/ui';
 import { Dashboard } from './Dashboard';
 import { Claims } from './Claims';
@@ -270,16 +270,14 @@ export default function TrackerApp() {
 
       {dlg === 'add' && <AddClaimDialog api={api} c={c} add={add} setAdd={setAdd} onSaved={(cat) => setSelCat(cat)} />}
       {confirmReq && (
-        <div className="dialog-backdrop" style={{ zIndex: 70 }} onClick={() => setConfirmReq(null)}>
-          <div className="dialog" style={{ maxWidth: 420 }} onClick={(e) => e.stopPropagation()}>
+        <Modal z={70} width="min(420px,100%)" onClose={() => setConfirmReq(null)} label="Confirm · Sahkan">
             <div className="dialog-title" style={{ fontSize: 17 }}>{confirmReq.msg}</div>
             <p className="text-muted" style={{ fontSize: 12.5, margin: '4px 0 14px' }}>This cannot be undone. <span lang="ms">Tindakan ini tidak boleh dibatalkan.</span></p>
             <div className="dialog-actions">
               <button className="btn btn-secondary" onClick={() => setConfirmReq(null)}>Cancel · Batal</button>
               <button className="btn btn-primary" onClick={() => { confirmReq.onYes(); setConfirmReq(null); }}>Delete · Padam</button>
             </div>
-          </div>
-        </div>
+        </Modal>
       )}
       {dlg === 'tag' && <TagDialog api={api} tag={tag} setTag={setTag} />}
       {dlg === 'view' && <ViewerDialog api={api} viewer={viewer} setViewer={setViewer} />}

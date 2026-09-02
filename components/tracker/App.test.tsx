@@ -303,6 +303,33 @@ describe('TrackerApp smoke', () => {
     expect(localStorage.getItem('cukaiku_v3_stash')).toBeNull();
   });
 
+  it('dialogs take focus, close on Escape, and a nested confirm closes on its own', async () => {
+    await completeSetup();
+    fireEvent.click(screen.getByText('Skip tour'));
+    fireEvent.click(screen.getByText('+ New claim'));
+    const title = await screen.findByText('New claim · Tuntutan baharu');
+    const dialog = title.closest('[role="dialog"]')!;
+    expect(dialog.getAttribute('aria-modal')).toBe('true');
+    expect(dialog.contains(document.activeElement)).toBe(true);
+    fireEvent.keyDown(document.activeElement!, { key: 'Escape' });
+    await waitFor(() => expect(screen.queryByText('New claim · Tuntutan baharu')).toBeNull());
+    // nested: edit dialog → Delete → confirm; Escape closes only the confirm
+    fireEvent.click(screen.getByText('+ New claim'));
+    await screen.findByText('New claim · Tuntutan baharu');
+    fireEvent.change(screen.getByLabelText('Amount · Jumlah (RM)'), { target: { value: '100' } });
+    fireEvent.click(screen.getByText('Save claim · Simpan'));
+    await screen.findAllByText('RM 100');
+    fireEvent.click(screen.getByText('Claims · Tuntutan'));
+    fireEvent.click(await screen.findByText('Edit · Sunting'));
+    await screen.findByText('Edit claim · Sunting tuntutan');
+    fireEvent.click(screen.getByText('Delete · Padam'));
+    await screen.findByText('Delete this claim? · Padam tuntutan ini?');
+    expect(document.activeElement?.textContent).toBe('Cancel · Batal'); // safe default focus
+    fireEvent.keyDown(document.activeElement!, { key: 'Escape' });
+    await waitFor(() => expect(screen.queryByText('Delete this claim? · Padam tuntutan ini?')).toBeNull());
+    expect(screen.getByText('Edit claim · Sunting tuntutan')).toBeTruthy();
+  });
+
   it('returning visitors skip setup and keep their data', async () => {
     await completeSetup('Aisyah');
     cleanup();

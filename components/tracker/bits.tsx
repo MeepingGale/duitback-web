@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { CSSProperties, ReactNode } from 'react';
 import { TinPrefix, clamp2dpStr, composeTin, fmtAmountStr, parseTin } from '@/lib/tax';
 import { BANKS, composeBank, parseBank } from '@/lib/banks';
@@ -224,3 +224,33 @@ export const yaHead: CSSProperties = {
 
 export const right: CSSProperties = { textAlign: 'right' };
 export const heading800: CSSProperties = { fontFamily: 'var(--font-heading)', fontWeight: 800 };
+
+const FOCUSABLE = 'a[href], button:not([disabled]), input:not([disabled]):not([type="file"]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
+
+/** The one dialog shell: backdrop + panel, Escape closes, focus moves inside
+ *  on open and returns to the opener on close, Tab cycles within the panel. */
+export function Modal({ onClose, z = 20, width, label, children }: { onClose: () => void; z?: number; width?: string; label?: string; children: ReactNode }) {
+  const ref = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const opener = document.activeElement as HTMLElement | null;
+    const first = ref.current?.querySelector<HTMLElement>(FOCUSABLE);
+    (first || ref.current)?.focus();
+    return () => { opener?.focus?.(); };
+  }, []);
+  const onKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Escape') { e.stopPropagation(); onClose(); return; }
+    if (e.key !== 'Tab' || !ref.current) return;
+    const items = [...ref.current.querySelectorAll<HTMLElement>(FOCUSABLE)].filter((x) => x.offsetParent !== null);
+    if (!items.length) return;
+    const first = items[0], last = items[items.length - 1];
+    if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+    else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+  };
+  return (
+    <div className="dialog-backdrop" style={{ zIndex: z }} onClick={onClose}>
+      <div ref={ref} className="dialog" role="dialog" aria-modal="true" aria-label={label} tabIndex={-1} style={width ? { width } : undefined} onClick={(e) => e.stopPropagation()} onKeyDown={onKeyDown}>
+        {children}
+      </div>
+    </div>
+  );
+}

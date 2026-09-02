@@ -1,9 +1,9 @@
 // DuitBack service worker — offline-first for the tracker.
 // Navigations: network-first so deploys show up immediately, cached shell as
 // the offline fallback. Hashed build assets: cache-first (immutable).
-const VERSION = 'duitback-v1';
+const VERSION = 'duitback-v2';
 const BASE = '/duitback-web';
-const SHELL = [BASE + '/app/', BASE + '/', BASE + '/reliefs/'];
+const SHELL = [BASE + '/app/', BASE + '/', BASE + '/reliefs/', BASE + '/pcb/'];
 
 self.addEventListener('install', (e) => {
   e.waitUntil(

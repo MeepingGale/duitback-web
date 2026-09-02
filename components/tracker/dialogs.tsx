@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { CATS, CHILDSUB, Claim, MEDSUB, CalcResult, ReceiptItem, capFor, fmt, medSum, to2dp, today, uid } from '@/lib/tax';
 import { getFile, putFile, readFiles } from '@/lib/data';
 import { Api } from './App';
-import { MoneyInput } from './bits';
+import { Modal, MoneyInput } from './bits';
 
 /** Inline preview of the receipts linked to a claim — flips through them when
  *  the same filename matches more than one vault item. */
@@ -182,8 +182,7 @@ export function AddClaimDialog({ api, c, add, setAdd, onSaved }: { api: Api; c: 
   };
 
   return (
-    <div className="dialog-backdrop" style={{ zIndex: 20 }} onClick={() => setDlg(null)}>
-      <div className="dialog" onClick={(e) => e.stopPropagation()}>
+    <Modal onClose={() => setDlg(null)} label={add.editId ? 'Edit claim · Sunting tuntutan' : 'New claim · Tuntutan baharu'}>
         <div className="dialog-title">{add.editId ? 'Edit claim · Sunting tuntutan' : 'New claim · Tuntutan baharu'} <span className="bm" style={{ fontSize: 13 }}>({ya})</span></div>
         <div className="field">
           <label>Relief category · Kategori</label>
@@ -261,8 +260,7 @@ export function AddClaimDialog({ api, c, add, setAdd, onSaved }: { api: Api; c: 
           <button className="btn btn-secondary" onClick={() => setDlg(null)}>Cancel</button>
           <button className="btn btn-primary" disabled={!(+add.amount > 0)} onClick={saveClaim}>Save claim · Simpan</button>
         </div>
-      </div>
-    </div>
+    </Modal>
   );
 }
 
@@ -284,8 +282,7 @@ export function TagDialog({ api, tag, setTag }: { api: Api; tag: TagState; setTa
   };
 
   return (
-    <div className="dialog-backdrop" style={{ zIndex: 20 }} onClick={() => setDlg(null)}>
-      <div className="dialog" onClick={(e) => e.stopPropagation()}>
+    <Modal onClose={() => setDlg(null)} label="Tag receipt · Tag resit">
         <div className="dialog-title">Tag receipt · Tag resit</div>
         <div className="dialog-body" style={{ margin: 0 }}>{rec?.name || ''}</div>
         <div className="field">
@@ -307,8 +304,7 @@ export function TagDialog({ api, tag, setTag }: { api: Api; tag: TagState; setTa
           <button className="btn btn-secondary" onClick={() => setDlg(null)}>Cancel</button>
           <button className="btn btn-primary" onClick={saveTag}>Save · Simpan</button>
         </div>
-      </div>
-    </div>
+    </Modal>
   );
 }
 
@@ -317,8 +313,7 @@ export function ViewerDialog({ api, viewer }: { api: Api; viewer: ViewerState; s
   const vsrc = viewer.src || '';
   const isPdf = typeof vsrc === 'string' && vsrc.startsWith('data:application/pdf');
   return (
-    <div className="dialog-backdrop" style={{ zIndex: 20 }} onClick={() => setDlg(null)}>
-      <div className="dialog" style={{ width: 'min(720px,100%)' }} onClick={(e) => e.stopPropagation()}>
+    <Modal onClose={() => setDlg(null)} width="min(720px,100%)" label={viewer.name}>
         <div className="dialog-title" style={{ fontSize: 16 }}>{viewer.name}</div>
         <div style={{ background: 'var(--color-neutral-200)', display: 'grid', placeItems: 'center', minHeight: 200, maxHeight: '60vh', overflow: 'auto' }}>
           {isPdf ? (
@@ -334,7 +329,6 @@ export function ViewerDialog({ api, viewer }: { api: Api; viewer: ViewerState; s
         <div className="dialog-actions">
           <button className="btn btn-secondary" onClick={() => setDlg(null)}>Close</button>
         </div>
-      </div>
-    </div>
+    </Modal>
   );
 }

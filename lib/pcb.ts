@@ -23,6 +23,8 @@ export interface PcbEstimate {
   total: number; // PCB withheld for the whole year
   monthly: number; // January's deduction (steady months are within sen of this)
   december: number; // December's deduction incl. the bonus portion
+  chargeable: number; // P for the full year, as seen in December
+  taxYear: number; // (P − M)R + B for that P — the year's tax net of the embedded rebate
 }
 
 const D = 9000; // individual deduction
@@ -66,7 +68,7 @@ export function estimatePcb({ salary, bonus, category, children, epfRate = 0.11 
   let accNet = 0; // Σ(Y − K*): net remuneration paid before the current month
   let accK = 0; // EPF claimed against the qualifying amount so far
   let X = 0; // accumulated MTD paid
-  let monthly = 0, december = 0;
+  let monthly = 0, december = 0, chargeable = 0, taxYear = 0;
 
   for (let m = 1; m <= 12; m++) {
     const n = 12 - m; // remaining months after this one
@@ -82,12 +84,14 @@ export function estimatePcb({ salary, bonus, category, children, epfRate = 0.11 
     const mtdNormal = finishMtd((tax1 - X) / (n + 1));
 
     let monthMtd = mtdNormal;
+    if (isDec) { chargeable = P1; taxYear = tax1; }
     if (Yt > 0) {
       // Steps 2–5 — MTD on the additional remuneration (bonus)
       const totalForYear = X + mtdNormal * (n + 1); // Step 1[E]
       const Pfull = trunc2(accNet + (y1 - K1) + (y1 - K2) * n + (Yt - Kt) - ded);
       const tax3 = trunc2(taxForYearPcb(Pfull, category));
       monthMtd = mtdNormal + finishMtd(tax3 - totalForYear);
+      chargeable = Pfull; taxYear = tax3;
     }
 
     if (m === 1) monthly = monthMtd;
@@ -97,5 +101,5 @@ export function estimatePcb({ salary, bonus, category, children, epfRate = 0.11 
     accK = trunc2(accK + K1 + Kt);
   }
 
-  return { total: X, monthly, december };
+  return { total: X, monthly, december, chargeable: Math.max(0, chargeable), taxYear: Math.max(0, taxYear) };
 }

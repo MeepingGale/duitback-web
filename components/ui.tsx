@@ -46,7 +46,9 @@ export function Kicker({ children, onRed = false }: { children: ReactNode; onRed
   );
 }
 
-type CtaVariant = 'primary' | 'secondary' | 'ghost';
+type CtaVariant = 'primary' | 'secondary' | 'ghost' | 'onRed';
+/* onRed: the light button that sits on a red poster band — display-grade so it clears contrast */
+const ON_RED = { background: 'var(--color-bg)', color: 'var(--color-text)', fontSize: 19, fontWeight: 800 } as const;
 
 export function CtaLink({
   href,
@@ -60,7 +62,7 @@ export function CtaLink({
   children: ReactNode;
 }) {
   return (
-    <a className={`btn btn-${variant}`} href={href} {...(external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}>
+    <a className={variant === 'onRed' ? 'btn' : `btn btn-${variant}`} style={variant === 'onRed' ? ON_RED : undefined} href={href} {...(external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}>
       {children}
     </a>
   );
@@ -118,6 +120,7 @@ export function SiteHeader({ home = './' }: { home?: string }) {
         </a>
       </span>
       <a href={home + 'reliefs/'}>Relief list · Pelepasan</a>
+      <a href={home + 'pcb/'}>PCB calculator</a>
       <a className="btn btn-primary" href={home + 'app/'} style={{ fontSize: 14 }}>
         Open the tracker →
       </a>
