@@ -421,7 +421,7 @@ button.linkbtn:hover { color: var(--color-accent-800); }
 .screen-host.from-left { animation: duit-in-l .3s cubic-bezier(.2, .7, .2, 1); }
 @keyframes duit-in-r { from { transform: translateX(100%); } }
 @keyframes duit-in-l { from { transform: translateX(-100%); } }
-.screen-ghost { position: fixed; left: 0; width: 100%; overflow: hidden; pointer-events: none; z-index: 5; background: var(--color-bg); }
+.screen-ghost { position: fixed; left: 0; width: 100%; overflow: hidden; pointer-events: none; z-index: 4; background: var(--color-bg); } /* under the sticky header (z 5) */
 .screen-ghost.out-left { animation: duit-out-l .3s cubic-bezier(.2, .7, .2, 1) forwards; }
 .screen-ghost.out-right { animation: duit-out-r .3s cubic-bezier(.2, .7, .2, 1) forwards; }
 @keyframes duit-out-l { to { transform: translateX(-100%); } }

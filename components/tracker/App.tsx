@@ -121,7 +121,7 @@ export default function TrackerApp() {
     const reduced = typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
     document.querySelectorAll('.screen-ghost').forEach((g) => g.remove()); // never stack clones
     const before = host?.getBoundingClientRect();
-    try { window.scrollTo(0, 0); } catch {}
+    try { window.scrollTo({ top: 0, behavior: 'instant' }); } catch {} // instant: the page's smooth scrolling would leave the measurement below stale
     if (host && before && !reduced) {
       // the clone covers only the content area (below the header, which is back in view after the scroll)
       // and is shifted so what was on screen stays exactly where it was until it slides away
@@ -183,7 +183,10 @@ export default function TrackerApp() {
 
   // narrow layouts scroll the link strip — keep the current screen's link visible
   useEffect(() => {
-    document.querySelector('.nav-links a[aria-current="page"]')?.scrollIntoView({ block: 'nearest', inline: 'center' });
+    // scroll the strip itself — scrollIntoView could also move the page vertically
+    const link = document.querySelector<HTMLElement>('.nav-links a[aria-current="page"]');
+    const strip = link?.parentElement;
+    if (link && strip && strip.scrollWidth > strip.clientWidth) strip.scrollTo({ left: link.offsetLeft - (strip.clientWidth - link.offsetWidth) / 2 });
   }, [screen]);
 
   const save = (d: Data, msg?: string) => {
