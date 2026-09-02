@@ -359,3 +359,34 @@ export function familySetUp(d: Data): boolean {
 const FAMILY_HINT_KEY = 'duitback_family_hint';
 export function familyHintDismissed(): boolean { try { return localStorage.getItem(FAMILY_HINT_KEY) === '1'; } catch { return true; } }
 export function dismissFamilyHint(): void { try { localStorage.setItem(FAMILY_HINT_KEY, '1'); } catch {} }
+
+export interface InstallEnv {
+  device: 'iphone' | 'ipad' | 'mac' | 'other';
+  browser: 'safari' | 'chrome' | 'firefox' | 'edge' | 'inapp' | 'other';
+  /** WebKit-engined: Safari's 7-day storage clean-up applies (every iOS browser is WebKit) */
+  webkit: boolean;
+  standalone: boolean;
+}
+
+/** Where are we running? Drives the install guide's steps and whether it auto-shows. */
+export function installEnv(): InstallEnv {
+  const ua = navigator.userAgent;
+  const touch = navigator.maxTouchPoints > 1;
+  const iphone = /iPhone|iPod/.test(ua);
+  const ipad = /iPad/.test(ua) || (navigator.platform === 'MacIntel' && touch);
+  const mac = !iphone && !ipad && /Macintosh/.test(ua);
+  const inapp = /FBAN|FBAV|Instagram|Line\/|WhatsApp|Twitter|TikTok|MicroMessenger|Snapchat/.test(ua);
+  const browser: InstallEnv['browser'] = inapp ? 'inapp'
+    : /EdgiOS|Edg\//.test(ua) ? 'edge'
+    : /CriOS|Chrome\//.test(ua) ? 'chrome'
+    : /FxiOS|Firefox\//.test(ua) ? 'firefox'
+    : /Safari\//.test(ua) ? 'safari'
+    : 'other';
+  const device: InstallEnv['device'] = iphone ? 'iphone' : ipad ? 'ipad' : mac ? 'mac' : 'other';
+  const webkit = iphone || ipad || (mac && browser === 'safari');
+  return { device, browser, webkit, standalone: isStandalone() };
+}
+
+const GUIDE_KEY = 'duitback_install_guide';
+export function installGuideShown(): boolean { try { return localStorage.getItem(GUIDE_KEY) === '1'; } catch { return true; } }
+export function markInstallGuideShown(): void { try { localStorage.setItem(GUIDE_KEY, '1'); } catch {} }

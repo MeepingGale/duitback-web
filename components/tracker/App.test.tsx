@@ -435,6 +435,38 @@ describe('TrackerApp smoke', () => {
     expect(localStorage.getItem('duitback_family_hint')).toBe('1');
   });
 
+  it('on WebKit the install guide opens once by itself, with steps for that device and browser', async () => {
+    const ua = Object.getOwnPropertyDescriptor(window.navigator, 'userAgent');
+    Object.defineProperty(window.navigator, 'userAgent', { value: 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.5 Mobile/15E148 Safari/604.1', configurable: true });
+    try {
+      await completeSetup();
+      fireEvent.click(screen.getByText('Skip tour'));
+      await screen.findByText('Install DuitBack · Pasang DuitBack', {}, { timeout: 3000 });
+      await screen.findByText(/the bar at the bottom of the screen/); // iPhone Safari: Share lives in the bottom bar
+      expect(localStorage.getItem('duitback_install_guide')).toBe('1');
+      fireEvent.click(screen.getByText('Done · Selesai'));
+      await waitFor(() => expect(screen.queryByText('Install DuitBack · Pasang DuitBack')).toBeNull());
+      // the dashboard nudge reopens it on demand
+      fireEvent.click(screen.getByText('Show me how →'));
+      await screen.findByText('Install DuitBack · Pasang DuitBack');
+    } finally {
+      if (ua) Object.defineProperty(window.navigator, 'userAgent', ua);
+    }
+  });
+
+  it('inside an in-app browser the guide says to open Safari and offers the link', async () => {
+    const ua = Object.getOwnPropertyDescriptor(window.navigator, 'userAgent');
+    Object.defineProperty(window.navigator, 'userAgent', { value: 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 Instagram 320.0.0.0', configurable: true });
+    try {
+      await completeSetup();
+      fireEvent.click(screen.getByText('Skip tour'));
+      await screen.findByText(/Open in Safari/, {}, { timeout: 3000 });
+      expect(screen.getByText('Copy link · Salin pautan')).toBeTruthy();
+    } finally {
+      if (ua) Object.defineProperty(window.navigator, 'userAgent', ua);
+    }
+  });
+
   it('returning visitors skip setup and keep their data', async () => {
     await completeSetup('Aisyah');
     cleanup();

@@ -1,7 +1,7 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { Claim, Data, calc, fmt, today, uid } from '@/lib/tax';
-import { askPersistentStorage, bumpChanges, demoData, emptyData, exportJson, familySetUp, hasStash, isDemo, loadData, persist, popStash, pruneEmptyFutureYears, wipe } from '@/lib/data';
+import { askPersistentStorage, bumpChanges, demoData, emptyData, exportJson, familySetUp, hasStash, installEnv, installGuideShown, isDemo, loadData, markInstallGuideShown, persist, popStash, pruneEmptyFutureYears, wipe } from '@/lib/data';
 import { Kick, TinInput, Wordmark, Modal } from './bits';
 import { SiteFooter } from '@/components/ui';
 import { Dashboard } from './Dashboard';
@@ -13,6 +13,7 @@ import { FilingPack } from './FilingPack';
 import { Settings } from './Settings';
 import { AddClaimDialog, TagDialog, ViewerDialog, AddState, TagState, ViewerState, editState, freshAdd } from './dialogs';
 import { TOUR, Tour } from './Tour';
+import { InstallGuide } from './InstallGuide';
 
 export type Screen = 'dash' | 'claims' | 'receipts' | 'status' | 'income' | 'pack' | 'settings';
 
@@ -40,6 +41,8 @@ export interface Api {
   ask: (msg: string, onYes: () => void) => void;
   /** browser offered an install prompt (Chrome/Edge/Android) — undefined elsewhere */
   install?: () => void;
+  /** open the step-by-step install guide for this device and browser */
+  showInstallGuide: () => void;
   dataMsg: string;
   setDataMsg: (m: string) => void;
 }
@@ -63,6 +66,7 @@ export default function TrackerApp() {
   const [eraseArmed, setEraseArmed] = useState(false);
   const [confirmReq, setConfirmReq] = useState<{ msg: string; onYes: () => void } | null>(null);
   const [installEvt, setInstallEvt] = useState<{ prompt: () => void } | null>(null);
+  const [guideOpen, setGuideOpen] = useState(false);
 
   useEffect(() => {
     let d = loadData();
@@ -90,6 +94,16 @@ export default function TrackerApp() {
   useEffect(() => {
     if (tut > 0 && tut <= TOUR.length) setScreen(TOUR[tut - 1].screen);
   }, [tut]);
+
+  // WebKit (every iOS browser, Safari on Mac) can clear a site's data after 7 idle days — show the
+  // install guide once, on the dashboard, when nothing else is on screen
+  useEffect(() => {
+    if (!data || isDemo(data) || tut > 0 || locked || screen !== 'dash') return;
+    const env = installEnv();
+    if (!env.webkit || env.standalone || installGuideShown()) return;
+    const t = setTimeout(() => { markInstallGuideShown(); setGuideOpen(true); }, 1200);
+    return () => clearTimeout(t);
+  }, [data, tut, locked, screen]);
 
   // narrow layouts scroll the link strip — keep the current screen's link visible
   useEffect(() => {
@@ -196,7 +210,7 @@ export default function TrackerApp() {
   const d = data;
   const ya = d.ya;
   const c = calc(d, ya);
-  const api: Api = { d, ya, save, mut, go: setScreen, openAdd, openEdit, setDlg, clearAll, startTour: () => setTut(1), ask: (msg, onYes) => setConfirmReq({ msg, onYes }), install: installEvt ? () => { installEvt.prompt(); setInstallEvt(null); } : undefined, dataMsg, setDataMsg };
+  const api: Api = { d, ya, save, mut, go: setScreen, openAdd, openEdit, setDlg, clearAll, startTour: () => setTut(1), ask: (msg, onYes) => setConfirmReq({ msg, onYes }), install: installEvt ? () => { installEvt.prompt(); setInstallEvt(null); } : undefined, showInstallGuide: () => setGuideOpen(true), dataMsg, setDataMsg };
   const demo = isDemo(d);
 
   return (
@@ -292,6 +306,7 @@ export default function TrackerApp() {
       )}
 
       {dlg === 'add' && <AddClaimDialog api={api} c={c} add={add} setAdd={setAdd} onSaved={(cat) => setSelCat(cat)} />}
+      {guideOpen && <InstallGuide env={installEnv()} install={api.install} onClose={() => setGuideOpen(false)} />}
       {confirmReq && (
         <Modal z={70} width="min(420px,100%)" onClose={() => setConfirmReq(null)} label="Confirm · Sahkan">
             <div className="dialog-title" style={{ fontSize: 17 }}>{confirmReq.msg}</div>

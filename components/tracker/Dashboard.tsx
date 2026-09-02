@@ -119,7 +119,7 @@ export function Dashboard({ api, c }: { api: Api; c: CalcResult }) {
             <strong>On iPhone, Safari can clear this app&apos;s data after 7 days unused.</strong> Install it to your Home Screen to keep it safe.{' '}
             <span lang="ms">Pasang ke Skrin Utama supaya data anda kekal.</span>
           </span>
-          <button className="navlink linkbtn" style={{ fontSize: 12.5, fontWeight: 800 }} onClick={() => api.go('settings')}>See how →</button>
+          <button className="navlink linkbtn" style={{ fontSize: 12.5, fontWeight: 800 }} onClick={api.showInstallGuide}>Show me how →</button>
           <button className="navlink linkbtn" style={{ fontSize: 12.5 }} onClick={() => { dismissInstallHint(); setHintGone(true); }}>Got it · Faham</button>
         </div>
       )}

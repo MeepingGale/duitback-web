@@ -175,6 +175,9 @@ export function Settings({ api, lockNow }: { api: Api; lockNow: () => void }) {
         ) : (
           <div className="text-muted" style={{ fontSize: 12.5 }}>In your browser menu, choose <strong>Install app</strong> or <strong>Add to Home Screen</strong>. <span lang="ms">Dalam menu pelayar, pilih Pasang aplikasi.</span></div>
         )}
+        {!standalone && (
+          <button className="btn btn-secondary" style={{ marginTop: 12 }} onClick={api.showInstallGuide}>Show me how, step by step · Tunjukkan caranya →</button>
+        )}
         {persisted !== null && (
           <div className="text-muted" style={{ fontSize: 12, marginTop: 10 }}>
             Persistent storage · Storan kekal: {persisted ? 'granted by this browser · dibenarkan' : 'not granted yet — keep a vault backup · belum dibenarkan, simpan sandaran'}
