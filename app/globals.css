@@ -10,7 +10,7 @@ body { margin: 0; background: var(--color-bg); color: var(--color-text); }
 
 .wrap { max-width: 1080px; margin: 0 auto; padding: 0 24px; }
 
-.hero { padding: 64px 0 48px; }
+.hero { padding-block: 64px 48px; } /* block-only so it never cancels .wrap's side padding */
 /* Red-filled CTAs run display-grade: at ≥19px/800 the brand red's 3.75:1 on
    white clears the 3:1 large-text bar. Small red-filled text cannot. */
 .hero .btn-primary, .section .btn-primary { font-size: 19px; font-weight: 800; }
@@ -42,12 +42,12 @@ body { margin: 0; background: var(--color-bg); color: var(--color-text); }
 .step h3 { font-family: var(--font-heading); font-weight: 800; font-size: 17px; margin: 2px 0 6px; }
 .step p { font-size: 13.5px; margin: 0; color: var(--color-neutral-800); max-width: 640px; }
 
-.section { padding: 48px 0; }
+.section { padding-block: 48px; }
 .section h2 { font-family: var(--font-heading); font-weight: 800; letter-spacing: -0.01em; font-size: clamp(24px, 3.4vw, 34px); margin: 8px 0 22px; }
 
-.site-footer { border-top: 2px solid var(--color-divider); padding: 16px 0 28px; font-size: 12px; color: var(--color-neutral-700); display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.site-footer { border-top: 2px solid var(--color-divider); padding-block: 16px 28px; font-size: 12px; color: var(--color-neutral-700); display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
 .site-footer a { color: var(--color-accent-700); }
 
 @media (max-width: 640px) {
-  .hero { padding: 40px 0 32px; }
+  .hero { padding-block: 40px 32px; }
 }
