@@ -164,5 +164,8 @@ input.input[type='date'] { -webkit-appearance: none; appearance: none; }
 input.input[type='date']::-webkit-date-and-time-value { text-align: left; }
 /* paired form fields: two columns, stacking on narrow phones so wrapped labels can't misalign inputs */
 .fields2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+/* a wrapped label must never push its input out of line with its neighbour: inputs sit on the
+   grid row's bottom edge and any spare space goes above the label */
+.fields2 > .field { display: flex; flex-direction: column; justify-content: flex-end; }
 @media (max-width: 480px) { .fields2 { grid-template-columns: 1fr; } }
 .mono { font-variant-numeric: tabular-nums; }

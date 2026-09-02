@@ -374,6 +374,9 @@ export function calc(d: Data, ya: string): CalcResult {
   });
   // fixed family/status reliefs from the profile — only where no claim lines were entered for that category
   const derivedAll = derivedReliefs(d.profile, yaNum);
+  // spouse relief (and the disabled-spouse relief that rides on it) needs a spouse with no income —
+  // spouse income entered on the Income screen overrides whatever the profile says
+  if ((+inc.spInc || 0) > 0) { delete derivedAll.spouse; delete derivedAll.disabled_spouse; }
   const derived: Record<string, number> = {};
   PROFILE_CATS.forEach((cat) => {
     if (!sums[cat] && derivedAll[cat]) { sums[cat] = derivedAll[cat]; derived[cat] = derivedAll[cat]; }
@@ -415,9 +418,12 @@ export function jointComparison(c: CalcResult) {
   const spTaxG = taxOn(spCh);
   const spTax = Math.max(0, spTaxG - (spCh <= 35000 ? Math.min(400, spTaxG) : 0));
   const sep = c.taxNet + spTax;
-  const jCh = Math.max(0, c.totalIncome + spInc - c.donAllowed - c.reliefsNonDon - 4000);
+  // joint assessment gives the RM4,000 spouse relief once — don't count it again if the separate
+  // computation already holds it (from the profile or a legacy claim line)
+  const spouseAlready = Math.min(c.sums.spouse || 0, 4000);
+  const jCh = Math.max(0, c.totalIncome + spInc - c.donAllowed - (c.reliefsNonDon - spouseAlready) - 4000);
   const jG = taxOn(jCh);
   const jReb = jCh <= 35000 ? Math.min(800, jG) : 0;
-  const joint = Math.max(0, jG - jReb - c.zakatRebate);
+  const joint = Math.max(0, jG - jReb - c.levyRebate - c.zakatRebate);
   return { sep, joint };
 }

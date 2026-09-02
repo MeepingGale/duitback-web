@@ -92,7 +92,7 @@ export function FilingPack({ api, c }: { api: Api; c: CalcResult }) {
                 <td>{r.en} <span className="bm">· {r.bm}</span></td>
                 <td style={{ ...right, ...heading800 }} className="mono">{fmt(Math.floor(r.allowed))}</td>
                 <td style={right} className="mono">{fmt(r.claimed)}</td>
-                <td className="text-muted" style={{ fontSize: 11.5 }}>{evid.length ? evid.join(', ') : r.id === 'individual' ? 'automatic — none needed' : 'no receipts linked'}</td>
+                <td className="text-muted" style={{ fontSize: 11.5 }}>{evid.length ? evid.join(', ') : r.id === 'individual' ? 'automatic — none needed' : c.derived[r.id] ? 'from your profile — none needed' : 'no receipts linked'}</td>
               </tr>
             );
           })}

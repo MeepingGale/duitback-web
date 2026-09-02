@@ -155,6 +155,12 @@ export function Income({ api, c }: { api: Api; c: CalcResult }) {
           {isMarried && (
             <>
               <h3 className="sec" style={{ margin: '20px 0 8px' }}>Spouse · Pasangan (for joint comparison)</h3>
+              {(c.inc.spInc || 0) > 0 && d.profile.spouseWorking === false && (
+                <div style={{ fontSize: 12, margin: '0 0 8px', color: 'var(--color-accent-700)' }}>
+                  Spouse income is entered here, so the RM 4,000 spouse relief is not counted this year — it needs a spouse with no income. If that&apos;s wrong, clear the spouse income; if it&apos;s right, set &quot;spouse has income&quot; in Settings.{' '}
+                  <span lang="ms">Pelepasan pasangan RM 4,000 tidak dikira kerana pasangan ada pendapatan.</span>
+                </div>
+              )}
               <div className="fields2">
                 <NumField label="Spouse income / year (RM)" value={c.inc.spInc || 0} onCommit={bind('spInc')} />
                 <NumField label="Spouse reliefs, est. (RM)" value={c.inc.spRel || 0} onCommit={bind('spRel')} />

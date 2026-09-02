@@ -299,6 +299,25 @@ describe('YA2025+ rules added from the LHDN relief, rebate and dividend pages', 
     expect(derivedReliefs(d.profile, 2026).child).toBe(12000);
   });
 
+  it('joint-vs-separate does not double count a spouse relief that is already in the separate figure', () => {
+    const d = base();
+    d.profile = { ...d.profile, marital: 'married', spouseWorking: false };
+    const c = calc(d, 'YA2026');
+    expect(c.derived.spouse).toBe(4000);
+    expect(c.chargeable).toBe(90000 - 9000 - 4000);
+    const jc = jointComparison(c);
+    // spouse has no income: joint and separate see the same RM77,000 chargeable → same tax
+    expect(jc.joint).toBe(jc.sep);
+    expect(jc.sep).toBe(taxOn(77000));
+    // spouse income entered on the Income screen switches the spouse reliefs off, whatever the profile says
+    d.profile.spouseDisabled = true;
+    d.income.YA2026 = { ...blankInc(), salary: 90000, spInc: 50000 };
+    const c2 = calc(d, 'YA2026');
+    expect(c2.derived.spouse).toBeUndefined();
+    expect(c2.derived.disabled_spouse).toBeUndefined();
+    expect(c2.chargeable).toBe(90000 - 9000);
+  });
+
   it('exempts RM10,000 of loss-of-employment compensation per completed year (all of it on ill health)', () => {
     expect(compensationExempt(45000, 3.8)).toBe(30000);
     expect(compensationExempt(25000, 4)).toBe(25000);

@@ -74,12 +74,13 @@ export default function TrackerApp() {
       setLocked(!!d.profile.pin);
       askPersistentStorage();
     }
-    const hash = location.hash.slice(1) as Screen;
-    if (NAV.some(([id]) => id === hash)) setScreen(hash);
+    const applyHash = () => { const h = location.hash.slice(1) as Screen; if (NAV.some(([id]) => id === h)) setScreen(h); };
+    applyHash();
+    window.addEventListener('hashchange', applyHash);
     setBooted(true);
     const onInstall = (e: Event) => { e.preventDefault(); setInstallEvt(e as unknown as { prompt: () => void }); };
     window.addEventListener('beforeinstallprompt', onInstall);
-    return () => window.removeEventListener('beforeinstallprompt', onInstall);
+    return () => { window.removeEventListener('beforeinstallprompt', onInstall); window.removeEventListener('hashchange', applyHash); };
     if ('serviceWorker' in navigator && process.env.NODE_ENV === 'production') {
       navigator.serviceWorker.register('/duitback-web/sw.js', { scope: '/duitback-web/' }).catch(() => {});
     }
