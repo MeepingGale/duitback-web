@@ -22,8 +22,8 @@ export function InstallDemo({ phase, where }: { phase: 1 | 2 | 3; where: DemoWhe
         <div className="idemo-menu">
           <div>New Window</div><div>New Tab</div><div className="idemo-row-hot"><PlusIcon /> Add to Dock…</div><div>Close Window</div>
         </div>
-        <Tap style={{ left: 30, top: 6 }} />
-        <Tap style={{ left: 60, top: 64, animationDelay: '1.2s' }} />
+        <Tap style={{ left: 40, top: 2 }} />
+        <Tap style={{ left: 62, top: 78, animationDelay: '1.2s' }} />
       </div>
     );
   }

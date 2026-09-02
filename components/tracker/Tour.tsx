@@ -1,8 +1,9 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { Screen } from './App';
 import { CalcResult, Data, derivedReliefs } from '@/lib/tax';
 import { deadlineInfo } from './derive';
 import { familySetUp } from '@/lib/data';
+import { useDialogKeys } from './bits';
 import { Kick } from './bits';
 
 export interface TourCopy { t: string; b: string; bm: string }
@@ -164,6 +165,8 @@ export function Tour({ step, d, c, onNext, onBack, onDone }: { step: number; d: 
   const stepDef = TOUR[step - 1];
   const info = { target: stepDef.target, ...stepDef.copy(tourCtx(d, c)) };
   const [box, setBox] = useState<Box | null>(null);
+  const ref = useRef<HTMLDivElement>(null);
+  const onKeyDown = useDialogKeys(ref, () => onDone(false), undefined, step); // Escape = skip
 
   useEffect(() => {
     let raf = 0;
@@ -226,7 +229,11 @@ export function Tour({ step, d, c, onNext, onBack, onDone }: { step: number; d: 
         <div style={{ position: 'fixed', inset: 0, background: 'color-mix(in srgb, var(--color-text) 55%, transparent)', zIndex: 56, pointerEvents: 'none' }} />
       )}
       <div
+        ref={ref}
         role="dialog"
+        aria-modal="true"
+        tabIndex={-1}
+        onKeyDown={onKeyDown}
         aria-label={'Quick tour step ' + step + ' of ' + TOUR.length + ': ' + info.t}
         style={{
           position: 'fixed',

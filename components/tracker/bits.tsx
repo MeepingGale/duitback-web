@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import type { CSSProperties, ReactNode } from 'react';
+import type { CSSProperties, ReactNode, RefObject } from 'react';
 import { TinPrefix, clamp2dpStr, composeTin, fmtAmountStr, parseTin } from '@/lib/tax';
 import { BANKS, composeBank, parseBank } from '@/lib/banks';
 
@@ -229,15 +229,19 @@ const FOCUSABLE = 'a[href], button:not([disabled]), input:not([disabled]):not([t
 
 /** The one dialog shell: backdrop + panel, Escape closes, focus moves inside
  *  on open and returns to the opener on close, Tab cycles within the panel. */
-export function Modal({ onClose, onSubmit, z = 20, width, label, children }: { onClose: () => void; onSubmit?: () => void; z?: number; width?: string; label?: string; children: ReactNode }) {
-  const ref = useRef<HTMLDivElement>(null);
+/** Dialog keyboard contract shared by Modal and the two tours: focus moves into the dialog (again
+ *  whenever `refocusKey` changes, e.g. a tour step), Escape closes, Enter submits from a text input,
+ *  Tab cycles inside, and the opener gets focus back on unmount. */
+export function useDialogKeys(ref: RefObject<HTMLElement | null>, onClose: () => void, onSubmit?: () => void, refocusKey?: unknown) {
   useEffect(() => {
     const opener = document.activeElement as HTMLElement | null;
-    const first = ref.current?.querySelector<HTMLElement>(FOCUSABLE);
-    (first || ref.current)?.focus();
     return () => { opener?.focus?.(); };
   }, []);
-  const onKeyDown = (e: React.KeyboardEvent) => {
+  useEffect(() => {
+    const first = ref.current?.querySelector<HTMLElement>(FOCUSABLE);
+    (first || ref.current)?.focus();
+  }, [ref, refocusKey]);
+  return (e: React.KeyboardEvent) => {
     if (e.key === 'Escape') { e.stopPropagation(); onClose(); return; }
     if (e.key === 'Enter' && onSubmit && (e.target as HTMLElement).tagName === 'INPUT' && (e.target as HTMLInputElement).type !== 'checkbox') { e.preventDefault(); onSubmit(); return; }
     if (e.key !== 'Tab' || !ref.current) return;
@@ -247,6 +251,11 @@ export function Modal({ onClose, onSubmit, z = 20, width, label, children }: { o
     if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
     else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
   };
+}
+
+export function Modal({ onClose, onSubmit, z = 20, width, label, children }: { onClose: () => void; onSubmit?: () => void; z?: number; width?: string; label?: string; children: ReactNode }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const onKeyDown = useDialogKeys(ref, onClose, onSubmit);
   return (
     <div className="dialog-backdrop" style={{ zIndex: z }} onClick={onClose}>
       <div ref={ref} className="dialog" role="dialog" aria-modal="true" aria-label={label} tabIndex={-1} style={width ? { width } : undefined} onClick={(e) => e.stopPropagation()} onKeyDown={onKeyDown}>

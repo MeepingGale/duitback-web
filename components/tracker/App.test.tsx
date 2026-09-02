@@ -451,6 +451,24 @@ describe('TrackerApp smoke', () => {
     expect(localStorage.getItem('duitback_family_hint')).toBe('1');
   });
 
+  it('tour dialogs take keyboard focus, and Escape dismisses them like Skip / Later', async () => {
+    const ua = Object.getOwnPropertyDescriptor(window.navigator, 'userAgent');
+    Object.defineProperty(window.navigator, 'userAgent', { value: 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.5 Mobile/15E148 Safari/604.1', configurable: true });
+    try {
+      await completeSetup();
+      const tour = screen.getByRole('dialog', { name: /Quick tour step 1/ });
+      expect(tour.contains(document.activeElement)).toBe(true);
+      fireEvent.keyDown(tour, { key: 'Escape' });
+      await screen.findByText(/Tell DuitBack who you are/); // skipped → dashboard nudge
+      const guide = await screen.findByRole('dialog', { name: /Install DuitBack, step 1 of 3/ }, { timeout: 3000 });
+      expect(document.activeElement?.textContent).toBe('Next →');
+      fireEvent.keyDown(guide, { key: 'Escape' });
+      await waitFor(() => expect(screen.queryByText(/Install DuitBack · Pasang ·/)).toBeNull());
+    } finally {
+      if (ua) Object.defineProperty(window.navigator, 'userAgent', ua);
+    }
+  });
+
   it('on WebKit the install guide opens once by itself, with steps for that device and browser', async () => {
     const ua = Object.getOwnPropertyDescriptor(window.navigator, 'userAgent');
     Object.defineProperty(window.navigator, 'userAgent', { value: 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.5 Mobile/15E148 Safari/604.1', configurable: true });
@@ -482,7 +500,9 @@ describe('TrackerApp smoke', () => {
       await completeSetup();
       fireEvent.click(screen.getByText('Skip tour'));
       await screen.findByText(/Open this in Safari first/, {}, { timeout: 3000 });
-      expect(screen.getByText('Copy link · Salin pautan')).toBeTruthy();
+      fireEvent.click(screen.getByText('Copy link · Salin pautan')); // jsdom has no clipboard → visible fallback
+      const box = await screen.findByLabelText('Link to DuitBack · Pautan') as HTMLInputElement;
+      expect(box.value).toContain('/');
     } finally {
       if (ua) Object.defineProperty(window.navigator, 'userAgent', ua);
     }

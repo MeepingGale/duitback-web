@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import type { InstallEnv } from '@/lib/data';
-import { Kick } from './bits';
+import { Kick, useDialogKeys } from './bits';
 import { DemoWhere, InstallDemo } from './InstallDemo';
 
 type Point = 'bottom-center' | 'top-right' | 'top-left' | null;
@@ -69,7 +69,9 @@ function stepsFor(env: InstallEnv, canPrompt: boolean): Step[] {
 export function InstallTour({ env, install, onClose }: { env: InstallEnv; install?: () => void; onClose: () => void }) {
   const steps = stepsFor(env, !!install);
   const [i, setI] = useState(0);
-  const [copied, setCopied] = useState(false);
+  const [copied, setCopied] = useState<'no' | 'yes' | 'fail'>('no');
+  const ref = useRef<HTMLDivElement>(null);
+  const onKeyDown = useDialogKeys(ref, onClose, undefined, i);
   const st = steps[i];
   const last = i === steps.length - 1;
   const dim = 'color-mix(in srgb, var(--color-text) 62%, transparent)';
@@ -89,13 +91,19 @@ export function InstallTour({ env, install, onClose }: { env: InstallEnv; instal
           <path d="M12 21V4" /><path d="m5 11 7-7 7 7" />
         </svg>
       )}
-      <div role="dialog" aria-label={'Install DuitBack, step ' + (i + 1) + ' of ' + steps.length + ': ' + st.t} style={{ position: 'fixed', zIndex: 60, left: '50%', transform: st.point ? 'translateX(-50%)' : 'translate(-50%, -50%)', width: 'min(400px, calc(100vw - 32px))', background: 'var(--color-bg)', border: '2px solid var(--color-text)', padding: '18px 20px', boxShadow: 'var(--shadow-lg)', maxHeight: 'calc(100vh - 32px)', overflowY: 'auto', ...cardPos }}>
+      <div ref={ref} role="dialog" aria-modal="true" tabIndex={-1} onKeyDown={onKeyDown} aria-label={'Install DuitBack, step ' + (i + 1) + ' of ' + steps.length + ': ' + st.t} style={{ position: 'fixed', zIndex: 60, left: '50%', transform: st.point ? 'translateX(-50%)' : 'translate(-50%, -50%)', width: 'min(400px, calc(100vw - 32px))', background: 'var(--color-bg)', border: '2px solid var(--color-text)', padding: '18px 20px', boxShadow: 'var(--shadow-lg)', maxHeight: 'calc(100vh - 32px)', overflowY: 'auto', ...cardPos }}>
         <Kick>Install DuitBack · Pasang · {i + 1} of {steps.length}</Kick>
         <h3 style={{ fontFamily: 'var(--font-heading)', fontWeight: 800, fontSize: 19, margin: '8px 0 6px' }}>{st.t}</h3>
         <p style={{ fontSize: 13.5, lineHeight: 1.55, margin: '0 0 6px', color: 'var(--color-neutral-800)' }}>{st.b}</p>
         {st.demo && <InstallDemo phase={st.demo.phase} where={st.demo.where} />}
         {st.mock && <Mock kind={st.mock} />}
         <p lang="ms" style={{ fontSize: 12.5, lineHeight: 1.5, margin: '0 0 14px', color: 'var(--color-neutral-700)' }}>{st.bm}</p>
+        {copied === 'fail' && i === 0 && (
+          <div className="field" style={{ marginBottom: 12 }}>
+            <label>Copy blocked here — select the link and copy it yourself · Pilih pautan dan salin sendiri</label>
+            <input className="input" readOnly value={link} onFocus={(e) => e.currentTarget.select()} aria-label="Link to DuitBack · Pautan" />
+          </div>
+        )}
         {i === 0 && <p className="text-muted" style={{ fontSize: 11.5, margin: '0 0 12px' }}>{env.webkit ? 'Why: Safari clears a website’s saved data after 7 days without a visit — an installed app is exempt. · Safari memadam data laman yang tidak dibuka 7 hari; aplikasi dipasang dikecualikan.' : 'Installed, DuitBack opens like an app and its storage is protected.'}</p>}
         <div style={{ display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap' }}>
           {last ? (
@@ -105,7 +113,7 @@ export function InstallTour({ env, install, onClose }: { env: InstallEnv; instal
           )}
           {i > 0 && <button className="btn btn-secondary" onClick={() => setI(i - 1)}>← Back</button>}
           {env.browser === 'inapp' && i === 0 && (
-            <button className="btn btn-secondary" onClick={() => { navigator.clipboard?.writeText(link).then(() => setCopied(true)).catch(() => {}); }}>{copied ? 'Link copied ✓' : 'Copy link · Salin pautan'}</button>
+            <button className="btn btn-secondary" onClick={() => { (navigator.clipboard ? navigator.clipboard.writeText(link) : Promise.reject()).then(() => setCopied('yes')).catch(() => setCopied('fail')); }}>{copied === 'yes' ? 'Link copied ✓' : 'Copy link · Salin pautan'}</button>
           )}
           {!last && <button className="btn btn-ghost" style={{ marginLeft: 'auto' }} onClick={onClose}>Later · Nanti</button>}
         </div>
