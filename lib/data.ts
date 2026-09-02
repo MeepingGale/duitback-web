@@ -258,14 +258,32 @@ export function readFiles(files: FileList | File[], cb: (name: string, thumb: st
   });
 }
 
-export function exportJson(d: Data): void {
-  const blob = new Blob([JSON.stringify(d, null, 2)], { type: 'application/json' });
+/** Hand a file to the person. On iPhone and iPad the share sheet (Save to Files, AirDrop, Mail…) is the
+ *  reliable route — an <a download> is hit-and-miss there and worst inside the installed app. Elsewhere,
+ *  a plain download. Resolves false only when the person closed the share sheet without choosing anything. */
+export async function deliverFile(blob: Blob, name: string): Promise<boolean> {
+  const env = installEnv();
+  if ((env.device === 'iphone' || env.device === 'ipad') && typeof navigator.share === 'function') {
+    const file = new File([blob], name, { type: blob.type });
+    if (navigator.canShare?.({ files: [file] })) {
+      try { await navigator.share({ files: [file], title: name }); return true; }
+      catch (e) { if ((e as { name?: string }).name === 'AbortError') return false; } // anything else: fall back to a download
+    }
+  }
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
-  a.download = 'duitback-data.json';
+  a.download = name;
   a.click();
-  URL.revokeObjectURL(a.href);
-  noteExport();
+  setTimeout(() => URL.revokeObjectURL(a.href), 60_000); // Safari needs the URL alive until the download starts
+  return true;
+}
+
+/** Export the JSON backup; resolves false if the person dismissed the share sheet. */
+export async function exportJson(d: Data): Promise<boolean> {
+  const blob = new Blob([JSON.stringify(d, null, 2)], { type: 'application/json' });
+  const ok = await deliverFile(blob, 'duitback-data.json');
+  if (ok) noteExport();
+  return ok;
 }
 
 /** Validate an imported blob; returns the data or an error message. */
@@ -316,16 +334,14 @@ export async function vaultEntries(d: Data, load: (id: string) => Promise<string
   return entries;
 }
 
-/** Download the vault as a ZIP; resolves with the number of receipt originals included. */
-export async function exportVault(d: Data): Promise<number> {
+/** Export the vault as a ZIP; resolves with the number of receipt originals included, or null if the
+ *  person dismissed the share sheet. */
+export async function exportVault(d: Data): Promise<number | null> {
   const entries = await vaultEntries(d);
   const zip = buildZip(entries);
   const blob = new Blob([zip.buffer as ArrayBuffer], { type: 'application/zip' });
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = 'duitback-vault-' + new Date().toISOString().slice(0, 10) + '.zip';
-  a.click();
-  URL.revokeObjectURL(a.href);
+  const ok = await deliverFile(blob, 'duitback-vault-' + new Date().toISOString().slice(0, 10) + '.zip');
+  if (!ok) return null;
   noteExport();
   return entries.length - 2;
 }

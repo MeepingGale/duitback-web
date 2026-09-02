@@ -134,7 +134,7 @@ export function Dashboard({ api, c }: { api: Api; c: CalcResult }) {
               {meta.changesSince} changes since your last backup{meta.lastExport ? ' (' + meta.lastExport + ')' : ' — you have never exported'}.{' '}
               <span lang="ms">Banyak perubahan sejak sandaran terakhir.</span>
             </span>
-            <button className="navlink linkbtn" style={{ fontSize: 12.5, fontWeight: 800 }} onClick={() => { exportVault(d).then(() => api.setDataMsg('Vault exported. · Peti dieksport.')); }}>Export vault now →</button>
+            <button className="navlink linkbtn" style={{ fontSize: 12.5, fontWeight: 800 }} onClick={() => { exportVault(d).then((n) => api.setDataMsg(n === null ? 'Export cancelled. · Eksport dibatalkan.' : 'Vault exported. · Peti dieksport.')); }}>Export vault now →</button>
           </div>
         );
       })()}

@@ -197,8 +197,8 @@ export function Settings({ api, lockNow }: { api: Api; lockNow: () => void }) {
           <span lang="ms">Semua data kekal dalam pelayar ini. Eksport peti (ZIP) mengandungi JSON dan semua resit asal — simpan untuk tempoh audit 7 tahun LHDN.</span>
         </p>
         <div className="btnrow">
-          <button className="btn btn-primary" onClick={() => { exportVault(d).then((n) => setDataMsg('Vault exported' + (n ? ' with ' + n + ' receipt original' + (n === 1 ? '' : 's') : '') + '. · Peti dieksport.')); }}>Export vault (ZIP) · Eksport peti</button>
-          <button className="btn btn-secondary" onClick={() => { exportJson(d); setDataMsg('Backup exported. · Sandaran dieksport.'); }}>Export data (JSON)</button>
+          <button className="btn btn-primary" onClick={() => { exportVault(d).then((n) => setDataMsg(n === null ? 'Export cancelled. · Eksport dibatalkan.' : 'Vault exported' + (n ? ' with ' + n + ' receipt original' + (n === 1 ? '' : 's') : '') + '. · Peti dieksport.')); }}>Export vault (ZIP) · Eksport peti</button>
+          <button className="btn btn-secondary" onClick={() => { exportJson(d).then((ok) => setDataMsg(ok ? 'Backup exported. · Sandaran dieksport.' : 'Export cancelled. · Eksport dibatalkan.')); }}>Export data (JSON)</button>
           <label className="btn btn-secondary" style={{ cursor: 'pointer' }}>
             Import data (JSON)
             <input type="file" accept=".json,application/json" style={{ display: 'none' }} onChange={(e) => {
