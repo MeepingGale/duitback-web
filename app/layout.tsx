@@ -57,6 +57,8 @@ export const metadata: Metadata = {
 
 export const viewport = {
   themeColor: '#f3f2f2',
+  // lets env(safe-area-inset-*) report the notch and home indicator (installed app, landscape Safari)
+  viewportFit: 'cover',
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
