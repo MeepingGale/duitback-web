@@ -524,6 +524,22 @@ describe('TrackerApp smoke', () => {
     }
   });
 
+  it('a horizontal swipe moves to the next or previous screen, but not from the screen edge', async () => {
+    await completeSetup();
+    fireEvent.click(screen.getByText('Skip tour'));
+    const swipe = (x0: number, x1: number, y = 300) => {
+      fireEvent.touchStart(document.body, { touches: [{ clientX: x0, clientY: y }] });
+      fireEvent.touchEnd(document.body, { changedTouches: [{ clientX: x1, clientY: y + 5 }] });
+    };
+    swipe(300, 120); // left → Claims
+    await waitFor(() => expect(document.querySelector('[data-screen-label="Claims"]')).toBeTruthy());
+    swipe(120, 300); // right → back to the dashboard
+    await waitFor(() => expect(document.querySelector('[data-screen-label="Claims"]')).toBeNull());
+    swipe(10, 200); // starts at the edge: reserved for the OS back gesture
+    await new Promise((r) => setTimeout(r, 50));
+    expect(document.querySelector('[data-screen-label="Claims"]')).toBeNull();
+  });
+
   it('returning visitors skip setup and keep their data', async () => {
     await completeSetup('Aisyah');
     cleanup();

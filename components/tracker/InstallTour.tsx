@@ -97,7 +97,7 @@ export function InstallTour({ env, install, onClose }: { env: InstallEnv; instal
           <path d="M12 21V4" /><path d="m5 11 7-7 7 7" />
         </svg>
       )}
-      <div ref={ref} role="dialog" aria-modal="true" tabIndex={-1} onKeyDown={onKeyDown} aria-label={'Install DuitBack, step ' + (i + 1) + ' of ' + steps.length + ': ' + st.t} style={{ position: 'fixed', zIndex: 60, left: '50%', transform: st.point ? 'translateX(-50%)' : 'translate(-50%, -50%)', width: 'min(400px, calc(100vw - 32px))', background: 'var(--color-bg)', border: '2px solid var(--color-text)', padding: '18px 20px', boxShadow: 'var(--shadow-lg)', maxHeight: 'calc(100vh - 32px)', overflowY: 'auto', ...cardPos }}>
+      <div ref={ref} role="dialog" aria-modal="true" tabIndex={-1} onKeyDown={onKeyDown} aria-label={'Install DuitBack, step ' + (i + 1) + ' of ' + steps.length + ': ' + st.t} style={{ position: 'fixed', zIndex: 60, left: '50%', transform: st.point ? 'translateX(-50%)' : 'translate(-50%, -50%)', width: 'min(400px, calc(100vw - 32px))', background: 'var(--color-bg)', border: '2px solid var(--color-text)', padding: '18px 20px 0', boxShadow: 'var(--shadow-lg)', maxHeight: st.point ? 'calc(100vh - max(16px, 14vh) - 16px)' : 'calc(100vh - 32px)', overflowY: 'auto', ...cardPos }}>
         <Kick>Install DuitBack · Pasang · {i + 1} of {steps.length}</Kick>
         <h3 style={{ fontFamily: 'var(--font-heading)', fontWeight: 800, fontSize: 19, margin: '8px 0 6px' }}>{st.t}</h3>
         <p style={{ fontSize: 13.5, lineHeight: 1.55, margin: '0 0 6px', color: 'var(--color-neutral-800)' }}>{st.b}</p>
@@ -112,7 +112,8 @@ export function InstallTour({ env, install, onClose }: { env: InstallEnv; instal
           </div>
         )}
         {i === 0 && <p className="text-muted" style={{ fontSize: 11.5, margin: '0 0 12px' }}>{env.webkit ? 'Why: Safari clears a website’s saved data after 7 days without a visit — an installed app is exempt. · Safari memadam data laman yang tidak dibuka 7 hari; aplikasi dipasang dikecualikan.' : 'Installed, DuitBack opens like an app and its storage is protected.'}</p>}
-        <div style={{ display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap' }}>
+        {/* sticky so Next / Later stay reachable while a tall step scrolls inside the card */}
+        <div style={{ display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap', position: 'sticky', bottom: 0, background: 'var(--color-bg)', padding: '10px 0 18px', marginTop: -4 }}>
           {last ? (
             install ? <button className="btn btn-primary" onClick={() => { install(); onClose(); }}>Install DuitBack · Pasang</button> : <button className="btn btn-primary" onClick={onClose}>Done · Selesai</button>
           ) : (

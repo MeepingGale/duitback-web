@@ -105,6 +105,37 @@ export default function TrackerApp() {
     return () => clearTimeout(t);
   }, [data, tut, locked, screen]);
 
+  // installed on a phone there is no browser chrome, so a horizontal swipe moves between screens.
+  // Ignored near the screen edges (the OS back gesture), inside sideways-scrolling tables and the
+  // link strip, on form controls, and while any dialog is open.
+  useEffect(() => {
+    if (!data || locked) return;
+    let start: { x: number; y: number; t: number } | null = null;
+    const scrollsSideways = (el: Element | null): boolean => {
+      for (let n = el; n && n !== document.body; n = n.parentElement) {
+        if (n.scrollWidth > n.clientWidth + 1 && /auto|scroll/.test(getComputedStyle(n).overflowX)) return true;
+      }
+      return false;
+    };
+    const onStart = (e: TouchEvent) => {
+      const t = e.touches[0];
+      const target = e.target as Element | null;
+      const blocked = !t || t.clientX < 24 || t.clientX > innerWidth - 24 || !!document.querySelector('[role="dialog"]') || !!target?.closest?.('input, textarea, select') || scrollsSideways(target);
+      start = blocked ? null : { x: t.clientX, y: t.clientY, t: Date.now() };
+    };
+    const onEnd = (e: TouchEvent) => {
+      if (!start) return;
+      const t = e.changedTouches[0];
+      const dx = t.clientX - start.x, dy = t.clientY - start.y, dt = Date.now() - start.t;
+      start = null;
+      if (Math.abs(dx) < 70 || Math.abs(dy) > 50 || dt > 600) return;
+      setScreen((s) => { const j = NAV.findIndex(([id]) => id === s) + (dx < 0 ? 1 : -1); return NAV[j] ? NAV[j][0] : s; });
+    };
+    document.addEventListener('touchstart', onStart, { passive: true });
+    document.addEventListener('touchend', onEnd, { passive: true });
+    return () => { document.removeEventListener('touchstart', onStart); document.removeEventListener('touchend', onEnd); };
+  }, [data, locked]);
+
   // narrow layouts scroll the link strip — keep the current screen's link visible
   useEffect(() => {
     document.querySelector('.nav-links a[aria-current="page"]')?.scrollIntoView({ block: 'nearest', inline: 'center' });
