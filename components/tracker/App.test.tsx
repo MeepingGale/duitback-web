@@ -551,6 +551,7 @@ describe('TrackerApp smoke', () => {
     try {
       await completeSetup();
       await screen.findByText(/Quick tour · Jom tengok · 1 of 8/);
+      expect(screen.getByRole('dialog', { name: /Quick tour step 1 of 8/ })).toBeTruthy();
       fireEvent.click(screen.getByText('Next →'));
       await screen.findByText('Swipe between tabs · Leret antara tab');
       expect(screen.getByRole('img', { name: /swiping left to move to the next tab/ })).toBeTruthy();

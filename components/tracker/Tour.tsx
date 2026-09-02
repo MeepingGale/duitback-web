@@ -253,7 +253,7 @@ export function Tour({ step, steps, d, c, onNext, onBack, onDone }: { step: numb
         aria-modal="true"
         tabIndex={-1}
         onKeyDown={onKeyDown}
-        aria-label={'Quick tour step ' + step + ' of ' + TOUR.length + ': ' + info.t}
+        aria-label={'Quick tour step ' + step + ' of ' + steps.length + ': ' + info.t}
         style={{
           position: 'fixed',
           zIndex: 60,
