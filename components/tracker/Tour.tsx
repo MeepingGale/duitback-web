@@ -1,54 +1,141 @@
 import { useEffect, useState } from 'react';
 import type { Screen } from './App';
+import { CalcResult, Data, derivedReliefs } from '@/lib/tax';
+import { deadlineInfo } from './derive';
 import { Kick } from './bits';
+
+export interface TourCopy { t: string; b: string; bm: string }
+
+/** What the tour knows about the person — built from their data, never guessed. */
+export interface TourCtx {
+  name: string;
+  ya: string;
+  yaNum: number;
+  married: boolean;
+  spouseSet: boolean;
+  children: number;
+  fixed: number; // fixed reliefs already counted from the profile
+  claims: number;
+  receipts: number;
+  totalIncome: number;
+  balance: number;
+  deadline: string;
+}
 
 export interface TourStep {
   screen: Screen;
   target: string;
-  t: string;
-  b: string;
-  bm: string;
+  copy: (x: TourCtx) => TourCopy;
 }
 
+const rm = (n: number) => 'RM ' + Math.round(n).toLocaleString('en-MY');
+
 // The guided tour: each step switches to a screen and spotlights the element
-// carrying the matching data-tour attribute.
+// carrying the matching data-tour attribute. Copy is written for the person
+// taking it — their name, their year, their household.
 export const TOUR: TourStep[] = [
   {
     screen: 'dash',
     target: 'new-claim',
-    t: 'Add claims as you spend · Tambah sambil berbelanja',
-    b: 'This button follows you on every screen. Hit it whenever you spend on something claimable — books, clinic visits, PRS top-ups — and totals, caps and the refund estimate update live.',
-    bm: 'Tekan butang ini setiap kali anda berbelanja untuk sesuatu yang boleh dituntut — jumlah, had dan anggaran bayaran balik dikemas kini serta-merta.',
+    copy: (x) => ({
+      t: 'Hello, ' + x.name + " — let's set up " + x.ya,
+      b: (x.claims ? 'You already have ' + x.claims + ' claim line' + (x.claims === 1 ? '' : 's') + ' for ' + x.ya + '. ' : 'Nothing logged for ' + x.ya + ' yet — that changes now. ') +
+        'This button follows you on every screen: tap it whenever you spend on something claimable — a clinic visit, books, a PRS top-up — and your caps and refund estimate update on the spot.',
+      bm: 'Butang ini ada di setiap skrin. Tekan setiap kali anda berbelanja untuk sesuatu yang boleh dituntut — had dan anggaran bayaran balik dikemas kini serta-merta.',
+    }),
   },
   {
     screen: 'claims',
     target: 'caps-table',
-    t: 'Watch your caps · Pantau had anda',
-    b: 'Every LHDN relief with its cap and what is left this year. Click a row to see the claim lines behind it; over-cap entries are saved but flagged — only the allowed amount counts.',
-    bm: 'Setiap pelepasan LHDN dengan hadnya dan baki tahun ini. Tuntutan melebihi had disimpan tetapi ditanda — hanya jumlah dibenarkan dikira.',
+    copy: (x) => ({
+      t: 'Your caps for ' + x.ya + ' · Had anda',
+      b: x.name + ', you get RM 9,000 individual relief without lifting a finger' +
+        (x.fixed ? ' — plus ' + rm(x.fixed) + ' already counted from your profile' : '') +
+        '. Everything else needs receipts, and this table keeps score: every LHDN relief, its cap, and what is left. Over-cap lines are kept but only the allowed amount counts.',
+      bm: 'RM 9,000 pelepasan individu diberi automatik' + (x.fixed ? ' — dan ' + rm(x.fixed) + ' lagi daripada profil anda' : '') + '. Selebihnya perlukan resit; jadual ini tunjuk setiap had dan bakinya.',
+    }),
+  },
+  {
+    screen: 'settings',
+    target: 'family',
+    copy: (x) => ({
+      t: 'Who you are counts · Siapa anda dikira',
+      b: x.married
+        ? (x.spouseSet
+            ? 'You are married with ' + (x.children ? x.children + (x.children === 1 ? ' child' : ' children') : 'no children') + ' on file. Keep this section current — spouse relief (RM 4,000), disabled-person reliefs and RM 2,000–16,000 per child are counted from it automatically, every year, no receipts.'
+            : "You're married — tell DuitBack here whether your spouse has income and how many children you have. Spouse relief (RM 4,000) and RM 2,000–16,000 per child are then counted automatically, every year, no receipts.")
+        : 'Disabled-person status and children live here — set once, counted for every year without receipts. Nothing to set right now? That is fine, just carry on.',
+      bm: x.married
+        ? 'Nyatakan sama ada pasangan bekerja dan bilangan anak — pelepasan pasangan RM 4,000 dan RM 2,000–16,000 seanak dikira automatik setiap tahun.'
+        : 'Status OKU dan bilangan anak ditetapkan di sini — sekali sahaja, dikira setiap tahun tanpa resit.',
+    }),
   },
   {
     screen: 'receipts',
     target: 'drop-zone',
-    t: 'Drop receipts in the vault · Simpan resit dalam peti',
-    b: 'Drag receipts here and tag them to a relief. LHDN can audit up to 7 years back — the vault keeps the evidence next to the claim.',
-    bm: 'Seret resit ke sini dan tag kepada pelepasan. LHDN boleh audit sehingga 7 tahun — peti ini simpan bukti bersama tuntutan.',
+    copy: (x) => ({
+      t: 'Keep the evidence · Simpan bukti',
+      b: 'LHDN can ask for receipts up to seven years back, ' + x.name + '. Drop them here — or use the camera on your phone — and tag each one to a relief. ' +
+        (x.receipts ? 'You have ' + x.receipts + ' in the vault for ' + x.ya + ' so far. ' : '') +
+        'Files stay in this browser and travel with your vault export.',
+      bm: 'LHDN boleh minta resit sehingga tujuh tahun. Seret ke sini atau guna kamera, tag kepada pelepasan — fail kekal dalam pelayar ini dan ikut eksport peti anda.',
+    }),
+  },
+  {
+    screen: 'income',
+    target: 'income-sources',
+    copy: (x) => ({
+      t: 'Salary in, PCB out · Gaji masuk, PCB keluar',
+      b: (x.totalIncome ? 'Your income is in. ' : 'Enter your salary and bonus here. ') +
+        'PCB is estimated for you with the same formula LHDN gives payroll systems — type the figure from your EA form to override it. ' +
+        (x.married ? 'Being married, you also get the joint-versus-separate assessment comparison on this screen. ' : '') +
+        'Rental, freelance, dividends and a retrenchment payout each have their own place.',
+      bm: 'Masukkan gaji dan bonus — PCB dianggar dengan formula LHDN, taip angka borang EA untuk menggantikannya.' + (x.married ? ' Perbandingan taksiran bersama dan berasingan juga ada di sini.' : ''),
+    }),
   },
   {
     screen: 'pack',
     target: 'pack-sheet',
-    t: 'File from the pack in March · Failkan pada Mac',
-    b: 'When e-Filing opens, this cheat-sheet shows every number to type into MyTax, with the receipts behind each line. Print it or save as PDF — and always confirm figures in MyTax.',
-    bm: 'Bila e-Filing dibuka, helaian ini tunjuk setiap angka untuk ditaip ke MyTax. Cetak atau simpan sebagai PDF — dan sentiasa sahkan angka dalam MyTax.',
+    copy: (x) => ({
+      t: 'File from the pack · Failkan dari pek',
+      b: 'e-Filing for ' + x.ya + ' opens on 1 March ' + (x.yaNum + 1) + ' and closes ' + x.deadline + '. This page will have every number to type into MyTax, with the receipts behind each line — save it as a PDF and take it with you. Always confirm the figures in MyTax.',
+      bm: 'e-Filing ' + x.ya + ' dibuka 1 Mac ' + (x.yaNum + 1) + ', tutup ' + x.deadline + '. Helaian ini ada setiap angka untuk MyTax — simpan sebagai PDF, dan sentiasa sahkan dalam MyTax.',
+    }),
   },
   {
     screen: 'dash',
     target: 'poster',
-    t: 'Your running total · Jumlah terkini anda',
-    b: 'This block keeps score all year — what you have claimed and the live refund estimate. That is the whole loop.',
-    bm: 'Blok ini jejak tuntutan dan anggaran bayaran balik anda sepanjang tahun. Itulah keseluruhannya — jom mula!',
+    copy: (x) => ({
+      t: "That's the whole loop, " + x.name,
+      b: (x.totalIncome
+          ? (x.balance < 0 ? 'Right now you are looking at an estimated refund of ' + rm(-x.balance) + '. ' : 'Right now the estimate is ' + rm(x.balance) + ' payable — every relief you log brings that down. ')
+          : 'Add your income and the refund estimate here goes live. ') +
+        'This block keeps score all year. Replay the tour any time from Settings.',
+      bm: (x.totalIncome ? (x.balance < 0 ? 'Anggaran bayaran balik anda sekarang ' + rm(-x.balance) + '. ' : 'Anggaran baki sekarang ' + rm(x.balance) + ' — setiap pelepasan mengurangkannya. ') : 'Masukkan pendapatan dan anggaran akan hidup. ') +
+        'Ulang jelajah bila-bila masa dari Tetapan.',
+    }),
   },
 ];
+
+/** Build the tour's view of the user from live data. */
+export function tourCtx(d: Data, c: CalcResult): TourCtx {
+  const yaNum = +d.ya.slice(2);
+  const k = d.profile.children;
+  return {
+    name: d.profile.name && d.profile.name !== 'there' ? d.profile.name : 'there',
+    ya: d.ya,
+    yaNum,
+    married: d.profile.marital === 'married',
+    spouseSet: d.profile.spouseWorking !== undefined,
+    children: k ? Object.values(k).reduce((a, b) => a + (b || 0), 0) : 0,
+    fixed: Object.values(derivedReliefs(d.profile, yaNum)).reduce((a, b) => a + b, 0),
+    claims: c.claims.length,
+    receipts: d.receipts.filter((r) => r.ya === d.ya).length,
+    totalIncome: c.totalIncome,
+    balance: c.balance,
+    deadline: deadlineInfo(d, d.ya, c).dlLabel,
+  };
+}
 
 const CARD_W = 400;
 const GAP = 14;
@@ -62,15 +149,17 @@ function clampToViewport(r: DOMRect): Box {
   let top = Math.max(r.top, 0);
   // only big targets get pushed below the sticky nav — small ones (like the
   // nav's own button) must keep their true position
-  if (r.height > vh * 0.5) top = Math.max(top, 64);
+  const navBottom = document.querySelector('.nav.app-nav')?.getBoundingClientRect().bottom ?? 64;
+  if (r.height > vh * 0.5) top = Math.max(top, navBottom + 4);
   const bottom = Math.min(r.bottom, vh - 24);
   const left = Math.max(r.left, 8);
   const right = Math.min(r.right, vw - 8);
   return { top, left, width: Math.max(40, right - left), height: Math.max(40, bottom - top) };
 }
 
-export function Tour({ step, onNext, onBack, onDone }: { step: number; onNext: () => void; onBack: () => void; onDone: () => void }) {
-  const info = TOUR[step - 1];
+export function Tour({ step, d, c, onNext, onBack, onDone }: { step: number; d: Data; c: CalcResult; onNext: () => void; onBack: () => void; onDone: () => void }) {
+  const stepDef = TOUR[step - 1];
+  const info = { target: stepDef.target, ...stepDef.copy(tourCtx(d, c)) };
   const [box, setBox] = useState<Box | null>(null);
 
   useEffect(() => {

@@ -93,7 +93,7 @@ export function Income({ api, c }: { api: Api; c: CalcResult }) {
       </div>
 
       <div className="claimsgrid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(340px,1fr))', gap: 0, border: '2px solid var(--color-divider)', marginTop: 18 }}>
-        <div style={{ padding: 24, borderRight: '2px solid var(--color-divider)' }}>
+        <div data-tour="income-sources" style={{ padding: 24, borderRight: '2px solid var(--color-divider)' }}>
           <Kick>Sources · Punca pendapatan — editable</Kick>
           <h3 className="sec" style={{ margin: '16px 0 8px' }}>Employment · Penggajian</h3>
           <div className="fields2">

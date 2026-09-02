@@ -291,6 +291,12 @@ describe('YA2025+ rules added from the LHDN relief, rebate and dividend pages', 
     // spouse reliefs need a spouse without income; disabled-spouse rides on the spouse relief
     d.profile.spouseWorking = true;
     expect(derivedReliefs(d.profile, 2026)).toEqual({ disabled_self: 7000, child: 12000 });
+    // both earning and splitting child relief 50/50
+    d.profile.childShare = 50;
+    expect(derivedReliefs(d.profile, 2026).child).toBe(6000);
+    // the split only exists when the spouse has income
+    d.profile.spouseWorking = false;
+    expect(derivedReliefs(d.profile, 2026).child).toBe(12000);
   });
 
   it('exempts RM10,000 of loss-of-employment compensation per completed year (all of it on ill health)', () => {

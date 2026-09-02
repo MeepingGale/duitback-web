@@ -307,6 +307,8 @@ export default function TrackerApp() {
       {tut > 0 && (
         <Tour
           step={tut}
+          d={d}
+          c={c}
           onNext={() => setTut(tut + 1)}
           onBack={() => setTut(tut - 1)}
           onDone={() => { setTut(0); setScreen('dash'); }}

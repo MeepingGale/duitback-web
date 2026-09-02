@@ -49,7 +49,7 @@ export function Settings({ api, lockNow }: { api: Api; lockNow: () => void }) {
         </div>
       </div>
 
-      <div style={{ border: '2px solid var(--color-divider)', borderTop: 0, padding: 24 }}>
+      <div data-tour="family" style={{ border: '2px solid var(--color-divider)', borderTop: 0, padding: 24 }}>
         <Kick>Family &amp; status · Keluarga &amp; status</Kick>
         <p className="text-muted" style={{ fontSize: 12.5, margin: '8px 0 14px' }}>
           LHDN gives these reliefs on who you are, with no receipts — set them once and they are counted automatically for every year.{' '}
@@ -60,6 +60,7 @@ export function Settings({ api, lockNow }: { api: Api; lockNow: () => void }) {
           const married = d.profile.marital === 'married';
           const kids: ChildCounts = { u18: 0, a18pre: 0, a18edu: 0, dis: 0, disedu: 0, ...(d.profile.children || {}) };
           const setP = (k: 'disabled' | 'spouseWorking' | 'spouseDisabled', v: boolean) => mut((x) => { x.profile[k] = v; });
+          const kidCount = Object.values(kids).reduce((a, b) => a + (b || 0), 0);
           const setKid = (k: keyof ChildCounts, v: number) => mut((x) => { x.profile.children = { ...kids, [k]: Math.max(0, Math.min(20, Math.floor(v || 0))) }; });
           const yesNo = (label: string, name: string, value: boolean | undefined, on: (v: boolean) => void, amount: string) => (
             <div className="field" style={{ marginTop: 12 }}>
@@ -81,7 +82,11 @@ export function Settings({ api, lockNow }: { api: Api; lockNow: () => void }) {
               {married && yesNo('Does your spouse have their own income? · Pasangan bekerja?', 'fs-spouse-working', d.profile.spouseWorking === undefined ? true : d.profile.spouseWorking, (v) => setP('spouseWorking', v), 'No income → spouse relief ' + fmt(capFor('spouse', yaNum)))}
               {married && d.profile.spouseWorking === false && yesNo('Is your spouse a registered disabled person? · Pasangan OKU?', 'fs-spouse-disabled', d.profile.spouseDisabled, (v) => setP('spouseDisabled', v), 'Further relief ' + fmt(capFor('disabled_spouse', yaNum)))}
               <div className="field" style={{ marginTop: 14 }}>
-                <label>Children · Anak (unmarried; one count per line)</label>
+                <label>Children · Anak — count each child in one line only · setiap anak dalam satu baris sahaja</label>
+                <div className="text-muted" style={{ fontSize: 11.5, margin: '0 0 8px' }}>
+                  Unmarried children only. An 18+ child must be in full-time study. A disabled child in diploma-or-higher study goes in the RM16,000 line, which already includes the RM8,000.{' '}
+                  <span lang="ms">Anak belum berkahwin sahaja; anak OKU yang belajar di peringkat diploma ke atas masuk baris RM16,000 (sudah termasuk RM8,000).</span>
+                </div>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 8 }}>
                   {CHILDSUB.map((m) => (
                     <label key={m.id} style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 13 }}>
@@ -91,6 +96,19 @@ export function Settings({ api, lockNow }: { api: Api; lockNow: () => void }) {
                   ))}
                 </div>
               </div>
+              {kidCount > 0 && <div className="text-muted" style={{ fontSize: 12, marginTop: 8 }}>{kidCount} {kidCount === 1 ? 'child' : 'children'} counted · {kidCount} anak dikira</div>}
+              {married && d.profile.spouseWorking === true && kidCount > 0 && (
+                <div className="field" style={{ marginTop: 12 }}>
+                  <label>Child relief split with your spouse · Pembahagian pelepasan anak</label>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
+                    <div className="seg">
+                      <label className="seg-opt"><input type="radio" name="fs-child-share" checked={d.profile.childShare !== 50} onChange={() => mut((x) => { x.profile.childShare = 100; })} />I claim 100%</label>
+                      <label className="seg-opt"><input type="radio" name="fs-child-share" checked={d.profile.childShare === 50} onChange={() => mut((x) => { x.profile.childShare = 50; })} />We split 50 / 50</label>
+                    </div>
+                    <span className="text-muted" style={{ fontSize: 12 }}>Both of you earning and filing separately: one parent claims all of it, or each claims half — never both in full. <span lang="ms">Seorang tuntut penuh, atau masing-masing separuh.</span></span>
+                  </div>
+                </div>
+              )}
               <div style={{ fontSize: 12.5, marginTop: 12, fontFamily: 'var(--font-heading)', fontWeight: 800 }}>
                 Counted for {d.ya}: {fmt(total)} <span className="text-muted" style={{ fontWeight: 400 }}>· Dikira untuk {d.ya}{Object.keys(derivedNow).length ? ' — ' + Object.entries(derivedNow).map(([k, v]) => k.replace('_', ' ') + ' ' + fmt(v)).join(', ') : ''}</span>
               </div>

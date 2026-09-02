@@ -78,6 +78,8 @@ export interface Profile {
   spouseWorking?: boolean;
   spouseDisabled?: boolean;
   children?: ChildCounts;
+  /** share of child relief this taxpayer claims — 100, or 50 when both spouses have income and split it */
+  childShare?: 50 | 100;
 }
 
 export interface Data {
@@ -202,8 +204,10 @@ export function derivedReliefs(p: Profile, yaNum: number): Record<string, number
   if (spouseRelief && p.spouseDisabled) out.disabled_spouse = capFor('disabled_spouse', yaNum);
   const k = p.children;
   if (k) {
-    const child = CHILDSUB.reduce((a, m) => a + (k[m.id as keyof ChildCounts] || 0) * m.amt, 0);
-    if (child > 0) out.child = child;
+    const full = CHILDSUB.reduce((a, m) => a + (k[m.id as keyof ChildCounts] || 0) * m.amt, 0);
+    // both spouses earning and filing separately: one claims 100% or each claims 50% (ITA s.48(4))
+    const share = married && p.spouseWorking === true && p.childShare === 50 ? 0.5 : 1;
+    if (full > 0) out.child = full * share;
   }
   return out;
 }

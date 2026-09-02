@@ -398,6 +398,31 @@ describe('TrackerApp smoke', () => {
     await screen.findAllByText('profile'); // rows counted from the profile, not lines
   });
 
+  it('the tour speaks to the person: name, year, household, and walks the new screens', async () => {
+    render(<TrackerApp />);
+    await screen.findByText('Set up your tracker');
+    fireEvent.change(screen.getByPlaceholderText('e.g. Amirah'), { target: { value: 'Farah' } });
+    fireEvent.click(screen.getByText('Married · Berkahwin'));
+    fireEvent.click(screen.getByText('Start tracking · Mula menjejak'));
+    await screen.findByText(/Hello, Farah — let's set up YA2026/);
+    await screen.findByText(/Nothing logged for YA2026 yet/);
+    fireEvent.click(screen.getByText('Next →'));
+    await screen.findByText(/Farah, you get RM 9,000 individual relief/);
+    fireEvent.click(screen.getByText('Next →'));
+    await screen.findByText('Who you are counts · Siapa anda dikira');
+    await screen.findByText(/You're married — tell DuitBack here/);
+    fireEvent.click(screen.getByText('Next →'));
+    await screen.findByText(/seven years back, Farah/);
+    fireEvent.click(screen.getByText('Next →'));
+    await screen.findByText(/joint-versus-separate assessment comparison/);
+    fireEvent.click(screen.getByText('Next →'));
+    await screen.findByText(/opens on 1 March 2027/);
+    fireEvent.click(screen.getByText('Next →'));
+    await screen.findByText("That's the whole loop, Farah");
+    fireEvent.click(screen.getByText('Start tracking →'));
+    await waitFor(() => expect(screen.queryByText(/Quick tour/)).toBeNull());
+  });
+
   it('returning visitors skip setup and keep their data', async () => {
     await completeSetup('Aisyah');
     cleanup();
