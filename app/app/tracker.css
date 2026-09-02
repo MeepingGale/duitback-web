@@ -414,9 +414,35 @@ button.linkbtn:hover { color: var(--color-accent-800); }
 @keyframes duit-cmenu { 0%, 15% { opacity: 0; transform: translateY(4px); } 30%, 88% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; } }
 @media (prefers-reduced-motion: reduce) { .idemo-sheet, .idemo-dialog, .idemo-home, .idemo-appicon-pop, .idemo-menu, .idemo-tap { animation: none; } .idemo-home { opacity: 0; } .idemo-tap { opacity: 1; transform: none; } .idemo-menu { opacity: 1; } }
 
-/* screens slide in from the side they sit on in the tab order (also the swipe direction) */
-.screen-anim.from-right { animation: duit-slide-r .22s ease-out; }
-.screen-anim.from-left { animation: duit-slide-l .22s ease-out; }
-@keyframes duit-slide-r { from { opacity: 0; transform: translateX(28px); } to { opacity: 1; transform: none; } }
-@keyframes duit-slide-l { from { opacity: 0; transform: translateX(-28px); } to { opacity: 1; transform: none; } }
-@media (prefers-reduced-motion: reduce), print { .screen-anim { animation: none; } }
+/* tab changes page like a native app: the outgoing screen (a DOM clone) slides out as the new one slides in */
+.screen-clip { overflow-x: clip; }
+.screen-host { position: relative; }
+.screen-host.from-right { animation: duit-in-r .3s cubic-bezier(.2, .7, .2, 1); }
+.screen-host.from-left { animation: duit-in-l .3s cubic-bezier(.2, .7, .2, 1); }
+@keyframes duit-in-r { from { transform: translateX(100%); } }
+@keyframes duit-in-l { from { transform: translateX(-100%); } }
+.screen-ghost { position: fixed; left: 0; width: 100%; overflow: hidden; pointer-events: none; z-index: 5; background: var(--color-bg); }
+.screen-ghost.out-left { animation: duit-out-l .3s cubic-bezier(.2, .7, .2, 1) forwards; }
+.screen-ghost.out-right { animation: duit-out-r .3s cubic-bezier(.2, .7, .2, 1) forwards; }
+@keyframes duit-out-l { to { transform: translateX(-100%); } }
+@keyframes duit-out-r { to { transform: translateX(100%); } }
+@media (prefers-reduced-motion: reduce) { .screen-host.from-right, .screen-host.from-left { animation: duit-fade-in .25s ease-out; } }
+@keyframes duit-fade-in { from { opacity: 0; } }
+@media print { .screen-host { animation: none !important; } .screen-ghost { display: none; } }
+
+/* swipe demo (tour): a finger drags left and the page slides to the next tab */
+.idemo-swipe { height: 168px; }
+.idemo-tabs { display: flex; gap: 12px; padding: 12px 14px 0; font-size: 10px; color: #555; border-bottom: 1px solid #e5e5e5; }
+.idemo-tabs span { padding-bottom: 5px; border-bottom: 2px solid transparent; }
+.idemo-tabs .idemo-tab-a { animation: duit-tab-a 3.2s ease-in-out infinite; }
+.idemo-tabs .idemo-tab-b { animation: duit-tab-b 3.2s ease-in-out infinite; }
+@keyframes duit-tab-a { 0%, 45% { color: #ae1800; border-color: #ae1800; } 55%, 100% { color: #555; border-color: transparent; } }
+@keyframes duit-tab-b { 0%, 45% { color: #555; border-color: transparent; } 55%, 100% { color: #ae1800; border-color: #ae1800; } }
+.idemo-pages { position: absolute; top: 46px; left: 0; width: 200%; display: flex; animation: duit-pages 3.2s cubic-bezier(.2, .7, .2, 1) infinite; }
+.idemo-pg { width: 50%; box-sizing: border-box; padding: 0 14px; display: flex; flex-direction: column; gap: 7px; }
+.idemo-pg i { display: block; height: 7px; background: #e6e3e3; border-radius: 3px; }
+.idemo-pg .idemo-hero { height: 30px; background: #ae1800; opacity: .85; border-radius: 4px; }
+@keyframes duit-pages { 0%, 25% { transform: translateX(0); } 55%, 100% { transform: translateX(-50%); } }
+.idemo-finger { position: absolute; top: 96px; left: 118px; width: 22px; height: 22px; border-radius: 50%; background: rgba(236, 48, 19, .35); border: 2.5px solid #ec3013; animation: duit-finger 3.2s ease-in-out infinite; }
+@keyframes duit-finger { 0%, 15% { opacity: 0; transform: translateX(0) scale(.6); } 25% { opacity: 1; transform: translateX(0) scale(1); } 55% { opacity: 1; transform: translateX(-92px) scale(1); } 65%, 100% { opacity: 0; transform: translateX(-92px) scale(.6); } }
+@media (prefers-reduced-motion: reduce) { .idemo-pages, .idemo-finger, .idemo-tab-a, .idemo-tab-b { animation: none; } .idemo-finger { opacity: 1; } }

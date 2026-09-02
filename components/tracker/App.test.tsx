@@ -4,6 +4,8 @@ import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/re
 import TrackerApp from './App';
 import { KEY } from '@/lib/data';
 
+window.scrollTo = () => {}; // jsdom has no layout; the app scrolls to top on tab changes
+
 // jsdom gaps the app touches
 beforeEach(() => {
   cleanup();
@@ -533,13 +535,29 @@ describe('TrackerApp smoke', () => {
     };
     swipe(300, 120); // left → Claims
     await waitFor(() => expect(document.querySelector('[data-screen-label="Claims"]')).toBeTruthy());
-    expect(document.querySelector('.screen-anim.from-right')).toBeTruthy(); // slides in from the right
+    expect(document.querySelector('.screen-host.from-right')).toBeTruthy(); // new screen slides in from the right…
+    expect(document.querySelector('.screen-ghost.out-left')).toBeTruthy(); // …while a clone of the old one slides out
     swipe(120, 300); // right → back to the dashboard
     await waitFor(() => expect(document.querySelector('[data-screen-label="Claims"]')).toBeNull());
-    expect(document.querySelector('.screen-anim.from-left')).toBeTruthy();
+    expect(document.querySelector('.screen-host.from-left')).toBeTruthy();
     swipe(10, 200); // starts at the edge: reserved for the OS back gesture
     await new Promise((r) => setTimeout(r, 50));
     expect(document.querySelector('[data-screen-label="Claims"]')).toBeNull();
+  });
+
+  it('on a touch device the tour gains a step that shows swiping between tabs', async () => {
+    const tp = Object.getOwnPropertyDescriptor(window.navigator, 'maxTouchPoints');
+    Object.defineProperty(window.navigator, 'maxTouchPoints', { value: 5, configurable: true });
+    try {
+      await completeSetup();
+      await screen.findByText(/Quick tour · Jom tengok · 1 of 8/);
+      fireEvent.click(screen.getByText('Next →'));
+      await screen.findByText('Swipe between tabs · Leret antara tab');
+      expect(screen.getByRole('img', { name: /swiping left to move to the next tab/ })).toBeTruthy();
+      expect(document.querySelector('[data-screen-label="Claims"]')).toBeTruthy(); // the step itself moved one tab along
+    } finally {
+      if (tp) Object.defineProperty(window.navigator, 'maxTouchPoints', tp); else delete (window.navigator as unknown as { maxTouchPoints?: number }).maxTouchPoints;
+    }
   });
 
   it('returning visitors skip setup and keep their data', async () => {

@@ -14,6 +14,20 @@ const Tap = ({ style }: { style: React.CSSProperties }) => <span className="idem
 
 export type DemoWhere = 'bottom' | 'compact' | 'top-right' | 'mac';
 
+/** A looping mock of the swipe gesture: a finger drags left and the page slides to the next tab. */
+export function SwipeDemo() {
+  return (
+    <div className="idemo idemo-swipe" role="img" aria-label="Animation: swiping left to move to the next tab">
+      <div className="idemo-tabs"><span className="idemo-tab-a">Dashboard</span><span className="idemo-tab-b">Claims</span><span>Receipts</span></div>
+      <div className="idemo-pages">
+        <div className="idemo-pg"><i style={{ width: '55%' }} /><i style={{ width: '80%' }} /><i className="idemo-hero" /><i style={{ width: '70%' }} /></div>
+        <div className="idemo-pg"><i style={{ width: '65%' }} /><i style={{ width: '40%' }} /><i style={{ width: '85%' }} /><i style={{ width: '50%' }} /><i style={{ width: '75%' }} /></div>
+      </div>
+      <span className="idemo-finger" aria-hidden="true" />
+    </div>
+  );
+}
+
 export function InstallDemo({ phase, where }: { phase: 1 | 2 | 3; where: DemoWhere }) {
   if (where === 'mac') {
     return (

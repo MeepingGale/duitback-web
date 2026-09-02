@@ -12,7 +12,7 @@ import { Income } from './Income';
 import { FilingPack } from './FilingPack';
 import { Settings } from './Settings';
 import { AddClaimDialog, TagDialog, ViewerDialog, AddState, TagState, ViewerState, editState, freshAdd } from './dialogs';
-import { TOUR, Tour } from './Tour';
+import { Tour, tourSteps } from './Tour';
 import { InstallTour } from './InstallTour';
 
 export type Screen = 'dash' | 'claims' | 'receipts' | 'status' | 'income' | 'pack' | 'settings';
@@ -92,7 +92,7 @@ export default function TrackerApp() {
 
   // the tour drives the screen: each step lands on the screen it teaches
   useEffect(() => {
-    if (tut > 0 && tut <= TOUR.length) setScreen(TOUR[tut - 1].screen);
+    if (tut > 0 && tut <= steps.length) navigateRef.current(steps[tut - 1].screen);
   }, [tut]);
 
   // WebKit (every iOS browser, Safari on Mac) can clear a site's data after 7 idle days — show the
@@ -104,6 +104,46 @@ export default function TrackerApp() {
     const t = setTimeout(() => { markInstallGuideShown(); setGuideOpen(true); }, 1200);
     return () => clearTimeout(t);
   }, [data, tut, locked, screen]);
+
+  // Tab changes page like a native app: the outgoing screen (a DOM clone, so React only ever renders
+  // one screen) slides out while the new one slides in from the side it sits on in the tab order.
+  // Reduced motion: no clone, the new screen just fades in (see .screen-host in tracker.css).
+  const hostRef = useRef<HTMLDivElement>(null);
+  const [slide, setSlide] = useState<{ dir: 'from-right' | 'from-left' | ''; n: number }>({ dir: '', n: 0 });
+  const screenRef = useRef(screen);
+  screenRef.current = screen;
+  const navigate = (s: Screen) => {
+    const from = screenRef.current;
+    if (s === from) return;
+    const a = NAV.findIndex(([id]) => id === from), b = NAV.findIndex(([id]) => id === s);
+    const dir = b > a ? 'from-right' : 'from-left';
+    const host = hostRef.current;
+    const reduced = typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
+    document.querySelectorAll('.screen-ghost').forEach((g) => g.remove()); // never stack clones
+    if (host && !reduced) {
+      const r = host.getBoundingClientRect();
+      const ghost = document.createElement('div');
+      ghost.className = 'screen-ghost ' + (dir === 'from-right' ? 'out-left' : 'out-right');
+      ghost.style.top = r.top + 'px';
+      ghost.style.height = r.height + 'px';
+      ghost.setAttribute('aria-hidden', 'true');
+      const clone = host.cloneNode(true) as HTMLElement;
+      clone.className = '';
+      ghost.appendChild(clone);
+      (host.parentElement || document.body).appendChild(ghost); // inside the app's clip container, so it leaves with the app
+      const drop = () => ghost.remove();
+      ghost.addEventListener('animationend', drop, { once: true });
+      setTimeout(drop, 700);
+    }
+    setSlide((x) => ({ dir, n: x.n + 1 }));
+    setScreen(s);
+    try { window.scrollTo(0, 0); } catch {}
+  };
+  const navigateRef = useRef(navigate);
+  navigateRef.current = navigate;
+  // phones and tablets get a tour step about swiping
+  const [touch] = useState(() => typeof navigator !== 'undefined' && (navigator.maxTouchPoints || 0) > 0);
+  const steps = tourSteps(touch);
 
   // installed on a phone there is no browser chrome, so a horizontal swipe moves between screens.
   // Ignored near the screen edges (the OS back gesture), inside sideways-scrolling tables and the
@@ -129,17 +169,13 @@ export default function TrackerApp() {
       const dx = t.clientX - start.x, dy = t.clientY - start.y, dt = Date.now() - start.t;
       start = null;
       if (Math.abs(dx) < 70 || Math.abs(dy) > 50 || dt > 600) return;
-      setScreen((s) => { const j = NAV.findIndex(([id]) => id === s) + (dx < 0 ? 1 : -1); return NAV[j] ? NAV[j][0] : s; });
+      const j = NAV.findIndex(([id]) => id === screenRef.current) + (dx < 0 ? 1 : -1);
+      if (NAV[j]) navigateRef.current(NAV[j][0]);
     };
     document.addEventListener('touchstart', onStart, { passive: true });
     document.addEventListener('touchend', onEnd, { passive: true });
     return () => { document.removeEventListener('touchstart', onStart); document.removeEventListener('touchend', onEnd); };
   }, [data, locked]);
-
-  // screens slide in from the side they sit on in the tab order — the same direction a swipe travels
-  const prevScreen = useRef(screen);
-  const slideDir = (() => { const a = NAV.findIndex(([id]) => id === prevScreen.current), b = NAV.findIndex(([id]) => id === screen); return b > a ? 'from-right' : b < a ? 'from-left' : ''; })();
-  useEffect(() => { prevScreen.current = screen; }, [screen]);
 
   // narrow layouts scroll the link strip — keep the current screen's link visible
   useEffect(() => {
@@ -246,7 +282,7 @@ export default function TrackerApp() {
   const d = data;
   const ya = d.ya;
   const c = calc(d, ya);
-  const api: Api = { d, ya, save, mut, go: setScreen, openAdd, openEdit, setDlg, clearAll, startTour: () => setTut(1), ask: (msg, onYes) => setConfirmReq({ msg, onYes }), install: installEvt ? () => { installEvt.prompt(); setInstallEvt(null); } : undefined, showInstallGuide: () => setGuideOpen(true), dataMsg, setDataMsg };
+  const api: Api = { d, ya, save, mut, go: navigate, openAdd, openEdit, setDlg, clearAll, startTour: () => setTut(1), ask: (msg, onYes) => setConfirmReq({ msg, onYes }), install: installEvt ? () => { installEvt.prompt(); setInstallEvt(null); } : undefined, showInstallGuide: () => setGuideOpen(true), dataMsg, setDataMsg };
   const demo = isDemo(d);
 
   return (
@@ -257,9 +293,9 @@ export default function TrackerApp() {
             <Wordmark />
           </a>
         </span>
-        <nav className="nav-links" aria-label="Screens · Skrin">
+        <nav className="nav-links" data-tour="nav-links" aria-label="Screens · Skrin">
           {NAV.map(([s, label]) => (
-            <a key={s} className="navlink" href={'#' + s} onClick={(e) => { e.preventDefault(); setScreen(s); }} aria-current={screen === s ? 'page' : undefined}>
+            <a key={s} className="navlink" href={'#' + s} onClick={(e) => { e.preventDefault(); navigate(s); }} aria-current={screen === s ? 'page' : undefined}>
               {label}
             </a>
           ))}
@@ -281,7 +317,8 @@ export default function TrackerApp() {
         </div>
       )}
 
-      <div key={screen} className={'screen-anim' + (slideDir ? ' ' + slideDir : '')}>
+      <div className="screen-clip">
+      <div ref={hostRef} key={slide.n} className={'screen-host' + (slide.dir ? ' ' + slide.dir : '')}>
         {screen === 'dash' && <Dashboard api={api} c={c} />}
         {screen === 'claims' && <Claims api={api} c={c} selCat={selCat} setSelCat={setSelCat} />}
         {screen === 'receipts' && <Receipts api={api} setTag={setTag} setViewer={setViewer} />}
@@ -289,6 +326,7 @@ export default function TrackerApp() {
         {screen === 'income' && <Income api={api} c={c} />}
         {screen === 'pack' && <FilingPack api={api} c={c} />}
         {screen === 'settings' && <Settings api={api} lockNow={() => { setLocked(true); setPinEntry(''); setPinErr(''); setScreen('dash'); }} />}
+      </div>
       </div>
 
       <SiteFooter wide taxNo={d.profile.taxNo || ''} />
@@ -361,6 +399,7 @@ export default function TrackerApp() {
       {tut > 0 && (
         <Tour
           step={tut}
+          steps={steps}
           d={d}
           c={c}
           onNext={() => setTut(tut + 1)}

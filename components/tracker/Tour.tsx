@@ -5,6 +5,7 @@ import { deadlineInfo } from './derive';
 import { familySetUp } from '@/lib/data';
 import { useDialogKeys } from './bits';
 import { Kick } from './bits';
+import { SwipeDemo } from './InstallDemo';
 
 export interface TourCopy { t: string; b: string; bm: string }
 
@@ -29,6 +30,8 @@ export interface TourStep {
   screen: Screen;
   target: string;
   copy: (x: TourCtx) => TourCopy;
+  /** a looping mock shown under the copy */
+  demo?: 'swipe';
 }
 
 const rm = (n: number) => 'RM ' + Math.round(n).toLocaleString('en-MY');
@@ -121,6 +124,22 @@ export const TOUR: TourStep[] = [
 ];
 
 /** Build the tour's view of the user from live data. */
+const SWIPE_STEP: TourStep = {
+  screen: 'claims',
+  target: 'nav-links',
+  demo: 'swipe',
+  copy: () => ({
+    t: 'Swipe between tabs · Leret antara tab',
+    b: 'No need to reach for the tab strip up here: swipe left anywhere on the page to go to the next tab, or right to go back, and the screen slides along with you. That is how we just got from the Dashboard to Claims — try it once the tour is done.',
+    bm: 'Leret ke kiri di mana-mana pada halaman untuk ke tab seterusnya, atau ke kanan untuk kembali. Cuba selepas tutorial ini.',
+  }),
+};
+
+/** The tour for this device: phones and tablets get a step on swiping between tabs. */
+export function tourSteps(touch: boolean): TourStep[] {
+  return touch ? [TOUR[0], SWIPE_STEP, ...TOUR.slice(1)] : TOUR;
+}
+
 export function tourCtx(d: Data, c: CalcResult): TourCtx {
   const yaNum = +d.ya.slice(2);
   const k = d.profile.children;
@@ -161,8 +180,8 @@ function clampToViewport(r: DOMRect): Box {
   return { top, left, width: Math.max(40, right - left), height: Math.max(40, bottom - top) };
 }
 
-export function Tour({ step, d, c, onNext, onBack, onDone }: { step: number; d: Data; c: CalcResult; onNext: () => void; onBack: () => void; onDone: (finished: boolean) => void }) {
-  const stepDef = TOUR[step - 1];
+export function Tour({ step, steps, d, c, onNext, onBack, onDone }: { step: number; steps: TourStep[]; d: Data; c: CalcResult; onNext: () => void; onBack: () => void; onDone: (finished: boolean) => void }) {
+  const stepDef = steps[step - 1];
   const info = { target: stepDef.target, ...stepDef.copy(tourCtx(d, c)) };
   const [box, setBox] = useState<Box | null>(null);
   const ref = useRef<HTMLDivElement>(null);
@@ -198,7 +217,7 @@ export function Tour({ step, d, c, onNext, onBack, onDone }: { step: number; d: 
     };
   }, [step, info.target]);
 
-  const last = step >= TOUR.length;
+  const last = step >= steps.length;
   const vw = typeof window !== 'undefined' ? window.innerWidth : 1200;
   const vh = typeof window !== 'undefined' ? window.innerHeight : 800;
   const rect = box;
@@ -252,9 +271,10 @@ export function Tour({ step, d, c, onNext, onBack, onDone }: { step: number; d: 
             : { top: '50%', left: '50%', transform: 'translate(-50%,-50%)' }),
         }}
       >
-        <Kick>Quick tour · Jom tengok · {step} of {TOUR.length}</Kick>
+        <Kick>Quick tour · Jom tengok · {step} of {steps.length}</Kick>
         <h3 style={{ fontFamily: 'var(--font-heading)', fontWeight: 800, fontSize: 19, margin: '8px 0 6px' }}>{info.t}</h3>
         <p style={{ fontSize: 13.5, lineHeight: 1.55, margin: '0 0 8px', color: 'var(--color-neutral-800)' }}>{info.b}</p>
+        {stepDef.demo === 'swipe' && <SwipeDemo />}
         <p lang="ms" style={{ fontSize: 12.5, lineHeight: 1.5, margin: '0 0 16px', color: 'var(--color-neutral-700)' }}>{info.bm}</p>
         <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
           {last ? (
