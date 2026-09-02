@@ -441,14 +441,18 @@ describe('TrackerApp smoke', () => {
     try {
       await completeSetup();
       fireEvent.click(screen.getByText('Skip tour'));
-      await screen.findByText('Install DuitBack · Pasang DuitBack', {}, { timeout: 3000 });
-      await screen.findByText(/the bar at the bottom of the screen/); // iPhone Safari: Share lives in the bottom bar
+      await screen.findByText(/Install DuitBack · Pasang · 1 of 3/, {}, { timeout: 3000 });
+      await screen.findByText(/in the bar at the bottom of the screen/); // iPhone Safari: Share lives in the bottom bar
       expect(localStorage.getItem('duitback_install_guide')).toBe('1');
+      fireEvent.click(screen.getByText('Next →'));
+      await screen.findByText('Add to Home Screen · Tambah ke Skrin Utama');
+      fireEvent.click(screen.getByText('Next →'));
+      await screen.findByText('Tap Add · Ketik Tambah');
       fireEvent.click(screen.getByText('Done · Selesai'));
-      await waitFor(() => expect(screen.queryByText('Install DuitBack · Pasang DuitBack')).toBeNull());
+      await waitFor(() => expect(screen.queryByText(/Install DuitBack · Pasang ·/)).toBeNull());
       // the dashboard nudge reopens it on demand
       fireEvent.click(screen.getByText('Show me how →'));
-      await screen.findByText('Install DuitBack · Pasang DuitBack');
+      await screen.findByText(/Install DuitBack · Pasang · 1 of 3/);
     } finally {
       if (ua) Object.defineProperty(window.navigator, 'userAgent', ua);
     }
@@ -460,7 +464,7 @@ describe('TrackerApp smoke', () => {
     try {
       await completeSetup();
       fireEvent.click(screen.getByText('Skip tour'));
-      await screen.findByText(/Open in Safari/, {}, { timeout: 3000 });
+      await screen.findByText(/Open this in Safari first/, {}, { timeout: 3000 });
       expect(screen.getByText('Copy link · Salin pautan')).toBeTruthy();
     } finally {
       if (ua) Object.defineProperty(window.navigator, 'userAgent', ua);
