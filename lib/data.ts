@@ -350,3 +350,12 @@ export function askPersistentStorage(): void {
 const HINT_KEY = 'duitback_install_hint';
 export function installHintDismissed(): boolean { try { return localStorage.getItem(HINT_KEY) === '1'; } catch { return true; } }
 export function dismissInstallHint(): void { try { localStorage.setItem(HINT_KEY, '1'); } catch {} }
+
+/** Has the person told us about their household yet (Settings → Family & status)? */
+export function familySetUp(d: Data): boolean {
+  const p = d.profile;
+  return p.disabled !== undefined || p.spouseWorking !== undefined || !!p.children;
+}
+const FAMILY_HINT_KEY = 'duitback_family_hint';
+export function familyHintDismissed(): boolean { try { return localStorage.getItem(FAMILY_HINT_KEY) === '1'; } catch { return true; } }
+export function dismissFamilyHint(): void { try { localStorage.setItem(FAMILY_HINT_KEY, '1'); } catch {} }

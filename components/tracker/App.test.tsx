@@ -419,8 +419,20 @@ describe('TrackerApp smoke', () => {
     await screen.findByText(/opens on 1 March 2027/);
     fireEvent.click(screen.getByText('Next →'));
     await screen.findByText("That's the whole loop, Farah");
-    fireEvent.click(screen.getByText('Start tracking →'));
+    await screen.findByText(/That is where you go next/); // household not set yet → tour hands over to Settings
+    fireEvent.click(screen.getByText('Set up my details →'));
     await waitFor(() => expect(screen.queryByText(/Quick tour/)).toBeNull());
+    await screen.findByText(/Family & status/);
+    expect(screen.getByText(/Are you a registered disabled person/)).toBeTruthy();
+  });
+
+  it('skipping the tour keeps the dashboard, with a dismissible nudge to set up the household', async () => {
+    await completeSetup();
+    fireEvent.click(screen.getByText('Skip tour'));
+    await screen.findByText(/Tell DuitBack who you are/);
+    fireEvent.click(screen.getByText('Not now · Nanti'));
+    expect(screen.queryByText(/Tell DuitBack who you are/)).toBeNull();
+    expect(localStorage.getItem('duitback_family_hint')).toBe('1');
   });
 
   it('returning visitors skip setup and keep their data', async () => {

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { CATS, CalcResult, calc, fmt } from '@/lib/tax';
-import { dismissInstallHint, exportVault, getBackupMeta, installHintDismissed, isDemo, isIOS, isStandalone } from '@/lib/data';
+import { dismissFamilyHint, dismissInstallHint, exportVault, familyHintDismissed, familySetUp, getBackupMeta, installHintDismissed, isDemo, isIOS, isStandalone } from '@/lib/data';
 import { Api } from './App';
 import { Bar, Kick, YaTabs, pagepad, yaHead, right, heading800 } from './bits';
 import { STATUS_TAG, deadlineInfo, reliefRows, yearsOf } from './derive';
@@ -8,6 +8,7 @@ import { blankInc } from '@/lib/tax';
 
 export function Dashboard({ api, c }: { api: Api; c: CalcResult }) {
   const [hintGone, setHintGone] = useState(installHintDismissed);
+  const [familyHintGone, setFamilyHintGone] = useState(familyHintDismissed);
   const { d, ya, mut, go, openAdd } = api;
   const years = yearsOf(d);
   const dl = deadlineInfo(d, ya, c);
@@ -98,6 +99,17 @@ export function Dashboard({ api, c }: { api: Api; c: CalcResult }) {
             <button className="btn btn-primary" onClick={() => openAdd()}>Add a claim · Tambah tuntutan</button>
             <button className="btn btn-secondary" onClick={() => go('receipts')}>Upload receipts</button>
           </div>
+        </div>
+      )}
+
+      {!isDemo(d) && !familySetUp(d) && !familyHintGone && (
+        <div className="no-print" style={{ display: 'flex', gap: 10, alignItems: 'baseline', flexWrap: 'wrap', border: '2px solid var(--color-accent-700)', padding: '10px 14px', marginTop: 20, fontSize: 12.5 }}>
+          <span>
+            <strong>Tell DuitBack who you are</strong> — married, children, OKU — and the fixed reliefs are counted automatically every year, no receipts.{' '}
+            <span lang="ms">Tetapkan status keluarga supaya pelepasan tetap dikira automatik.</span>
+          </span>
+          <button className="navlink linkbtn" style={{ fontSize: 12.5, fontWeight: 800 }} onClick={() => { api.go('settings'); requestAnimationFrame(() => requestAnimationFrame(() => document.querySelector('[data-tour="family"]')?.scrollIntoView({ block: 'start' }))); }}>Set up in Settings →</button>
+          <button className="navlink linkbtn" style={{ fontSize: 12.5 }} onClick={() => { dismissFamilyHint(); setFamilyHintGone(true); }}>Not now · Nanti</button>
         </div>
       )}
 

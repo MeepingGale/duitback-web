@@ -1,7 +1,7 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { Claim, Data, calc, fmt, today, uid } from '@/lib/tax';
-import { askPersistentStorage, bumpChanges, demoData, emptyData, exportJson, hasStash, isDemo, loadData, persist, popStash, pruneEmptyFutureYears, wipe } from '@/lib/data';
+import { askPersistentStorage, bumpChanges, demoData, emptyData, exportJson, familySetUp, hasStash, isDemo, loadData, persist, popStash, pruneEmptyFutureYears, wipe } from '@/lib/data';
 import { Kick, TinInput, Wordmark, Modal } from './bits';
 import { SiteFooter } from '@/components/ui';
 import { Dashboard } from './Dashboard';
@@ -311,7 +311,14 @@ export default function TrackerApp() {
           c={c}
           onNext={() => setTut(tut + 1)}
           onBack={() => setTut(tut - 1)}
-          onDone={() => { setTut(0); setScreen('dash'); }}
+          onDone={(finished) => {
+            setTut(0);
+            // finishing the tour lands on Family & status until it's set up — that's what makes the fixed reliefs count
+            if (finished && !familySetUp(d)) {
+              setScreen('settings');
+              requestAnimationFrame(() => requestAnimationFrame(() => document.querySelector('[data-tour="family"]')?.scrollIntoView({ block: 'start' })));
+            } else setScreen('dash');
+          }}
         />
       )}
     </div>

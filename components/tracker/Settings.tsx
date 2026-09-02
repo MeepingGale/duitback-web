@@ -49,7 +49,7 @@ export function Settings({ api, lockNow }: { api: Api; lockNow: () => void }) {
         </div>
       </div>
 
-      <div data-tour="family" style={{ border: '2px solid var(--color-divider)', borderTop: 0, padding: 24 }}>
+      <div data-tour="family" style={{ border: '2px solid var(--color-divider)', borderTop: 0, padding: 24, scrollMarginTop: 100 }}>
         <Kick>Family &amp; status · Keluarga &amp; status</Kick>
         <p className="text-muted" style={{ fontSize: 12.5, margin: '8px 0 14px' }}>
           LHDN gives these reliefs on who you are, with no receipts — set them once and they are counted automatically for every year.{' '}

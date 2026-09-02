@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import type { Screen } from './App';
 import { CalcResult, Data, derivedReliefs } from '@/lib/tax';
 import { deadlineInfo } from './derive';
+import { familySetUp } from '@/lib/data';
 import { Kick } from './bits';
 
 export interface TourCopy { t: string; b: string; bm: string }
@@ -20,6 +21,7 @@ export interface TourCtx {
   totalIncome: number;
   balance: number;
   deadline: string;
+  familySet: boolean;
 }
 
 export interface TourStep {
@@ -110,9 +112,9 @@ export const TOUR: TourStep[] = [
       b: (x.totalIncome
           ? (x.balance < 0 ? 'Right now you are looking at an estimated refund of ' + rm(-x.balance) + '. ' : 'Right now the estimate is ' + rm(x.balance) + ' payable — every relief you log brings that down. ')
           : 'Add your income and the refund estimate here goes live. ') +
-        'This block keeps score all year. Replay the tour any time from Settings.',
+        (x.familySet ? 'This block keeps score all year. Replay the tour any time from Settings.' : 'One thing first: tell DuitBack who you are — married, children, OKU — so the fixed reliefs count automatically. That is where you go next.'),
       bm: (x.totalIncome ? (x.balance < 0 ? 'Anggaran bayaran balik anda sekarang ' + rm(-x.balance) + '. ' : 'Anggaran baki sekarang ' + rm(x.balance) + ' — setiap pelepasan mengurangkannya. ') : 'Masukkan pendapatan dan anggaran akan hidup. ') +
-        'Ulang jelajah bila-bila masa dari Tetapan.',
+        (x.familySet ? 'Ulang jelajah bila-bila masa dari Tetapan.' : 'Langkah seterusnya: tetapkan status keluarga anda supaya pelepasan tetap dikira automatik.'),
     }),
   },
 ];
@@ -134,6 +136,7 @@ export function tourCtx(d: Data, c: CalcResult): TourCtx {
     totalIncome: c.totalIncome,
     balance: c.balance,
     deadline: deadlineInfo(d, d.ya, c).dlLabel,
+    familySet: familySetUp(d),
   };
 }
 
@@ -157,7 +160,7 @@ function clampToViewport(r: DOMRect): Box {
   return { top, left, width: Math.max(40, right - left), height: Math.max(40, bottom - top) };
 }
 
-export function Tour({ step, d, c, onNext, onBack, onDone }: { step: number; d: Data; c: CalcResult; onNext: () => void; onBack: () => void; onDone: () => void }) {
+export function Tour({ step, d, c, onNext, onBack, onDone }: { step: number; d: Data; c: CalcResult; onNext: () => void; onBack: () => void; onDone: (finished: boolean) => void }) {
   const stepDef = TOUR[step - 1];
   const info = { target: stepDef.target, ...stepDef.copy(tourCtx(d, c)) };
   const [box, setBox] = useState<Box | null>(null);
@@ -248,13 +251,13 @@ export function Tour({ step, d, c, onNext, onBack, onDone }: { step: number; d: 
         <p lang="ms" style={{ fontSize: 12.5, lineHeight: 1.5, margin: '0 0 16px', color: 'var(--color-neutral-700)' }}>{info.bm}</p>
         <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
           {last ? (
-            <button className="btn btn-primary" onClick={onDone}>Start tracking →</button>
+            <button className="btn btn-primary" onClick={() => onDone(true)}>{familySetUp(d) ? 'Start tracking →' : 'Set up my details →'}</button>
           ) : (
             <button className="btn btn-primary" onClick={onNext}>Next →</button>
           )}
           {step > 1 && <button className="btn btn-secondary" onClick={onBack}>← Back</button>}
           {!last && (
-            <button className="btn btn-ghost" style={{ marginLeft: 'auto' }} onClick={onDone}>Skip tour</button>
+            <button className="btn btn-ghost" style={{ marginLeft: 'auto' }} onClick={() => onDone(false)}>Skip tour</button>
           )}
         </div>
       </div>
