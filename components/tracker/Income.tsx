@@ -151,7 +151,7 @@ export function Income({ api, c }: { api: Api; c: CalcResult }) {
               <Row label={<>Donations allowed <span className="text-muted">(capped 10% of aggregate)</span></>} value={'− ' + fmt(c.donAllowed)} />
               <Row label={<>Reliefs claimed · Pelepasan <button className="navlink linkbtn" onClick={() => go('claims')} style={{ fontSize: 11 }}>(detail)</button></>} value={'− ' + fmt(c.reliefsNonDon)} />
               <Row label="Chargeable income · Pendapatan bercukai" value={fmt(c.chargeable)} strong />
-              <Row label={<>Tax on chargeable income <span className="text-muted">(YA2025 scale)</span></>} value={fmt(c.taxGross)} />
+              <Row label={<>Tax on chargeable income <span className="text-muted">(YA2025 scale · unchanged for YA2026)</span></>} value={fmt(c.taxGross)} />
               <Row label={<>Individual rebate <span className="text-muted">(RM400 if chargeable ≤ RM35,000)</span></>} value={'− ' + fmt(c.rebate)} />
               <Row label="Zakat rebate · Rebat zakat" value={'− ' + fmt(c.zakatRebate)} />
               <Row label="PCB / MTD already paid" value={'− ' + fmt(c.inc.pcb || 0)} />

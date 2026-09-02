@@ -1,7 +1,7 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { Claim, Data, calc, fmt, today, uid } from '@/lib/tax';
-import { bumpChanges, demoData, emptyData, exportJson, hasStash, isDemo, loadData, persist, popStash, pruneEmptyFutureYears, wipe } from '@/lib/data';
+import { askPersistentStorage, bumpChanges, demoData, emptyData, exportJson, hasStash, isDemo, loadData, persist, popStash, pruneEmptyFutureYears, wipe } from '@/lib/data';
 import { Kick, TinInput, Wordmark, Modal } from './bits';
 import { SiteFooter } from '@/components/ui';
 import { Dashboard } from './Dashboard';
@@ -38,6 +38,8 @@ export interface Api {
   clearAll: () => void;
   startTour: () => void;
   ask: (msg: string, onYes: () => void) => void;
+  /** browser offered an install prompt (Chrome/Edge/Android) — undefined elsewhere */
+  install?: () => void;
   dataMsg: string;
   setDataMsg: (m: string) => void;
 }
@@ -60,6 +62,7 @@ export default function TrackerApp() {
   const [forgotOpen, setForgotOpen] = useState(false);
   const [eraseArmed, setEraseArmed] = useState(false);
   const [confirmReq, setConfirmReq] = useState<{ msg: string; onYes: () => void } | null>(null);
+  const [installEvt, setInstallEvt] = useState<{ prompt: () => void } | null>(null);
 
   useEffect(() => {
     const d = loadData();
@@ -67,8 +70,12 @@ export default function TrackerApp() {
       if (pruneEmptyFutureYears(d)) persist(d);
       setData(d);
       setLocked(!!d.profile.pin);
+      askPersistentStorage();
     }
     setBooted(true);
+    const onInstall = (e: Event) => { e.preventDefault(); setInstallEvt(e as unknown as { prompt: () => void }); };
+    window.addEventListener('beforeinstallprompt', onInstall);
+    return () => window.removeEventListener('beforeinstallprompt', onInstall);
     if ('serviceWorker' in navigator && process.env.NODE_ENV === 'production') {
       navigator.serviceWorker.register('/duitback-web/sw.js', { scope: '/duitback-web/' }).catch(() => {});
     }
@@ -83,6 +90,7 @@ export default function TrackerApp() {
     setData(d);
     const err = persist(d);
     bumpChanges();
+    askPersistentStorage();
     setDataMsg(err || msg || '');
   };
   const mut = (fn: (d: Data) => void) => {
@@ -176,7 +184,7 @@ export default function TrackerApp() {
   const d = data;
   const ya = d.ya;
   const c = calc(d, ya);
-  const api: Api = { d, ya, save, mut, go: setScreen, openAdd, openEdit, setDlg, clearAll, startTour: () => setTut(1), ask: (msg, onYes) => setConfirmReq({ msg, onYes }), dataMsg, setDataMsg };
+  const api: Api = { d, ya, save, mut, go: setScreen, openAdd, openEdit, setDlg, clearAll, startTour: () => setTut(1), ask: (msg, onYes) => setConfirmReq({ msg, onYes }), install: installEvt ? () => { installEvt.prompt(); setInstallEvt(null); } : undefined, dataMsg, setDataMsg };
   const demo = isDemo(d);
 
   return (

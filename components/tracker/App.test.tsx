@@ -330,6 +330,26 @@ describe('TrackerApp smoke', () => {
     expect(screen.getByText('Edit claim · Sunting tuntutan')).toBeTruthy();
   });
 
+  it('Settings offers install guidance and a vault export; iPhone Safari users get a dismissible nudge', async () => {
+    const ua = Object.getOwnPropertyDescriptor(window.navigator, 'userAgent');
+    Object.defineProperty(window.navigator, 'userAgent', { value: 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 Version/17.0 Mobile/15E148 Safari/604.1', configurable: true });
+    try {
+      await completeSetup();
+      fireEvent.click(screen.getByText('Skip tour'));
+      // dashboard nudge for iPhone Safari (not installed)
+      await screen.findByText(/Safari can clear this app/);
+      fireEvent.click(screen.getByText('Got it · Faham'));
+      expect(screen.queryByText(/Safari can clear this app/)).toBeNull();
+      expect(localStorage.getItem('duitback_install_hint')).toBe('1');
+      fireEvent.click(screen.getByText('Settings'));
+      await screen.findByText('Install · Pasang');
+      await screen.findByText(/Add to Home Screen/);
+      expect(screen.getByText('Export vault (ZIP) · Eksport peti')).toBeTruthy();
+    } finally {
+      if (ua) Object.defineProperty(window.navigator, 'userAgent', ua);
+    }
+  });
+
   it('returning visitors skip setup and keep their data', async () => {
     await completeSetup('Aisyah');
     cleanup();

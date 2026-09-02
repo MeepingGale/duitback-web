@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { CATS, CHILDSUB, Claim, MEDSUB, CalcResult, ReceiptItem, capFor, fmt, medSum, to2dp, today, uid } from '@/lib/tax';
+import { CATS, CHILDSUB, Claim, MEDSUB, CalcResult, ReceiptItem, capFor, fmt, medSubCap, medSum, to2dp, today, uid } from '@/lib/tax';
 import { getFile, putFile, readFiles } from '@/lib/data';
 import { Api } from './App';
 import { Modal, MoneyInput } from './bits';
@@ -112,14 +112,14 @@ export function AddClaimDialog({ api, c, add, setAdd, onSaved }: { api: Api; c: 
   if (addCt) {
     const others = c.claims.filter((x) => x.id !== add.editId);
     const already = add.cat === 'medical'
-      ? medSum(others.filter((x) => x.cat === 'medical'))
+      ? medSum(others.filter((x) => x.cat === 'medical'), yaNum)
       : others.filter((x) => x.cat === add.cat).reduce((a, x) => a + (+x.amount || 0), 0);
     const cap = add.cat === 'donation' ? c.donCap : capFor(add.cat, yaNum);
     const each = +add.amount || 0;
     const total = add.monthly ? each * 12 : each;
     const after = already + total;
     const sub = MEDSUB.find((m) => m.id === add.sub);
-    const subCap = add.cat === 'medical' && sub && sub.cap ? sub.cap : null;
+    const subCap = add.cat === 'medical' && sub ? medSubCap(sub.id, yaNum) : null;
     const subAlready = subCap ? c.claims.filter((x) => x.cat === 'medical' && (x.sub || 'general') === add.sub).reduce((a, x) => a + (+x.amount || 0), 0) : 0;
     if (cap === Infinity) capNote = addCt.note || '';
     else if (cap === 0 && add.cat === 'donation') { capNote = 'Donations count up to 10% of your declared income — enter your income first, or this line counts RM 0 for now. · Derma dikira sehingga 10% pendapatan — isi pendapatan anda dahulu.'; capNoteCls = ''; }
@@ -132,7 +132,7 @@ export function AddClaimDialog({ api, c, add, setAdd, onSaved }: { api: Api; c: 
       capNote = (add.monthly ? '12 × ' + fmt(each) + ' = ' + fmt(total) + '. ' : '') + 'This takes ' + addCt.en + ' to ' + fmt(after) + ' — ' + fmt(after - cap) + ' over the ' + fmt(cap) + ' cap. Saved and flagged; only ' + fmt(cap) + ' counts. · Melebihi had ' + fmt(cap) + ' — disimpan dan ditanda; hanya ' + fmt(cap) + ' dikira.';
       capNoteCls = '';
     } else {
-      capNote = (add.monthly ? '12 × ' + fmt(each) + ' = ' + fmt(total) + '. ' : '') + fmt(cap - after) + ' left under the ' + fmt(cap) + ' cap after this. · Baki ' + fmt(cap - after) + ' di bawah had. ' + (add.cat === 'medical' && sub && sub.cap ? 'Sub-limit for this type · Had kecil jenis ini: ' + fmt(sub.cap) + '. ' : '') + (addCt.note || '');
+      capNote = (add.monthly ? '12 × ' + fmt(each) + ' = ' + fmt(total) + '. ' : '') + fmt(cap - after) + ' left under the ' + fmt(cap) + ' cap after this. · Baki ' + fmt(cap - after) + ' di bawah had. ' + (add.cat === 'medical' && subCap ? 'Sub-limit for this type · Had kecil jenis ini: ' + fmt(subCap) + '. ' : '') + (addCt.note || '');
     }
   }
 
@@ -194,7 +194,7 @@ export function AddClaimDialog({ api, c, add, setAdd, onSaved }: { api: Api; c: 
           <div className="field">
             <label>Medical sub-type · Jenis (sub-limits enforced)</label>
             <select className="input" value={add.sub} onChange={(e) => setAdd({ ...add, sub: e.target.value })}>
-              {MEDSUB.map((m) => <option key={m.id} value={m.id}>{m.label}</option>)}
+              {MEDSUB.map((m) => { const cap = medSubCap(m.id, yaNum); return <option key={m.id} value={m.id}>{m.label + (cap ? ' — max ' + fmt(cap) : '')}</option>; })}
             </select>
           </div>
         )}

@@ -1,11 +1,13 @@
+import { useState } from 'react';
 import { CATS, CalcResult, calc, fmt } from '@/lib/tax';
-import { exportJson, getBackupMeta, isDemo } from '@/lib/data';
+import { dismissInstallHint, exportVault, getBackupMeta, installHintDismissed, isDemo, isIOS, isStandalone } from '@/lib/data';
 import { Api } from './App';
 import { Bar, Kick, YaTabs, pagepad, yaHead, right, heading800 } from './bits';
 import { STATUS_TAG, deadlineInfo, reliefRows, yearsOf } from './derive';
 import { blankInc } from '@/lib/tax';
 
 export function Dashboard({ api, c }: { api: Api; c: CalcResult }) {
+  const [hintGone, setHintGone] = useState(installHintDismissed);
   const { d, ya, mut, go, openAdd } = api;
   const years = yearsOf(d);
   const dl = deadlineInfo(d, ya, c);
@@ -99,6 +101,17 @@ export function Dashboard({ api, c }: { api: Api; c: CalcResult }) {
         </div>
       )}
 
+      {!isDemo(d) && isIOS() && !isStandalone() && !hintGone && (
+        <div className="no-print" style={{ display: 'flex', gap: 10, alignItems: 'baseline', flexWrap: 'wrap', border: '2px solid var(--color-accent-700)', padding: '10px 14px', marginTop: 20, fontSize: 12.5 }}>
+          <span>
+            <strong>On iPhone, Safari can clear this app&apos;s data after 7 days unused.</strong> Install it to your Home Screen to keep it safe.{' '}
+            <span lang="ms">Pasang ke Skrin Utama supaya data anda kekal.</span>
+          </span>
+          <button className="navlink linkbtn" style={{ fontSize: 12.5, fontWeight: 800 }} onClick={() => api.go('settings')}>See how →</button>
+          <button className="navlink linkbtn" style={{ fontSize: 12.5 }} onClick={() => { dismissInstallHint(); setHintGone(true); }}>Got it · Faham</button>
+        </div>
+      )}
+
       {(() => {
         const meta = getBackupMeta();
         if (isDemo(d) || meta.changesSince < 20) return null;
@@ -108,7 +121,7 @@ export function Dashboard({ api, c }: { api: Api; c: CalcResult }) {
               {meta.changesSince} changes since your last backup{meta.lastExport ? ' (' + meta.lastExport + ')' : ' — you have never exported'}.{' '}
               <span lang="ms">Banyak perubahan sejak sandaran terakhir.</span>
             </span>
-            <button className="navlink linkbtn" style={{ fontSize: 12.5, fontWeight: 800 }} onClick={() => { exportJson(d); api.setDataMsg('Backup exported. · Sandaran dieksport.'); }}>Export JSON now →</button>
+            <button className="navlink linkbtn" style={{ fontSize: 12.5, fontWeight: 800 }} onClick={() => { exportVault(d).then(() => api.setDataMsg('Vault exported. · Peti dieksport.')); }}>Export vault now →</button>
           </div>
         );
       })()}

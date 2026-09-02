@@ -48,8 +48,9 @@ export const metadata: Metadata = {
   },
   robots: { index: true, follow: true },
   icons: {
-    icon: [{ url: 'icon.svg', type: 'image/svg+xml' }, { url: 'icon-192.png', sizes: '192x192', type: 'image/png' }],
-    apple: 'apple-touch-icon.png',
+    // absolute under the base path — relative URLs would resolve under /app/, /reliefs/ and /pcb/ and 404
+    icon: [{ url: '/duitback-web/icon.svg', type: 'image/svg+xml' }, { url: '/duitback-web/icon-192.png', sizes: '192x192', type: 'image/png' }],
+    apple: '/duitback-web/apple-touch-icon.png',
   },
   manifest: '/duitback-web/manifest.webmanifest',
 };

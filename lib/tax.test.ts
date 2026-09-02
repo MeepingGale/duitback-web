@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { blankInc, calc, capFor, clamp2dpStr, composeTin, Data, fmt, fmtAmountStr, jointComparison, looksLikeTin, medSum, parseTin, taxOn, to2dp } from './tax';
+import { blankInc, calc, capFor, clamp2dpStr, composeTin, Data, fmt, fmtAmountStr, jointComparison, looksLikeTin, medSubCap, medSum, parseTin, taxOn, to2dp } from './tax';
 import { demoData, parseImport, pruneEmptyFutureYears } from './data';
 
 describe('taxOn — YA2025 resident scale', () => {
@@ -49,10 +49,24 @@ describe('medSum — medical sub-limits', () => {
     id: 'x', ya: 'YA2026', cat: 'medical', sub, date: '2026-01-01', desc: '', amount, receipt: null,
   });
   it('caps each sub-limit independently, general is uncapped', () => {
-    expect(medSum([mk('checkup', 2000), mk('dental', 400), mk('general', 5000)])).toBe(1000 + 400 + 5000);
+    expect(medSum([mk('checkup', 2000), mk('dental', 400), mk('general', 5000)], 2026)).toBe(1000 + 400 + 5000);
   });
   it('missing sub counts as general', () => {
-    expect(medSum([mk(undefined, 3000)])).toBe(3000);
+    expect(medSum([mk(undefined, 3000)], 2026)).toBe(3000);
+  });
+
+  it('learning-disability sub-limit follows the year: RM4k (2023) → RM6k (2024–25) → RM10k (2026, Budget 2026)', () => {
+    expect(medSubCap('learning', 2023)).toBe(4000);
+    expect(medSubCap('learning', 2025)).toBe(6000);
+    expect(medSubCap('learning', 2026)).toBe(10000);
+    expect(medSum([mk('learning', 9000)], 2025)).toBe(6000);
+    expect(medSum([mk('learning', 9000)], 2026)).toBe(9000);
+  });
+
+  it('domestic tourism relief exists for YA2026 only', () => {
+    expect(capFor('tourism', 2026)).toBe(1000);
+    expect(capFor('tourism', 2025)).toBe(0);
+    expect(capFor('tourism', 2027)).toBe(0);
   });
 });
 

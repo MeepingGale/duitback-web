@@ -87,41 +87,61 @@ export interface Cat {
 
 export const CATS: Cat[] = [
   { id: 'individual', en: 'Individual & dependents', bm: 'Individu', cap: 9000, auto: true, note: 'Automatic RM9,000 for every resident taxpayer — no receipts needed.' },
-  { id: 'medical', en: 'Medical — self, spouse, child', bm: 'Perubatan', cap: 10000, note: 'Shared RM10,000 ceiling with enforced sub-limits: check-up RM1,000, vaccination RM1,000, dental RM1,000, learning disability RM6,000.' },
+  { id: 'medical', en: 'Medical — self, spouse, child', bm: 'Perubatan', cap: 10000, note: 'Shared RM10,000 ceiling with enforced sub-limits: check-up RM1,000, vaccination RM1,000 (any MOH-approved vaccine from YA2026), dental RM1,000, learning disability RM10,000 (RM6,000 before YA2026).' },
   { id: 'parents_med', en: 'Parents — medical, care & exam', bm: 'Perubatan ibu bapa', cap: 8000, note: 'Medical treatment, special needs, carer expenses; includes grandparents from YA2025. Exam sub-limit RM1,000.' },
   { id: 'lifestyle', en: 'Lifestyle', bm: 'Gaya hidup', cap: 2500, note: 'Books, personal computer/phone/tablet, internet bill, self-improvement courses.' },
   { id: 'sports', en: 'Sports — additional', bm: 'Sukan tambahan', cap: 1000, note: 'Sports equipment, facility rental, competition fees, gym; includes parents from YA2025.' },
   { id: 'epf', en: 'EPF & approved schemes', bm: 'KWSP', cap: 4000, note: 'Employee statutory + voluntary contributions.' },
   { id: 'socso', en: 'SOCSO / EIS', bm: 'PERKESO', cap: 350, note: 'Statutory contributions per EA form.' },
-  { id: 'life_ins', en: 'Life insurance / takaful', bm: 'Insurans nyawa', cap: 3000, note: 'Premiums for self or spouse.' },
-  { id: 'edu_med_ins', en: 'Education & medical insurance', bm: 'Insurans pendidikan/perubatan', cap: 4000, note: 'Raised to RM4,000 from YA2025.' },
+  { id: 'life_ins', en: 'Life insurance / takaful', bm: 'Insurans nyawa', cap: 3000, note: 'Premiums for self or spouse; from YA2026 also for children.' },
+  { id: 'edu_med_ins', en: 'Education & medical insurance', bm: 'Insurans pendidikan/perubatan', cap: 4000, note: 'Raised to RM4,000 from YA2025. From YA2026 a covered child must be unmarried and under 18, in tertiary study, or disabled.' },
   { id: 'prs', en: 'PRS & deferred annuity', bm: 'Skim persaraan swasta', cap: 3000, note: 'Extended until YA2030.' },
   { id: 'edu_self', en: 'Education fees — self', bm: 'Yuran pendidikan', cap: 7000, note: 'Degree & above, or law/accounting/technical; upskilling courses sub-limit RM2,000.' },
   { id: 'sspn', en: 'SSPN net savings', bm: 'Simpanan SSPN', cap: 8000, note: 'Net deposit for children’s education savings.' },
-  { id: 'childcare', en: 'Childcare fees (child ≤ 6)', bm: 'Taska / tadika', cap: 3000, note: 'Registered childcare centre or kindergarten.' },
+  { id: 'childcare', en: 'Childcare fees', bm: 'Taska / tadika', cap: 3000, note: 'Registered childcare centre or kindergarten; from YA2026 also daycare and after-school transit centres, for children up to 12 (up to 6 before).' },
   { id: 'breastfeed', en: 'Breastfeeding equipment', bm: 'Peralatan penyusuan', cap: 1000, note: 'Child ≤ 2 years; claimable once every 2 years.' },
   { id: 'spouse', en: 'Spouse / alimony', bm: 'Suami / isteri', cap: 4000, note: 'Spouse with no income, or alimony paid.' },
   { id: 'child', en: 'Child relief', bm: 'Anak', cap: null, note: 'No overall cap — fixed amount per child; add one line per child. RM2,000 under 18; RM8,000 in diploma/degree; disabled RM8,000 (+RM8,000 if studying).' },
   { id: 'disabled_self', en: 'Disabled individual', bm: 'Individu OKU', cap: 7000, note: 'Raised to RM7,000 from YA2025.' },
   { id: 'disabled_spouse', en: 'Disabled spouse', bm: 'Pasangan OKU', cap: 6000, note: 'Raised to RM6,000 from YA2025.' },
   { id: 'equip', en: 'Disabled supporting equipment', bm: 'Peralatan OKU', cap: 6000, note: 'Basic supporting equipment for self or disabled dependents.' },
-  { id: 'ev', en: 'EV charging / composting', bm: 'Pengecas EV / kompos', cap: 2500, note: 'EV charger install/rental/subscription or food-waste composter; until YA2027.' },
+  { id: 'ev', en: 'EV charging · CCTV · composting', bm: 'Pengecas EV / CCTV / kompos', cap: 2500, note: 'EV charger install/rental/subscription, food-waste composter or grinder; from YA2026 also household CCTV (once every two years). Until YA2027.' },
+  { id: 'tourism', en: 'Domestic tourism', bm: 'Pelancongan domestik', cap: 1000, note: 'YA2026 only — entrance fees to tourist attractions and cultural or arts programmes in Malaysia (Visit Malaysia 2026).' },
   { id: 'housing', en: 'Housing loan interest — first home', bm: 'Faedah pinjaman rumah', cap: 7000, note: 'New YA2025–2027: RM7,000 if home ≤ RM500k; RM5,000 if RM500k–750k. SPA signed 2025–2027.' },
   { id: 'donation', en: 'Donations & gifts', bm: 'Derma', cap: null, note: 'Approved institutions — capped at 10% of aggregate income.' },
 ];
 
+/** The schedule year the current caps describe (Budget 2026 → YA2026). */
+export const SCHEDULE_YA = 2026;
+
 export const MEDSUB = [
   { id: 'general', label: 'General treatment / serious illness / fertility', cap: null as number | null },
-  { id: 'checkup', label: 'Full check-up / mental health exam — max RM1,000', cap: 1000 },
-  { id: 'vax', label: 'Vaccination — max RM1,000', cap: 1000 },
-  { id: 'dental', label: 'Dental exam & treatment — max RM1,000', cap: 1000 },
-  { id: 'learning', label: 'Learning disability, child ≤18 — max RM6,000', cap: 6000 },
+  { id: 'checkup', label: 'Full check-up / mental health exam', cap: 1000 },
+  { id: 'vax', label: 'Vaccination — any MOH-approved vaccine from YA2026', cap: 1000 },
+  { id: 'dental', label: 'Dental exam & treatment', cap: 1000 },
+  { id: 'learning', label: 'Learning disability (autism, ADHD, Down syndrome…), child ≤18', cap: 10000 },
 ];
 
-// historical caps where they differed (approximate)
+// medical sub-limits that differed in earlier years
+export const MEDSUB_OVERRIDES: Record<number, Record<string, number>> = {
+  2023: { learning: 4000 },
+  2024: { learning: 6000 },
+  2025: { learning: 6000 },
+};
+
+export function medSubCap(id: string, yaNum: number): number | null {
+  const o = MEDSUB_OVERRIDES[yaNum];
+  if (o && id in o) return o[id];
+  const m = MEDSUB.find((x) => x.id === id);
+  return m ? m.cap : null;
+}
+
+// caps where they differed from the current schedule (historical years approximate)
 export const OVERRIDES: Record<number, Record<string, number>> = {
-  2023: { sports: 500, edu_med_ins: 3000, disabled_self: 6000, disabled_spouse: 5000, housing: 0 },
-  2024: { edu_med_ins: 3000, disabled_self: 6000, disabled_spouse: 5000, housing: 0 },
+  2023: { sports: 500, edu_med_ins: 3000, disabled_self: 6000, disabled_spouse: 5000, housing: 0, tourism: 0 },
+  2024: { edu_med_ins: 3000, disabled_self: 6000, disabled_spouse: 5000, housing: 0, tourism: 0 },
+  2025: { tourism: 0 },
+  2027: { tourism: 0 }, // YA2026 only
 };
 
 export const CHILDSUB = [
@@ -215,8 +235,8 @@ export function blankInc(): IncomeYear {
   return { salary: 0, bonus: 0, pcb: 0, zakat: 0, rent: 0, rentExp: 0, other: 0, cp500: 0, biz: 0, spInc: 0, spRel: 9000 };
 }
 
-// sub-limit-aware medical total
-export function medSum(claims: Claim[]): number {
+// sub-limit-aware medical total for a given year of assessment
+export function medSum(claims: Claim[], yaNum: number): number {
   const bySub: Record<string, number> = {};
   claims.forEach((c) => {
     const s = c.sub || 'general';
@@ -225,7 +245,8 @@ export function medSum(claims: Claim[]): number {
   let t = 0;
   MEDSUB.forEach((m) => {
     const v = bySub[m.id] || 0;
-    t += m.cap ? Math.min(v, m.cap) : v;
+    const cap = medSubCap(m.id, yaNum);
+    t += cap ? Math.min(v, cap) : v;
   });
   return t;
 }
@@ -262,7 +283,7 @@ export function calc(d: Data, ya: string): CalcResult {
     if (c.cat !== 'medical') sums[c.cat] = (sums[c.cat] || 0) + (+c.amount || 0);
   });
   const medClaims = claims.filter((c) => c.cat === 'medical');
-  if (medClaims.length) sums.medical = medSum(medClaims);
+  if (medClaims.length) sums.medical = medSum(medClaims, yaNum);
   const donRaw = sums.donation || 0;
   const donCap = Math.round(totalIncome * 0.10);
   const donAllowed = Math.min(donRaw, donCap);

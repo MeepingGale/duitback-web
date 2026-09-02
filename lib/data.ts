@@ -1,3 +1,4 @@
+import { ZipEntry, buildZip } from './zip';
 // Persistence + seed data. Same localStorage key and IndexedDB store as every
 // previous DuitBack build, so existing users keep their data across the port.
 import { Data, IncomeYear, blankInc, uid } from './tax';
@@ -280,3 +281,72 @@ export function parseImport(text: string): { data?: Data; error?: string } {
     return { error: 'Could not read that file as JSON. · Fail tidak dapat dibaca sebagai JSON.' };
   }
 }
+
+/** Decode a data: URL into bytes + mime (receipt originals are stored as data URLs). */
+export function dataUrlToBytes(u: string): { bytes: Uint8Array; mime: string } {
+  const m = u.match(/^data:([^;,]+)?(;base64)?,([\s\S]*)$/);
+  if (!m) return { bytes: new TextEncoder().encode(u), mime: 'application/octet-stream' };
+  const mime = m[1] || 'application/octet-stream';
+  if (m[2]) {
+    const bin = atob(m[3]);
+    const b = new Uint8Array(bin.length);
+    for (let i = 0; i < bin.length; i++) b[i] = bin.charCodeAt(i);
+    return { bytes: b, mime };
+  }
+  return { bytes: new TextEncoder().encode(decodeURIComponent(m[3])), mime };
+}
+
+const EXT: Record<string, string> = { 'image/jpeg': '.jpg', 'image/png': '.png', 'image/webp': '.webp', 'image/gif': '.gif', 'image/heic': '.heic', 'application/pdf': '.pdf' };
+
+/** Everything worth keeping: the JSON plus every receipt original from IndexedDB. */
+export async function vaultEntries(d: Data, load: (id: string) => Promise<string | null> = getFile): Promise<ZipEntry[]> {
+  const enc = new TextEncoder();
+  const entries: ZipEntry[] = [
+    { name: 'duitback-data.json', data: enc.encode(JSON.stringify(d, null, 2)) },
+    { name: 'README.txt', data: enc.encode('DuitBack vault · Peti DuitBack\n\nduitback-data.json — restore in the app: Settings → Import data (JSON).\nreceipts/<year>/ — your original receipt files, kept for LHDN\'s 7-year audit window.\n') },
+  ];
+  for (const r of d.receipts) {
+    if (!r.hasFull) continue;
+    const full = await load(r.id);
+    if (!full) continue;
+    const { bytes, mime } = dataUrlToBytes(full);
+    const base = r.name.replace(/\.[A-Za-z0-9]+$/, '').replace(/[^\w.-]+/g, '_').slice(0, 60) || 'receipt';
+    entries.push({ name: 'receipts/' + r.ya + '/' + base + '-' + r.id + (EXT[mime] || ''), data: bytes });
+  }
+  return entries;
+}
+
+/** Download the vault as a ZIP; resolves with the number of receipt originals included. */
+export async function exportVault(d: Data): Promise<number> {
+  const entries = await vaultEntries(d);
+  const zip = buildZip(entries);
+  const blob = new Blob([zip.buffer as ArrayBuffer], { type: 'application/zip' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'duitback-vault-' + new Date().toISOString().slice(0, 10) + '.zip';
+  a.click();
+  URL.revokeObjectURL(a.href);
+  noteExport();
+  return entries.length - 2;
+}
+
+export function isIOS(): boolean {
+  const ua = navigator.userAgent;
+  return /iPhone|iPad|iPod/.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+}
+
+export function isStandalone(): boolean {
+  return (typeof matchMedia === 'function' && matchMedia('(display-mode: standalone)').matches) || (navigator as unknown as { standalone?: boolean }).standalone === true;
+}
+
+// Ask the browser to protect our storage from eviction — best effort, once.
+let persistAsked = false;
+export function askPersistentStorage(): void {
+  if (persistAsked) return;
+  persistAsked = true;
+  try { navigator.storage?.persist?.().catch(() => {}); } catch {}
+}
+
+const HINT_KEY = 'duitback_install_hint';
+export function installHintDismissed(): boolean { try { return localStorage.getItem(HINT_KEY) === '1'; } catch { return true; } }
+export function dismissInstallHint(): void { try { localStorage.setItem(HINT_KEY, '1'); } catch {} }

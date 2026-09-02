@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { CATS, CHILDSUB, MEDSUB, OVERRIDES, fmt } from '@/lib/tax';
+import { CATS, CHILDSUB, MEDSUB, OVERRIDES, SCHEDULE_YA, fmt, medSubCap } from '@/lib/tax';
 import { CtaLink, Kicker, SiteFooter, SiteHeader } from '@/components/ui';
 
 export const metadata: Metadata = {
@@ -29,7 +29,7 @@ export default function ReliefsPage() {
   const overrideNotes = Object.entries(OVERRIDES)
     .map(([ya, o]) => 'YA' + ya + ': ' + Object.entries(o).map(([id, cap]) => {
       const ct = CATS.find((c) => c.id === id);
-      return (ct?.en.split(' — ')[0] || id) + ' ' + (cap === 0 ? 'not yet available' : fmt(cap));
+      return (ct?.en.split(' — ')[0] || id) + ' ' + (cap === 0 ? 'not available' : fmt(cap));
     }).join(' · '))
     .join('. ');
 
@@ -87,7 +87,7 @@ export default function ReliefsPage() {
             </table>
           </div>
           <p style={{ fontSize: 11.5, color: 'var(--color-neutral-700)', marginTop: 8 }}>
-            Historical years differ · Tahun lepas berbeza — {overrideNotes}.
+            Updated for Budget 2026 (YA2026): learning-disability medical relief RM10,000, childcare to age 12 incl. daycare and transit centres, life insurance extended to children, CCTV under the EV relief, RM1,000 domestic tourism relief. Other years differ · Tahun lain berbeza — {overrideNotes}.
           </p>
         </section>
 
@@ -103,7 +103,7 @@ export default function ReliefsPage() {
                 {MEDSUB.map((m) => (
                   <tr key={m.id}>
                     <td>{m.label.split(' — ')[0]}</td>
-                    <td style={{ textAlign: 'right', whiteSpace: 'nowrap', fontVariantNumeric: 'tabular-nums' }}>{m.cap ? fmt(m.cap) : 'no sub-limit'}</td>
+                    <td style={{ textAlign: 'right', whiteSpace: 'nowrap', fontVariantNumeric: 'tabular-nums' }}>{medSubCap(m.id, SCHEDULE_YA) ? fmt(medSubCap(m.id, SCHEDULE_YA)!) : 'no sub-limit'}</td>
                   </tr>
                 ))}
               </tbody>

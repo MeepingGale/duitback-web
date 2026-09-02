@@ -136,7 +136,7 @@ export function SiteFooter({ taxNo, wide = false }: { taxNo?: string; wide?: boo
       style={wide ? { paddingInline: 36, marginTop: 'auto' } : undefined}
     >
       <span>
-        DuitBack — unofficial tracker · YA2025 schedule · estimates only · <span lang="ms">anggaran sahaja</span> · not
+        DuitBack — unofficial tracker · YA2026 schedule · estimates only · <span lang="ms">anggaran sahaja</span> · not
         affiliated with LHDN — confirm every figure in MyTax before filing.
       </span>
       <span style={{ display: 'flex', gap: 16, alignItems: 'center' }}>

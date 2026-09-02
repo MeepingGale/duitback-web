@@ -1,7 +1,7 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Api } from './App';
 import { BankInput, TinInput } from './bits';
-import { demoData, exportJson, getBackupMeta, isDemo, parseImport, stashReal } from '@/lib/data';
+import { demoData, exportJson, exportVault, getBackupMeta, isDemo, isIOS, isStandalone, parseImport, stashReal } from '@/lib/data';
 import { Kick, pagepad } from './bits';
 
 export function Settings({ api, lockNow }: { api: Api; lockNow: () => void }) {
@@ -9,6 +9,10 @@ export function Settings({ api, lockNow }: { api: Api; lockNow: () => void }) {
   const [pinNew, setPinNew] = useState('');
   const [pinConfirm, setPinConfirm] = useState('');
   const [pinMsg, setPinMsg] = useState('');
+  const [persisted, setPersisted] = useState<boolean | null>(null);
+  useEffect(() => { navigator.storage?.persisted?.().then(setPersisted).catch(() => {}); }, []);
+  const standalone = isStandalone();
+  const ios = isIOS();
   const pb = (k: 'name' | 'taxNo' | 'bank') => (e: React.ChangeEvent<HTMLInputElement>) => mut((x) => { x.profile[k] = e.target.value; });
 
   return (
@@ -84,13 +88,40 @@ export function Settings({ api, lockNow }: { api: Api; lockNow: () => void }) {
       </div>
 
       <div style={{ border: '2px solid var(--color-divider)', borderTop: 0, padding: 24 }}>
+        <Kick>Install · Pasang</Kick>
+        <p className="text-muted" style={{ fontSize: 12.5, margin: '8px 0 14px' }}>
+          Installed to your Home Screen, DuitBack keeps its data for good. In Safari on iPhone and iPad, a site you haven&apos;t opened for 7 days can have its stored data cleared — an installed app is exempt.{' '}
+          <span lang="ms">Pasang ke Skrin Utama supaya data kekal — Safari boleh memadam data laman web yang tidak dibuka selama 7 hari.</span>
+        </p>
+        {standalone ? (
+          <div style={{ fontSize: 13, fontFamily: 'var(--font-heading)', fontWeight: 800 }}>✓ Installed on this device · Dipasang pada peranti ini</div>
+        ) : ios ? (
+          <ol style={{ margin: 0, paddingLeft: 20, fontSize: 13.5, lineHeight: 1.7 }}>
+            <li>Open this page in Safari and tap <strong>Share</strong> (the square with an arrow). <span lang="ms">Ketik <strong>Kongsi</strong>.</span></li>
+            <li>Choose <strong>Add to Home Screen</strong>. <span lang="ms">Pilih <strong>Tambah ke Skrin Utama</strong>.</span></li>
+            <li>Tap <strong>Add</strong>, then open DuitBack from the Home Screen icon. <span lang="ms">Ketik <strong>Tambah</strong>.</span></li>
+          </ol>
+        ) : api.install ? (
+          <button className="btn btn-secondary" onClick={api.install}>Install DuitBack · Pasang</button>
+        ) : (
+          <div className="text-muted" style={{ fontSize: 12.5 }}>In your browser menu, choose <strong>Install app</strong> or <strong>Add to Home Screen</strong>. <span lang="ms">Dalam menu pelayar, pilih Pasang aplikasi.</span></div>
+        )}
+        {persisted !== null && (
+          <div className="text-muted" style={{ fontSize: 12, marginTop: 10 }}>
+            Persistent storage · Storan kekal: {persisted ? 'granted by this browser · dibenarkan' : 'not granted yet — keep a vault backup · belum dibenarkan, simpan sandaran'}
+          </div>
+        )}
+      </div>
+
+      <div style={{ border: '2px solid var(--color-divider)', borderTop: 0, padding: 24 }}>
         <Kick>Data · Data</Kick>
         <p className="text-muted" style={{ fontSize: 12.5, margin: '8px 0 14px' }}>
-          Claims and thumbnails live in this browser&apos;s localStorage; full-size receipt images in IndexedDB. Nothing is sent to a server — each visitor to a hosted copy gets their own private data. Export JSON to move devices (full-size files stay behind; thumbnails travel).{' '}
-          <span lang="ms">Semua data kekal dalam pelayar ini — tiada apa-apa dihantar ke pelayan. Eksport JSON untuk pindah peranti.</span>
+          Claims and thumbnails live in this browser&apos;s localStorage; full-size receipt images in IndexedDB. Nothing is sent to a server — each visitor to a hosted copy gets their own private data. <strong>Export vault</strong> gives you a ZIP with the JSON <em>and</em> every original receipt — keep it in Files, Drive or iCloud for LHDN&apos;s 7-year audit window. JSON alone moves your records between devices (thumbnails travel; originals don&apos;t).{' '}
+          <span lang="ms">Semua data kekal dalam pelayar ini. Eksport peti (ZIP) mengandungi JSON dan semua resit asal — simpan untuk tempoh audit 7 tahun LHDN.</span>
         </p>
         <div className="btnrow">
-          <button className="btn btn-secondary" onClick={() => { exportJson(d); setDataMsg('Backup exported. · Sandaran dieksport.'); }}>Export all data (JSON)</button>
+          <button className="btn btn-primary" onClick={() => { exportVault(d).then((n) => setDataMsg('Vault exported' + (n ? ' with ' + n + ' receipt original' + (n === 1 ? '' : 's') : '') + '. · Peti dieksport.')); }}>Export vault (ZIP) · Eksport peti</button>
+          <button className="btn btn-secondary" onClick={() => { exportJson(d); setDataMsg('Backup exported. · Sandaran dieksport.'); }}>Export data (JSON)</button>
           <label className="btn btn-secondary" style={{ cursor: 'pointer' }}>
             Import data (JSON)
             <input type="file" accept=".json,application/json" style={{ display: 'none' }} onChange={(e) => {
@@ -138,7 +169,7 @@ export function Settings({ api, lockNow }: { api: Api; lockNow: () => void }) {
       <div style={{ border: '2px solid var(--color-divider)', borderTop: 0, padding: 24 }}>
         <Kick>About · Perihal</Kick>
         <p className="text-muted" style={{ fontSize: 12.5, margin: '8px 0 0' }}>
-          DuitBack is an unofficial personal tracker for Malaysian resident individual (BE/B) returns. Caps follow each year&apos;s LHDN schedule (YA2023/24 use approximate historical caps; YA2025+ the current one), incl. medical sub-limits and per-child relief; the tax scale is the YA2025 resident scale. Not affiliated with LHDN; no tax advice — always confirm figures in MyTax before filing.{' '}
+          DuitBack is an unofficial personal tracker for Malaysian resident individual (BE/B) returns. Caps follow each year&apos;s LHDN schedule — YA2026 includes the Budget 2026 changes; YA2023–25 use that year&apos;s caps (historical ones approximate) — incl. medical sub-limits and per-child relief; the tax scale is the YA2025 resident scale, unchanged for YA2026. Not affiliated with LHDN; no tax advice — always confirm figures in MyTax before filing.{' '}
           <span lang="ms">Penjejak peribadi tidak rasmi — tiada kaitan dengan LHDN dan bukan nasihat cukai. Sentiasa sahkan angka dalam MyTax sebelum memfailkan.</span>
         </p>
       </div>
