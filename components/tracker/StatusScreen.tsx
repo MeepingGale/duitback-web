@@ -90,7 +90,7 @@ export function StatusScreen({ api, c, demo }: { api: Api; c: CalcResult; demo: 
       </div>
 
       <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginTop: 26 }}>
-        <h6 style={{ margin: 0 }}>Documents · Dokumen ({ya})</h6>
+        <h3 className="sec" style={{ margin: 0 }}>Documents · Dokumen ({ya})</h3>
         <label className="btn btn-secondary" style={{ cursor: 'pointer' }}>
           Upload document
           <input type="file" multiple style={{ display: 'none' }} onChange={(e) => {

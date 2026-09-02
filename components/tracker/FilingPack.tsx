@@ -62,7 +62,7 @@ export function FilingPack({ api, c }: { api: Api; c: CalcResult }) {
         <span lang="ms">Isi amaun tanpa sen mengikut kehendak borang LHDN — sen digugurkan, bukan dibundarkan.</span>
       </p>
 
-      <h6 style={{ margin: '18px 0 6px' }}>1 · Income to declare · Pendapatan</h6>
+      <h2 className="sec" style={{ margin: '18px 0 6px' }}>1 · Income to declare · Pendapatan</h2>
       <div className="keep" style={{ overflowX: 'auto' }}>
       <table className="table" style={{ fontSize: 13 }}>
         <thead className="print-only"><tr><th>Source · Punca</th><th style={right}>Amount to enter (RM)</th></tr></thead>
@@ -76,7 +76,7 @@ export function FilingPack({ api, c }: { api: Api; c: CalcResult }) {
       </table>
       </div>
 
-      <h6 style={{ margin: '22px 0 6px' }}>2 · Reliefs to type into MyTax · Pelepasan</h6>
+      <h2 className="sec" style={{ margin: '22px 0 6px' }}>2 · Reliefs to type into MyTax · Pelepasan</h2>
       <div style={{ overflowX: 'auto' }}>
       <table className="table" style={{ fontSize: 13 }}>
         <thead>
@@ -99,7 +99,7 @@ export function FilingPack({ api, c }: { api: Api; c: CalcResult }) {
       </table>
       </div>
 
-      <h6 style={{ margin: '22px 0 6px' }}>3 · Result · Keputusan</h6>
+      <h2 className="sec" style={{ margin: '22px 0 6px' }}>3 · Result · Keputusan</h2>
       <div className="keep" style={{ overflowX: 'auto' }}>
       <table className="table" style={{ fontSize: 13 }}>
         <thead className="print-only"><tr><th>Computation · Pengiraan</th><th style={right}>RM</th></tr></thead>
@@ -113,7 +113,7 @@ export function FilingPack({ api, c }: { api: Api; c: CalcResult }) {
       </table>
       </div>
 
-      <h6 style={{ margin: '22px 0 6px' }}>4 · Receipts on file · Resit ({recAll.length})</h6>
+      <h2 className="sec" style={{ margin: '22px 0 6px' }}>4 · Receipts on file · Resit ({recAll.length})</h2>
       <div className="no-print" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(150px,1fr))', gap: 10 }}>
         {recAll.map((r) => (
           <div key={r.id} style={{ border: '1px solid var(--color-divider)' }}>

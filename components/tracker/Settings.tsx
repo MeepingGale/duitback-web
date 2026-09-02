@@ -22,7 +22,7 @@ export function Settings({ api, lockNow }: { api: Api; lockNow: () => void }) {
       <div style={{ border: '2px solid var(--color-divider)', padding: 24 }}>
         <Kick>Profile · Profil</Kick>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(220px,1fr))', gap: 10, marginTop: 12, alignItems: 'start' }}>
-          <div className="field"><label>Name · Nama</label><input className="input" value={d.profile.name} onChange={pb('name')} /></div>
+          <div className="field"><label>Name · Nama</label><input className="input" aria-label="Name · Nama" value={d.profile.name} onChange={pb('name')} /></div>
           <div className="field">
             <label>Income tax no. · No. cukai</label>
             <TinInput value={d.profile.taxNo} onChange={(v) => mut((x) => { x.profile.taxNo = v; })} />
@@ -61,11 +61,11 @@ export function Settings({ api, lockNow }: { api: Api; lockNow: () => void }) {
             <div className="fields2">
               <div className="field" style={{ margin: 0 }}>
                 <label>New passcode (min 4 characters)</label>
-                <input className="input mono" type="password" value={pinNew} onChange={(e) => setPinNew(e.target.value)} />
+                <input className="input mono" type="password" aria-label="New passcode · Kod baharu" value={pinNew} onChange={(e) => setPinNew(e.target.value)} />
               </div>
               <div className="field" style={{ margin: 0 }}>
                 <label>Confirm passcode · Sahkan</label>
-                <input className="input mono" type="password" value={pinConfirm} onChange={(e) => setPinConfirm(e.target.value)} />
+                <input className="input mono" type="password" aria-label="Confirm passcode · Sahkan" value={pinConfirm} onChange={(e) => setPinConfirm(e.target.value)} />
               </div>
             </div>
             <button className="btn btn-secondary" style={{ marginTop: 12 }} onClick={() => {

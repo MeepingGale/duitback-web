@@ -135,7 +135,7 @@ export default function TrackerApp() {
           <div style={{ border: '2px solid var(--color-divider)', padding: 24 }}>
             <div className="field">
               <label>Your name · Nama</label>
-              <input className="input" placeholder="e.g. Amirah" value={setup.name} onChange={(e) => setSetup({ ...setup, name: e.target.value })} />
+              <input className="input" aria-label="Your name · Nama" placeholder="e.g. Amirah" value={setup.name} onChange={(e) => setSetup({ ...setup, name: e.target.value })} />
             </div>
             <div className="field" style={{ marginTop: 14 }}>
               <label>Income tax no. · No. cukai</label>
@@ -239,6 +239,7 @@ export default function TrackerApp() {
             <div className="field">
               <label>Passcode · Kod</label>
               <input
+                aria-label="Passcode · Kod laluan"
                 className="input mono"
                 type="password"
                 value={pinEntry}

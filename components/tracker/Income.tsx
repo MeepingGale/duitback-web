@@ -93,7 +93,7 @@ export function Income({ api, c }: { api: Api; c: CalcResult }) {
       <div className="claimsgrid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(340px,1fr))', gap: 0, border: '2px solid var(--color-divider)', marginTop: 18 }}>
         <div style={{ padding: 24, borderRight: '2px solid var(--color-divider)' }}>
           <Kick>Sources · Punca pendapatan — editable</Kick>
-          <h6 style={{ margin: '16px 0 8px' }}>Employment · Penggajian</h6>
+          <h3 className="sec" style={{ margin: '16px 0 8px' }}>Employment · Penggajian</h3>
           <div className="fields2">
             <NumField label="Salary / year · Gaji (RM)" value={c.inc.salary || 0} onCommit={bind('salary')} />
             <NumField label="Bonus (RM)" value={c.inc.bonus || 0} onCommit={bind('bonus')} />
@@ -114,7 +114,7 @@ export function Income({ api, c }: { api: Api; c: CalcResult }) {
               )}
             </div>
           )}
-          <h6 style={{ margin: '20px 0 8px' }}>Rental · Sewaan</h6>
+          <h3 className="sec" style={{ margin: '20px 0 8px' }}>Rental · Sewaan</h3>
           <div className="fields2">
             <NumField label="Gross rent / year (RM)" value={c.inc.rent || 0} onCommit={bind('rent')} />
             <NumField label="Allowable expenses (RM)" value={c.inc.rentExp || 0} onCommit={bind('rentExp')} />
@@ -123,7 +123,7 @@ export function Income({ api, c }: { api: Api; c: CalcResult }) {
           <div style={{ fontSize: 11.5, marginTop: 8 }} className="text-muted">
             Allowable: repairs, management fees, assessment &amp; quit rent, loan interest. Net rental {fmt(c.netRent)}. CP500 = LHDN&apos;s bi-monthly instalment scheme for rental/business income; paid amounts offset the final bill.
           </div>
-          <h6 style={{ margin: '20px 0 8px' }}>Business &amp; other · Perniagaan</h6>
+          <h3 className="sec" style={{ margin: '20px 0 8px' }}>Business &amp; other · Perniagaan</h3>
           <div className="fields2">
             <NumField label="Business income, net (RM)" value={c.inc.biz || 0} onCommit={bind('biz')} />
             <NumField label="Other — dividends, freelance (RM)" value={c.inc.other || 0} onCommit={bind('other')} />
@@ -133,7 +133,7 @@ export function Income({ api, c }: { api: Api; c: CalcResult }) {
           </div>
           {isMarried && (
             <>
-              <h6 style={{ margin: '20px 0 8px' }}>Spouse · Pasangan (for joint comparison)</h6>
+              <h3 className="sec" style={{ margin: '20px 0 8px' }}>Spouse · Pasangan (for joint comparison)</h3>
               <div className="fields2">
                 <NumField label="Spouse income / year (RM)" value={c.inc.spInc || 0} onCommit={bind('spInc')} />
                 <NumField label="Spouse reliefs, est. (RM)" value={c.inc.spRel || 0} onCommit={bind('spRel')} />

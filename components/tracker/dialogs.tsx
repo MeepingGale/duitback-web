@@ -210,10 +210,10 @@ export function AddClaimDialog({ api, c, add, setAdd, onSaved }: { api: Api; c: 
           </div>
         )}
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
-          <div className="field"><label>Date · Tarikh</label><input className="input" type="date" value={add.date} onChange={(e) => setAdd({ ...add, date: e.target.value })} /></div>
+          <div className="field"><label>Date · Tarikh</label><input className="input" type="date" aria-label="Date · Tarikh" value={add.date} onChange={(e) => setAdd({ ...add, date: e.target.value })} /></div>
           <div className="field"><label>Amount · Jumlah (RM)</label><MoneyInput ariaLabel="Amount · Jumlah (RM)" value={add.amount} onChange={(v) => setAdd({ ...add, amount: v })} /></div>
         </div>
-        <div className="field"><label>Description · Keterangan</label><input className="input" placeholder="e.g. broadband bill — Unifi" value={add.desc} onChange={(e) => setAdd({ ...add, desc: e.target.value })} /></div>
+        <div className="field"><label>Description · Keterangan</label><input className="input" aria-label="Description · Keterangan" placeholder="e.g. broadband bill — Unifi" value={add.desc} onChange={(e) => setAdd({ ...add, desc: e.target.value })} /></div>
         {!add.editId && (
           <label className="radio">
             <input type="checkbox" checked={add.monthly} onChange={(e) => setAdd({ ...add, monthly: e.target.checked })} />
@@ -292,7 +292,7 @@ export function TagDialog({ api, tag, setTag }: { api: Api; tag: TagState; setTa
           </select>
         </div>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
-          <div className="field"><label>Merchant · Kedai</label><input className="input" value={tag.merchant} onChange={(e) => setTag({ ...tag, merchant: e.target.value })} /></div>
+          <div className="field"><label>Merchant · Kedai</label><input className="input" aria-label="Merchant · Kedai" value={tag.merchant} onChange={(e) => setTag({ ...tag, merchant: e.target.value })} /></div>
           <div className="field"><label>Amount · Jumlah (RM)</label><MoneyInput ariaLabel="Amount · Jumlah (RM)" value={tag.amount} onChange={(v) => setTag({ ...tag, amount: v })} /></div>
         </div>
         <label className="radio" style={{ marginTop: 4 }}>

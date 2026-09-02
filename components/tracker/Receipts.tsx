@@ -46,7 +46,7 @@ export function Receipts({ api, setTag, setViewer }: { api: Api; setTag: (t: Tag
     >
       <div style={{ display: 'flex', alignItems: 'center', gap: 14, flexWrap: 'wrap' }}>
         <h2 style={{ margin: 0, marginRight: 'auto' }}>Receipt vault <span className="bm" style={{ fontSize: 15 }}>· Peti resit</span></h2>
-        <input className="input" style={{ width: 230 }} placeholder="Search merchant, file… · Cari" value={rSearch} onChange={(e) => setRSearch(e.target.value)} />
+        <input className="input" style={{ width: 230 }} aria-label="Search receipts · Cari resit" placeholder="Search merchant, file… · Cari" value={rSearch} onChange={(e) => setRSearch(e.target.value)} />
         <YaTabs tabs={years.map((y) => ({ label: y, on: y === ya, pick: () => mut((x) => { x.ya = y; }) }))} />
       </div>
 
