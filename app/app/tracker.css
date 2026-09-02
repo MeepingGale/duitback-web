@@ -413,3 +413,10 @@ button.linkbtn:hover { color: var(--color-accent-800); }
 .idemo-menu.idemo-cmenu { animation-name: duit-cmenu; }
 @keyframes duit-cmenu { 0%, 15% { opacity: 0; transform: translateY(4px); } 30%, 88% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; } }
 @media (prefers-reduced-motion: reduce) { .idemo-sheet, .idemo-dialog, .idemo-home, .idemo-appicon-pop, .idemo-menu, .idemo-tap { animation: none; } .idemo-home { opacity: 0; } .idemo-tap { opacity: 1; transform: none; } .idemo-menu { opacity: 1; } }
+
+/* screens slide in from the side they sit on in the tab order (also the swipe direction) */
+.screen-anim.from-right { animation: duit-slide-r .22s ease-out; }
+.screen-anim.from-left { animation: duit-slide-l .22s ease-out; }
+@keyframes duit-slide-r { from { opacity: 0; transform: translateX(28px); } to { opacity: 1; transform: none; } }
+@keyframes duit-slide-l { from { opacity: 0; transform: translateX(-28px); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce), print { .screen-anim { animation: none; } }

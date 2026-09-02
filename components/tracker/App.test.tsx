@@ -533,8 +533,10 @@ describe('TrackerApp smoke', () => {
     };
     swipe(300, 120); // left → Claims
     await waitFor(() => expect(document.querySelector('[data-screen-label="Claims"]')).toBeTruthy());
+    expect(document.querySelector('.screen-anim.from-right')).toBeTruthy(); // slides in from the right
     swipe(120, 300); // right → back to the dashboard
     await waitFor(() => expect(document.querySelector('[data-screen-label="Claims"]')).toBeNull());
+    expect(document.querySelector('.screen-anim.from-left')).toBeTruthy();
     swipe(10, 200); // starts at the edge: reserved for the OS back gesture
     await new Promise((r) => setTimeout(r, 50));
     expect(document.querySelector('[data-screen-label="Claims"]')).toBeNull();

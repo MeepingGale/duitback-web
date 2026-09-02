@@ -1,5 +1,5 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Claim, Data, calc, fmt, today, uid } from '@/lib/tax';
 import { askPersistentStorage, bumpChanges, demoData, emptyData, exportJson, familySetUp, hasStash, installEnv, installGuideShown, isDemo, loadData, markInstallGuideShown, persist, popStash, pruneEmptyFutureYears, wipe } from '@/lib/data';
 import { Kick, TinInput, Wordmark, Modal } from './bits';
@@ -135,6 +135,11 @@ export default function TrackerApp() {
     document.addEventListener('touchend', onEnd, { passive: true });
     return () => { document.removeEventListener('touchstart', onStart); document.removeEventListener('touchend', onEnd); };
   }, [data, locked]);
+
+  // screens slide in from the side they sit on in the tab order — the same direction a swipe travels
+  const prevScreen = useRef(screen);
+  const slideDir = (() => { const a = NAV.findIndex(([id]) => id === prevScreen.current), b = NAV.findIndex(([id]) => id === screen); return b > a ? 'from-right' : b < a ? 'from-left' : ''; })();
+  useEffect(() => { prevScreen.current = screen; }, [screen]);
 
   // narrow layouts scroll the link strip — keep the current screen's link visible
   useEffect(() => {
@@ -276,13 +281,15 @@ export default function TrackerApp() {
         </div>
       )}
 
-      {screen === 'dash' && <Dashboard api={api} c={c} />}
-      {screen === 'claims' && <Claims api={api} c={c} selCat={selCat} setSelCat={setSelCat} />}
-      {screen === 'receipts' && <Receipts api={api} setTag={setTag} setViewer={setViewer} />}
-      {screen === 'status' && <StatusScreen api={api} c={c} demo={demo} />}
-      {screen === 'income' && <Income api={api} c={c} />}
-      {screen === 'pack' && <FilingPack api={api} c={c} />}
-      {screen === 'settings' && <Settings api={api} lockNow={() => { setLocked(true); setPinEntry(''); setPinErr(''); setScreen('dash'); }} />}
+      <div key={screen} className={'screen-anim' + (slideDir ? ' ' + slideDir : '')}>
+        {screen === 'dash' && <Dashboard api={api} c={c} />}
+        {screen === 'claims' && <Claims api={api} c={c} selCat={selCat} setSelCat={setSelCat} />}
+        {screen === 'receipts' && <Receipts api={api} setTag={setTag} setViewer={setViewer} />}
+        {screen === 'status' && <StatusScreen api={api} c={c} demo={demo} />}
+        {screen === 'income' && <Income api={api} c={c} />}
+        {screen === 'pack' && <FilingPack api={api} c={c} />}
+        {screen === 'settings' && <Settings api={api} lockNow={() => { setLocked(true); setPinEntry(''); setPinErr(''); setScreen('dash'); }} />}
+      </div>
 
       <SiteFooter wide taxNo={d.profile.taxNo || ''} />
 
