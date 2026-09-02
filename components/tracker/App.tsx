@@ -120,15 +120,20 @@ export default function TrackerApp() {
     const host = hostRef.current;
     const reduced = typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
     document.querySelectorAll('.screen-ghost').forEach((g) => g.remove()); // never stack clones
-    if (host && !reduced) {
-      const r = host.getBoundingClientRect();
+    const before = host?.getBoundingClientRect();
+    try { window.scrollTo(0, 0); } catch {}
+    if (host && before && !reduced) {
+      // the clone covers only the content area (below the header, which is back in view after the scroll)
+      // and is shifted so what was on screen stays exactly where it was until it slides away
+      const top = Math.max(0, host.getBoundingClientRect().top);
       const ghost = document.createElement('div');
       ghost.className = 'screen-ghost ' + (dir === 'from-right' ? 'out-left' : 'out-right');
-      ghost.style.top = r.top + 'px';
-      ghost.style.height = r.height + 'px';
+      ghost.style.top = top + 'px';
+      ghost.style.bottom = '0';
       ghost.setAttribute('aria-hidden', 'true');
       const clone = host.cloneNode(true) as HTMLElement;
       clone.className = '';
+      clone.style.marginTop = before.top - top + 'px';
       ghost.appendChild(clone);
       (host.parentElement || document.body).appendChild(ghost); // inside the app's clip container, so it leaves with the app
       const drop = () => ghost.remove();
@@ -137,7 +142,6 @@ export default function TrackerApp() {
     }
     setSlide((x) => ({ dir, n: x.n + 1 }));
     setScreen(s);
-    try { window.scrollTo(0, 0); } catch {}
   };
   const navigateRef = useRef(navigate);
   navigateRef.current = navigate;
