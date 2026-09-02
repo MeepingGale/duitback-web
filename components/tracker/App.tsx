@@ -118,6 +118,15 @@ export default function TrackerApp() {
     setDlg('add');
   };
 
+  const startTracking = () => {
+    const f = emptyData();
+    f.profile.name = setup.name.trim() || 'there';
+    f.profile.taxNo = setup.taxNo.trim();
+    f.profile.marital = setup.marital;
+    save(f, 'Welcome' + (f.profile.name !== 'there' ? ', ' + f.profile.name : '') + ' — add your first claim when ready. · Selamat datang!');
+    setTut(1);
+  };
+
   if (!booted) return null;
 
   // ---------- first-run setup ----------
@@ -132,7 +141,7 @@ export default function TrackerApp() {
           <p className="text-muted" style={{ fontSize: 13.5, margin: '0 0 24px', maxWidth: 460 }}>
             A minute of setup, then DuitBack tracks your relief claims against the LHDN caps all year. Everything stays in this browser — nothing is sent anywhere. · Semua kekal dalam pelayar ini.
           </p>
-          <div style={{ border: '2px solid var(--color-divider)', padding: 24 }}>
+          <div style={{ border: '2px solid var(--color-divider)', padding: 24 }} onKeyDown={(e) => { if (e.key === 'Enter' && (e.target as HTMLElement).tagName === 'INPUT') { e.preventDefault(); startTracking(); } }}>
             <div className="field">
               <label>Your name · Nama</label>
               <input className="input" aria-label="Your name · Nama" placeholder="e.g. Amirah" value={setup.name} onChange={(e) => setSetup({ ...setup, name: e.target.value })} />
@@ -161,14 +170,7 @@ export default function TrackerApp() {
             <button
               className="btn btn-primary btn-block"
               style={{ marginTop: 20 }}
-              onClick={() => {
-                const f = emptyData();
-                f.profile.name = setup.name.trim() || 'there';
-                f.profile.taxNo = setup.taxNo.trim();
-                f.profile.marital = setup.marital;
-                save(f, 'Welcome' + (f.profile.name !== 'there' ? ', ' + f.profile.name : '') + ' — add your first claim when ready. · Selamat datang!');
-                setTut(1);
-              }}
+              onClick={startTracking}
             >
               Start tracking · Mula menjejak
             </button>

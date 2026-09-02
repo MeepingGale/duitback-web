@@ -182,7 +182,7 @@ export function AddClaimDialog({ api, c, add, setAdd, onSaved }: { api: Api; c: 
   };
 
   return (
-    <Modal onClose={() => setDlg(null)} label={add.editId ? 'Edit claim · Sunting tuntutan' : 'New claim · Tuntutan baharu'}>
+    <Modal onClose={() => setDlg(null)} onSubmit={() => { if (+add.amount > 0) saveClaim(); }} label={add.editId ? 'Edit claim · Sunting tuntutan' : 'New claim · Tuntutan baharu'}>
         <div className="dialog-title">{add.editId ? 'Edit claim · Sunting tuntutan' : 'New claim · Tuntutan baharu'} <span className="bm" style={{ fontSize: 13 }}>({ya})</span></div>
         <div className="field">
           <label>Relief category · Kategori</label>
@@ -282,7 +282,7 @@ export function TagDialog({ api, tag, setTag }: { api: Api; tag: TagState; setTa
   };
 
   return (
-    <Modal onClose={() => setDlg(null)} label="Tag receipt · Tag resit">
+    <Modal onClose={() => setDlg(null)} onSubmit={saveTag} label="Tag receipt · Tag resit">
         <div className="dialog-title">Tag receipt · Tag resit</div>
         <div className="dialog-body" style={{ margin: 0 }}>{rec?.name || ''}</div>
         <div className="field">

@@ -364,6 +364,25 @@ describe('TrackerApp smoke', () => {
     }
   });
 
+  it('Enter submits: setup form starts tracking, claim dialog saves only with a valid amount', async () => {
+    render(<TrackerApp />);
+    await screen.findByText('Set up your tracker');
+    const name = screen.getByPlaceholderText('e.g. Amirah');
+    fireEvent.change(name, { target: { value: 'Keyboard Kim' } });
+    fireEvent.keyDown(name, { key: 'Enter' });
+    await screen.findByText('Hello, Keyboard Kim');
+    fireEvent.click(screen.getByText('Skip tour'));
+    fireEvent.click(screen.getByText('+ New claim'));
+    await screen.findByText('New claim · Tuntutan baharu');
+    const amount = screen.getByLabelText('Amount · Jumlah (RM)');
+    fireEvent.keyDown(amount, { key: 'Enter' }); // empty amount — must not close or save
+    expect(screen.getByText('New claim · Tuntutan baharu')).toBeTruthy();
+    fireEvent.change(amount, { target: { value: '250' } });
+    fireEvent.keyDown(amount, { key: 'Enter' });
+    await waitFor(() => expect(screen.queryByText('New claim · Tuntutan baharu')).toBeNull());
+    expect(JSON.parse(localStorage.getItem(KEY)!).claims[0].amount).toBe(250);
+  });
+
   it('returning visitors skip setup and keep their data', async () => {
     await completeSetup('Aisyah');
     cleanup();

@@ -229,7 +229,7 @@ const FOCUSABLE = 'a[href], button:not([disabled]), input:not([disabled]):not([t
 
 /** The one dialog shell: backdrop + panel, Escape closes, focus moves inside
  *  on open and returns to the opener on close, Tab cycles within the panel. */
-export function Modal({ onClose, z = 20, width, label, children }: { onClose: () => void; z?: number; width?: string; label?: string; children: ReactNode }) {
+export function Modal({ onClose, onSubmit, z = 20, width, label, children }: { onClose: () => void; onSubmit?: () => void; z?: number; width?: string; label?: string; children: ReactNode }) {
   const ref = useRef<HTMLDivElement>(null);
   useEffect(() => {
     const opener = document.activeElement as HTMLElement | null;
@@ -239,6 +239,7 @@ export function Modal({ onClose, z = 20, width, label, children }: { onClose: ()
   }, []);
   const onKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Escape') { e.stopPropagation(); onClose(); return; }
+    if (e.key === 'Enter' && onSubmit && (e.target as HTMLElement).tagName === 'INPUT' && (e.target as HTMLInputElement).type !== 'checkbox') { e.preventDefault(); onSubmit(); return; }
     if (e.key !== 'Tab' || !ref.current) return;
     const items = [...ref.current.querySelectorAll<HTMLElement>(FOCUSABLE)].filter((x) => x.offsetParent !== null);
     if (!items.length) return;
