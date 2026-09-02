@@ -330,11 +330,6 @@ export async function exportVault(d: Data): Promise<number> {
   return entries.length - 2;
 }
 
-export function isIOS(): boolean {
-  const ua = navigator.userAgent;
-  return /iPhone|iPad|iPod/.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
-}
-
 export function isStandalone(): boolean {
   return (typeof matchMedia === 'function' && matchMedia('(display-mode: standalone)').matches) || (navigator as unknown as { standalone?: boolean }).standalone === true;
 }

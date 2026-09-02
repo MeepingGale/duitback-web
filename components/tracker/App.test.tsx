@@ -350,6 +350,22 @@ describe('TrackerApp smoke', () => {
     }
   });
 
+  it('Mac Safari gets the same nudge with Dock wording, and Settings shows File → Add to Dock', async () => {
+    const ua = Object.getOwnPropertyDescriptor(window.navigator, 'userAgent');
+    Object.defineProperty(window.navigator, 'userAgent', { value: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 14_5) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.5 Safari/605.1.15', configurable: true });
+    try {
+      await completeSetup();
+      fireEvent.click(screen.getByText('Skip tour'));
+      await screen.findByText(/Install it to your Dock/);
+      fireEvent.click(screen.getByText('Settings'));
+      await screen.findByText('Install · Pasang');
+      await screen.findByText(/Add to Dock…/);
+      expect(screen.queryByText(/Add to Home Screen/)).toBeNull();
+    } finally {
+      if (ua) Object.defineProperty(window.navigator, 'userAgent', ua);
+    }
+  });
+
   it('deep links: ?demo=1 loads the demo and #pack opens the filing pack', async () => {
     history.replaceState({}, '', '/?demo=1#pack');
     try {

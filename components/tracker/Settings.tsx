@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Api } from './App';
 import { CHILDSUB, ChildCounts, capFor, derivedReliefs, fmt } from '@/lib/tax';
 import { BankInput, TinInput } from './bits';
-import { demoData, exportJson, exportVault, getBackupMeta, isDemo, isIOS, isStandalone, parseImport, stashReal } from '@/lib/data';
+import { demoData, exportJson, exportVault, getBackupMeta, installEnv, isDemo, parseImport, stashReal } from '@/lib/data';
 import { Kick, pagepad } from './bits';
 
 export function Settings({ api, lockNow }: { api: Api; lockNow: () => void }) {
@@ -12,8 +12,8 @@ export function Settings({ api, lockNow }: { api: Api; lockNow: () => void }) {
   const [pinMsg, setPinMsg] = useState('');
   const [persisted, setPersisted] = useState<boolean | null>(null);
   useEffect(() => { navigator.storage?.persisted?.().then(setPersisted).catch(() => {}); }, []);
-  const standalone = isStandalone();
-  const ios = isIOS();
+  const env = installEnv();
+  const standalone = env.standalone;
   const pb = (k: 'name' | 'taxNo' | 'bank') => (e: React.ChangeEvent<HTMLInputElement>) => mut((x) => { x.profile[k] = e.target.value; });
 
   return (
@@ -159,12 +159,17 @@ export function Settings({ api, lockNow }: { api: Api; lockNow: () => void }) {
       <div style={{ border: '2px solid var(--color-divider)', borderTop: 0, padding: 24 }}>
         <Kick>Install · Pasang</Kick>
         <p className="text-muted" style={{ fontSize: 12.5, margin: '8px 0 14px' }}>
-          Installed to your Home Screen, DuitBack keeps its data for good. In Safari on iPhone and iPad, a site you haven&apos;t opened for 7 days can have its stored data cleared — an installed app is exempt.{' '}
+          Installed as an app, DuitBack keeps its data for good. In Safari (iPhone, iPad and Mac), a site you haven&apos;t opened for 7 days can have its stored data cleared — an installed app is exempt.{' '}
           <span lang="ms">Pasang ke Skrin Utama supaya data kekal — Safari boleh memadam data laman web yang tidak dibuka selama 7 hari.</span>
         </p>
         {standalone ? (
           <div style={{ fontSize: 13, fontFamily: 'var(--font-heading)', fontWeight: 800 }}>✓ Installed on this device · Dipasang pada peranti ini</div>
-        ) : ios ? (
+        ) : env.device === 'mac' && env.webkit ? (
+          <ol style={{ margin: 0, paddingLeft: 20, fontSize: 13.5, lineHeight: 1.7 }}>
+            <li>In Safari&apos;s menu bar, click <strong>File</strong>, then <strong>Add to Dock…</strong> <span lang="ms">Klik <strong>Fail</strong>, kemudian <strong>Tambah ke Dock…</strong></span></li>
+            <li>Click <strong>Add</strong>, then open DuitBack from the Dock. <span lang="ms">Klik <strong>Tambah</strong>.</span></li>
+          </ol>
+        ) : env.webkit ? (
           <ol style={{ margin: 0, paddingLeft: 20, fontSize: 13.5, lineHeight: 1.7 }}>
             <li>Open this page in Safari and tap <strong>Share</strong> (the square with an arrow). <span lang="ms">Ketik <strong>Kongsi</strong>.</span></li>
             <li>Choose <strong>Add to Home Screen</strong>. <span lang="ms">Pilih <strong>Tambah ke Skrin Utama</strong>.</span></li>

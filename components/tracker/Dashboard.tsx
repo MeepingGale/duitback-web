@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { CATS, CalcResult, calc, fmt } from '@/lib/tax';
-import { dismissFamilyHint, dismissInstallHint, exportVault, familyHintDismissed, familySetUp, getBackupMeta, installHintDismissed, isDemo, isIOS, isStandalone } from '@/lib/data';
+import { dismissFamilyHint, dismissInstallHint, exportVault, familyHintDismissed, familySetUp, getBackupMeta, installEnv, installHintDismissed, isDemo } from '@/lib/data';
 import { Api } from './App';
 import { Bar, Kick, YaTabs, pagepad, yaHead, right, heading800 } from './bits';
 import { STATUS_TAG, deadlineInfo, reliefRows, yearsOf } from './derive';
@@ -8,6 +8,7 @@ import { blankInc } from '@/lib/tax';
 
 export function Dashboard({ api, c }: { api: Api; c: CalcResult }) {
   const [hintGone, setHintGone] = useState(installHintDismissed);
+  const env = installEnv();
   const [familyHintGone, setFamilyHintGone] = useState(familyHintDismissed);
   const { d, ya, mut, go, openAdd } = api;
   const years = yearsOf(d);
@@ -113,11 +114,11 @@ export function Dashboard({ api, c }: { api: Api; c: CalcResult }) {
         </div>
       )}
 
-      {!isDemo(d) && isIOS() && !isStandalone() && !hintGone && (
+      {!isDemo(d) && env.webkit && !env.standalone && !hintGone && (
         <div className="no-print" style={{ display: 'flex', gap: 10, alignItems: 'baseline', flexWrap: 'wrap', border: '2px solid var(--color-accent-700)', padding: '10px 14px', marginTop: 20, fontSize: 12.5 }}>
           <span>
-            <strong>On iPhone, Safari can clear this app&apos;s data after 7 days unused.</strong> Install it to your Home Screen to keep it safe.{' '}
-            <span lang="ms">Pasang ke Skrin Utama supaya data anda kekal.</span>
+            <strong>Safari can clear this app&apos;s data after 7 days unused.</strong> Install it to your {env.device === 'mac' ? 'Dock' : 'Home Screen'} to keep it safe.{' '}
+            <span lang="ms">Pasang ke {env.device === 'mac' ? 'Dock' : 'Skrin Utama'} supaya data anda kekal.</span>
           </span>
           <button className="navlink linkbtn" style={{ fontSize: 12.5, fontWeight: 800 }} onClick={api.showInstallGuide}>Show me how →</button>
           <button className="navlink linkbtn" style={{ fontSize: 12.5 }} onClick={() => { dismissInstallHint(); setHintGone(true); }}>Got it · Faham</button>
