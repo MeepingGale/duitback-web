@@ -386,6 +386,7 @@ button.linkbtn:hover { color: var(--color-accent-800); }
 .idemo-dialog-bar { display: flex; justify-content: space-between; align-items: center; padding: 10px 10px 6px; font-size: 10px; color: #1a73e8; }
 .idemo-dialog-bar b { color: #222; font-size: 10.5px; }
 .idemo-add { position: relative; font-weight: 700; }
+.idemo-add .idemo-tap { width: 30px; height: 30px; right: -9px; top: -9px; } /* ring sits around the word, not across it */
 .idemo-dialog-body { display: flex; align-items: center; gap: 8px; margin: 10px 12px; padding: 8px; background: #fff; border-radius: 8px; font-size: 11px; }
 .idemo-appicon { display: inline-flex; align-items: center; justify-content: center; width: 30px; height: 30px; border-radius: 7px; background: #ec3013; color: #fff; font-weight: 800; font-size: 14px; }
 .idemo-home { position: absolute; inset: 0; background: linear-gradient(160deg, #dfe8f5, #f2e7ea); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; opacity: 0; animation: duit-home 4s ease-in-out infinite; }
