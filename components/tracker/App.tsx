@@ -306,7 +306,7 @@ export default function TrackerApp() {
       )}
 
       {dlg === 'add' && <AddClaimDialog api={api} c={c} add={add} setAdd={setAdd} onSaved={(cat) => setSelCat(cat)} />}
-      {guideOpen && <InstallGuide env={installEnv()} install={api.install} onClose={() => setGuideOpen(false)} />}
+      {guideOpen && (() => { const env = installEnv(); return <InstallGuide env={env} install={env.webkit ? undefined : api.install} onClose={() => setGuideOpen(false)} />; })()}
       {confirmReq && (
         <Modal z={70} width="min(420px,100%)" onClose={() => setConfirmReq(null)} label="Confirm · Sahkan">
             <div className="dialog-title" style={{ fontSize: 17 }}>{confirmReq.msg}</div>
