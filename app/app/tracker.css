@@ -247,6 +247,20 @@ a{color:var(--color-accent-700)}a:hover{color:var(--color-accent-800)}
 .bm{color:var(--color-neutral-700);font-weight:400}
 .kick{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--color-accent-700);font-family:var(--font-heading);font-weight:800}
 .navlink{cursor:pointer;user-select:none}
+/* app header: brand · screen links · New claim. Wide: one flex row. Narrow (≤960px): brand and
+   button share the first row, the links become a single scrollable strip beneath. */
+.nav-links { display: flex; align-items: center; gap: var(--space-4); }
+@media (max-width: 960px) {
+  .nav.app-nav { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 6px 12px !important; padding: 10px 14px 0 !important; }
+  .nav.app-nav .nav-brand { grid-row: 1; grid-column: 1; margin-right: 0; }
+  .nav.app-nav .btn-primary { grid-row: 1; grid-column: 2; justify-self: end; }
+  .nav.app-nav .nav-links { grid-row: 2; grid-column: 1 / -1; gap: 18px; overflow-x: auto; white-space: nowrap; scrollbar-width: none; margin: 0 -14px; padding: 0 14px;
+    -webkit-mask-image: linear-gradient(to right, transparent, #000 14px, #000 calc(100% - 14px), transparent); mask-image: linear-gradient(to right, transparent, #000 14px, #000 calc(100% - 14px), transparent); }
+  .nav.app-nav .nav-links::-webkit-scrollbar { display: none; }
+  .nav.app-nav .nav-links a { flex: none; font-size: 13px !important; padding: 6px 0 10px; border-bottom: 2px solid transparent; }
+  .nav.app-nav .nav-links a[aria-current='page'] { border-bottom-color: var(--color-accent-700); }
+  .nav.app-nav .btn-primary { padding: 7px 12px; font-size: 13px; }
+}
 .yatab{padding:6px 12px;font-size:12px;cursor:pointer;border-left:1px solid var(--color-divider)}
 .yatab:first-child{border-left:0}
 .yatab.on{background:var(--color-accent-700);color:var(--color-bg);font-family:var(--font-heading);font-weight:800}

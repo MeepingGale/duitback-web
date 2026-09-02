@@ -90,6 +90,11 @@ export default function TrackerApp() {
     if (tut > 0 && tut <= TOUR.length) setScreen(TOUR[tut - 1].screen);
   }, [tut]);
 
+  // narrow layouts scroll the link strip — keep the current screen's link visible
+  useEffect(() => {
+    document.querySelector('.nav-links a[aria-current="page"]')?.scrollIntoView({ block: 'nearest', inline: 'center' });
+  }, [screen]);
+
   const save = (d: Data, msg?: string) => {
     setData(d);
     const err = persist(d);
@@ -195,17 +200,19 @@ export default function TrackerApp() {
 
   return (
     <div role="main" style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
-      <div className="nav no-print" style={{ flexWrap: 'wrap', position: 'sticky', top: 0, background: 'var(--color-bg)', zIndex: 5 }}>
+      <div className="nav app-nav no-print" style={{ position: 'sticky', top: 0, background: 'var(--color-bg)', zIndex: 5 }}>
         <span className="nav-brand" style={{ display: 'inline-flex', alignItems: 'center' }}>
           <a href="../" title="duıtback — home" aria-label="duıtback. — home" style={{ display: 'inline-flex', alignItems: 'center' }}>
             <Wordmark />
           </a>
         </span>
-        {NAV.map(([s, label]) => (
-          <a key={s} className="navlink" href={'#' + s} onClick={(e) => { e.preventDefault(); setScreen(s); }} aria-current={screen === s ? 'page' : undefined}>
-            {label}
-          </a>
-        ))}
+        <nav className="nav-links" aria-label="Screens · Skrin">
+          {NAV.map(([s, label]) => (
+            <a key={s} className="navlink" href={'#' + s} onClick={(e) => { e.preventDefault(); setScreen(s); }} aria-current={screen === s ? 'page' : undefined}>
+              {label}
+            </a>
+          ))}
+        </nav>
         <button className="btn btn-primary" data-tour="new-claim" onClick={() => openAdd()}>+ New claim</button>
       </div>
 
