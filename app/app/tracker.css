@@ -247,6 +247,9 @@ a{color:var(--color-accent-700)}a:hover{color:var(--color-accent-800)}
 .bm{color:var(--color-neutral-700);font-weight:400}
 .kick{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--color-accent-700);font-family:var(--font-heading);font-weight:800}
 .navlink{cursor:pointer;user-select:none}
+/* money semantics: what you owe reads red, what comes back reads green */
+.amt-due{color:var(--color-accent-700)}
+.amt-refund{color:var(--color-ok)}
 /* app header: brand · screen links · New claim. Wide: one flex row. Narrow (≤960px): brand and
    button share the first row, the links become a single scrollable strip beneath. */
 .nav-links { display: flex; align-items: center; gap: var(--space-4); }
@@ -298,7 +301,10 @@ a{color:var(--color-accent-700)}a:hover{color:var(--color-accent-800)}
   .pack-glance .k { font-size: 6.5pt; letter-spacing: .1em; text-transform: uppercase; color: #ae1800; font-family: var(--font-heading); font-weight: 800; min-height: 17pt; } /* two-line labels keep values on one baseline */
   .pack-glance .v { font-family: var(--font-heading); font-weight: 800; font-size: 12pt; margin-top: 2pt; white-space: nowrap; }
   .pack-glance .hero { background: #111; color: #fff; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-  .pack-glance .hero .k { color: #ffb3a3; }
+  .pack-glance .hero.due { background: #ae1800; }
+  .pack-glance .hero.refund { background: #1e7b34; }
+  .pack-glance .hero .k { color: rgba(255, 255, 255, .75); }
+  .pack .table tr.total td.amt-due, .pack .table tr.total td.amt-refund { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
   /* sections */
   .pack .sec { font-size: 7.5pt; letter-spacing: .14em; color: #ae1800; margin: 7mm 0 2mm !important; break-after: avoid; }
   .pack .table { font-size: 9.5pt !important; }

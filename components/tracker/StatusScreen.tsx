@@ -74,7 +74,7 @@ export function StatusScreen({ api, c, demo }: { api: Api; c: CalcResult; demo: 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(220px,1fr))', gap: 2, background: 'var(--color-divider)', border: '2px solid var(--color-divider)', marginTop: 24 }}>
         <div style={{ background: 'var(--color-surface)', padding: 16 }}>
           <Kick style={{ color: 'var(--color-neutral-700)' }}>{c.balance < 0 ? 'Est. refund · Bayaran balik' : 'Est. balance payable · Baki'}</Kick>
-          <div style={{ ...heading800, fontSize: 28, marginTop: 4 }} className="mono">{c.totalIncome ? fmt(Math.abs(c.balance)) : '—'}</div>
+          <div style={{ ...heading800, fontSize: 28, marginTop: 4 }} className={'mono ' + (c.balance < 0 ? 'amt-refund' : 'amt-due')}>{c.totalIncome ? fmt(Math.abs(c.balance)) : '—'}</div>
           <div style={{ fontSize: 12 }} className="text-muted">paid {fmt(c.paid)} (PCB + CP500) vs net tax {fmt(c.taxNet)}</div>
         </div>
         <div style={{ background: 'var(--color-surface)', padding: 16 }}>

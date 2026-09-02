@@ -160,7 +160,7 @@ export function Income({ api, c }: { api: Api; c: CalcResult }) {
           </table>
           </div>
 
-          <div style={{ background: c.balance < 0 ? 'var(--color-neutral-900)' : 'var(--color-accent-700)', color: 'var(--color-bg)', padding: 16, marginTop: 16 }}>
+          <div style={{ background: c.balance < 0 ? 'var(--color-ok)' : 'var(--color-accent-700)', color: 'var(--color-bg)', padding: 16, marginTop: 16 }}>
             <div style={{ fontSize: 10, letterSpacing: '.1em', textTransform: 'uppercase', ...heading800 }}>
               {c.balance < 0 ? 'Estimated refund · Anggaran bayaran balik' : 'Estimated balance payable · Anggaran baki'}
             </div>

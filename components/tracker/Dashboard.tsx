@@ -148,7 +148,7 @@ export function Dashboard({ api, c }: { api: Api; c: CalcResult }) {
                   <td><span className={'tag ' + tagCls}>{label}</span></td>
                   <td style={right} className="mono">{fmt(Math.max(0, cy.totalAllowed - 9000))}</td>
                   <td style={right} className="mono">{cy.totalIncome ? fmt(cy.taxNet) : '—'}</td>
-                  <td style={right} className="mono">{cy.totalIncome ? (cy.balance < 0 ? fmt(-cy.balance) + ' refund' : fmt(cy.balance) + ' due') : '—'}</td>
+                  <td style={{ ...right, fontWeight: 700 }} className={'mono ' + (cy.balance < 0 ? 'amt-refund' : 'amt-due')}>{cy.totalIncome ? (cy.balance < 0 ? fmt(-cy.balance) + ' refund' : fmt(cy.balance) + ' due') : '—'}</td>
                   <td style={right}>
                     <button className="navlink linkbtn" onClick={() => { mut((x) => { x.ya = y; }); go('claims'); }} style={heading800}>Open →</button>
                   </td>

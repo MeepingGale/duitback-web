@@ -53,7 +53,7 @@ export function FilingPack({ api, c }: { api: Api; c: CalcResult }) {
         <div><div className="k">Chargeable</div><div className="v mono">{fmt(c.chargeable)}</div></div>
         <div><div className="k">Tax after rebates</div><div className="v mono">{fmt(c.taxNet)}</div></div>
         <div><div className="k">Already paid</div><div className="v mono">{fmt(c.paid)}</div></div>
-        <div className="hero"><div className="k">{refund ? 'Est. refund · Bayaran balik' : 'Est. balance · Baki'}</div><div className="v mono">{fmt(Math.abs(c.balance))}</div></div>
+        <div className={'hero ' + (refund ? 'refund' : 'due')}><div className="k">{refund ? 'Est. refund · Bayaran balik' : 'Est. balance · Baki'}</div><div className="v mono">{fmt(Math.abs(c.balance))}</div></div>
       </div>
 
       <hr className="hr" />
@@ -108,7 +108,7 @@ export function FilingPack({ api, c }: { api: Api; c: CalcResult }) {
           <tr><td>Tax on chargeable income · Cukai</td><td style={right} className="mono">{fmt(c.taxGross)}</td></tr>
           <tr><td>Less rebates &amp; zakat · Tolak rebat dan zakat</td><td style={right} className="mono">− {fmt(c.rebate + c.zakatRebate)}</td></tr>
           <tr><td>Already paid (PCB + CP500) · Telah dibayar</td><td style={right} className="mono">− {fmt(c.paid)}</td></tr>
-          <tr className="total"><td style={heading800}>{balLabel}</td><td style={{ ...right, ...heading800 }} className="mono">{fmt(Math.abs(c.balance))}</td></tr>
+          <tr className="total"><td style={heading800} className={refund ? 'amt-refund' : 'amt-due'}>{balLabel}</td><td style={{ ...right, ...heading800 }} className={'mono ' + (refund ? 'amt-refund' : 'amt-due')}>{fmt(Math.abs(c.balance))}</td></tr>
         </tbody>
       </table>
       </div>
