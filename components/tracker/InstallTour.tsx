@@ -1,9 +1,10 @@
 import { useState } from 'react';
 import type { InstallEnv } from '@/lib/data';
 import { Kick } from './bits';
+import { DemoWhere, InstallDemo } from './InstallDemo';
 
 type Point = 'bottom-center' | 'top-right' | 'top-left' | null;
-interface Step { point: Point; t: string; b: React.ReactNode; bm: string; mock?: 'share' | 'add' | 'dock' | 'menu' }
+interface Step { point: Point; t: string; b: React.ReactNode; bm: string; mock?: 'share' | 'add' | 'dock' | 'menu'; demo?: { phase: 1 | 2 | 3; where: DemoWhere } }
 
 const Share = () => (
   <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -36,21 +37,21 @@ function stepsFor(env: InstallEnv, canPrompt: boolean): Step[] {
   if (env.browser === 'inapp') {
     return [
       { point: 'top-right', t: 'Open this in Safari first', b: <>You are inside another app&apos;s browser, and those can&apos;t install. Tap the <strong>···</strong> menu up here and choose <strong>Open in Safari</strong> — or copy the link below and paste it into Safari.</>, bm: 'Anda dalam pelayar dalam-aplikasi. Ketik menu ··· dan pilih Buka dalam Safari, atau salin pautan di bawah.' },
-      { point: 'bottom-center', t: 'Then, in Safari', b: <>Tap <strong>Share</strong> in the bottom bar, choose <strong>Add to Home Screen</strong>, then <strong>Add</strong>.</>, bm: 'Dalam Safari: Kongsi → Tambah ke Skrin Utama → Tambah.', mock: 'add' },
+      { point: 'bottom-center', t: 'Then, in Safari', b: <>Tap <strong>Share</strong> in the bottom bar, choose <strong>Add to Home Screen</strong>, then <strong>Add</strong>.</>, bm: 'Dalam Safari: Kongsi → Tambah ke Skrin Utama → Tambah.', demo: { phase: 2, where: 'bottom' } },
     ];
   }
   if (phone || pad) {
     const safari = env.browser === 'safari';
     const where: Point = phone && safari ? 'bottom-center' : 'top-right';
     return [
-      { point: where, t: 'Tap Share · Ketik Kongsi', b: <>The square with an arrow, {where === 'bottom-center' ? 'in the bar at the bottom of the screen' : 'at the top-right of the address bar'} — it looks like this:</>, bm: where === 'bottom-center' ? 'Petak dengan anak panah, di bar bawah skrin.' : 'Petak dengan anak panah, di kanan atas bar alamat.', mock: 'share' },
-      { point: null, t: 'Add to Home Screen · Tambah ke Skrin Utama', b: <>A sheet slides up. Scroll it down until you see this row, and tap it{!safari ? <> — if it is missing in {env.browser === 'chrome' ? 'Chrome' : env.browser === 'firefox' ? 'Firefox' : 'this browser'}, open this page in Safari and do the same there</> : ''}:</>, bm: 'Skrol helaian ke bawah dan ketik baris ini.', mock: 'add' },
-      { point: 'top-right', t: 'Tap Add · Ketik Tambah', b: <>Confirm with <strong>Add</strong> at the top right. DuitBack now has an icon on your Home Screen — open it from there from now on; that is the version whose data Safari never clears.</>, bm: 'Sahkan dengan Tambah. Buka DuitBack dari ikon Skrin Utama selepas ini — data versi itu tidak dipadam Safari.' },
+      { point: where, t: 'Tap Share · Ketik Kongsi', b: <>The square with an arrow, {where === 'bottom-center' ? 'in the bar at the bottom of the screen' : 'at the top-right of the address bar'} — watch where the finger goes:</>, bm: where === 'bottom-center' ? 'Petak dengan anak panah, di bar bawah skrin.' : 'Petak dengan anak panah, di kanan atas bar alamat.', demo: { phase: 1, where: where === 'bottom-center' ? 'bottom' : 'top-right' } },
+      { point: null, t: 'Add to Home Screen · Tambah ke Skrin Utama', b: <>A sheet slides up. Scroll it down until you see <strong>Add to Home Screen</strong>, and tap it{!safari ? <> — if it is missing in {env.browser === 'chrome' ? 'Chrome' : env.browser === 'firefox' ? 'Firefox' : 'this browser'}, open this page in Safari and do the same there</> : ''}:</>, bm: 'Skrol helaian ke bawah dan ketik Tambah ke Skrin Utama.', demo: { phase: 2, where: where === 'bottom-center' ? 'bottom' : 'top-right' } },
+      { point: 'top-right', t: 'Tap Add · Ketik Tambah', b: <>Confirm with <strong>Add</strong> at the top right. DuitBack now has an icon on your Home Screen — open it from there from now on; that is the version whose data Safari never clears.</>, bm: 'Sahkan dengan Tambah. Buka DuitBack dari ikon Skrin Utama selepas ini — data versi itu tidak dipadam Safari.', demo: { phase: 3, where: where === 'bottom-center' ? 'bottom' : 'top-right' } },
     ];
   }
   if (env.device === 'mac' && env.browser === 'safari') {
     return [
-      { point: 'top-left', t: 'File → Add to Dock…', b: <>In the menu bar at the top-left, click <strong>File</strong>, then this item (the <strong>Share</strong> button in the toolbar has it too):</>, bm: 'Klik Fail di bar menu, kemudian item ini:', mock: 'dock' },
+      { point: 'top-left', t: 'File → Add to Dock…', b: <>In the menu bar at the top-left, click <strong>File</strong>, then <strong>Add to Dock…</strong> (the <strong>Share</strong> button in the toolbar has it too):</>, bm: 'Klik Fail di bar menu, kemudian Tambah ke Dock…', demo: { phase: 1, where: 'mac' } },
       { point: null, t: 'Click Add · Klik Tambah', b: <>DuitBack opens from the Dock as its own app, with its data protected from Safari&apos;s clean-ups.</>, bm: 'DuitBack dibuka dari Dock sebagai aplikasi sendiri.' },
     ];
   }
@@ -92,6 +93,7 @@ export function InstallTour({ env, install, onClose }: { env: InstallEnv; instal
         <Kick>Install DuitBack · Pasang · {i + 1} of {steps.length}</Kick>
         <h3 style={{ fontFamily: 'var(--font-heading)', fontWeight: 800, fontSize: 19, margin: '8px 0 6px' }}>{st.t}</h3>
         <p style={{ fontSize: 13.5, lineHeight: 1.55, margin: '0 0 6px', color: 'var(--color-neutral-800)' }}>{st.b}</p>
+        {st.demo && <InstallDemo phase={st.demo.phase} where={st.demo.where} />}
         {st.mock && <Mock kind={st.mock} />}
         <p lang="ms" style={{ fontSize: 12.5, lineHeight: 1.5, margin: '0 0 14px', color: 'var(--color-neutral-700)' }}>{st.bm}</p>
         {i === 0 && <p className="text-muted" style={{ fontSize: 11.5, margin: '0 0 12px' }}>{env.webkit ? 'Why: Safari clears a website’s saved data after 7 days without a visit — an installed app is exempt. · Safari memadam data laman yang tidak dibuka 7 hari; aplikasi dipasang dikecualikan.' : 'Installed, DuitBack opens like an app and its storage is protected.'}</p>}

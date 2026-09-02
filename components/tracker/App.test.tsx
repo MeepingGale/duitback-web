@@ -443,6 +443,7 @@ describe('TrackerApp smoke', () => {
       fireEvent.click(screen.getByText('Skip tour'));
       await screen.findByText(/Install DuitBack · Pasang · 1 of 3/, {}, { timeout: 3000 });
       await screen.findByText(/in the bar at the bottom of the screen/); // iPhone Safari: Share lives in the bottom bar
+      expect(screen.getByRole('img', { name: /tapping the Share button/ })).toBeTruthy(); // the animated mock phone
       expect(localStorage.getItem('duitback_install_guide')).toBe('1');
       fireEvent.click(screen.getByText('Next →'));
       await screen.findByText('Add to Home Screen · Tambah ke Skrin Utama');
