@@ -27,6 +27,7 @@ const jsonLd = {
 export default function ReliefsPage() {
   const rows = CATS.filter((c) => c.id !== 'individual');
   const overrideNotes = Object.entries(OVERRIDES)
+    .filter(([ya]) => +ya < SCHEDULE_YA) // past years only — future overrides (e.g. tourism ending) aren't "other years" yet
     .map(([ya, o]) => 'YA' + ya + ': ' + Object.entries(o).map(([id, cap]) => {
       const ct = CATS.find((c) => c.id === id);
       return (ct?.en.split(' — ')[0] || id) + ' ' + (cap === 0 ? 'not available' : fmt(cap));
