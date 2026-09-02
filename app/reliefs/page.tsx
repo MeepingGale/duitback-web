@@ -128,6 +128,23 @@ export default function ReliefsPage() {
           </div>
         </section>
 
+        <section style={{ padding: '24px 0 8px' }}>
+          <Kicker>Rebates · Rebat cukai</Kicker>
+          <p style={{ fontSize: 13, color: 'var(--color-neutral-800)', margin: '8px 0 10px', maxWidth: 640 }}>
+            Rebates come off the tax itself, after the scale — the tracker applies all of them:
+          </p>
+          <div style={{ overflowX: 'auto' }}>
+            <table className="table" style={{ fontSize: 13, maxWidth: 720 }}>
+              <tbody>
+                <tr><td>Individual rebate · Rebat individu</td><td style={{ textAlign: 'right', whiteSpace: 'nowrap', fontVariantNumeric: 'tabular-nums' }}>RM 400</td><td style={{ color: 'var(--color-neutral-800)', fontSize: 12.5 }}>chargeable income up to RM 35,000</td></tr>
+                <tr><td>Spouse rebate · Rebat pasangan</td><td style={{ textAlign: 'right', whiteSpace: 'nowrap', fontVariantNumeric: 'tabular-nums' }}>RM 400</td><td style={{ color: 'var(--color-neutral-800)', fontSize: 12.5 }}>joint assessment, chargeable income up to RM 35,000</td></tr>
+                <tr><td>Zakat / fitrah · Zakat</td><td style={{ textAlign: 'right', whiteSpace: 'nowrap' }}>amount paid</td><td style={{ color: 'var(--color-neutral-800)', fontSize: 12.5 }}>up to the tax charged</td></tr>
+                <tr><td>Departure levy, religious travel · Levi pelepasan</td><td style={{ textAlign: 'right', whiteSpace: 'nowrap' }}>levy paid</td><td style={{ color: 'var(--color-neutral-800)', fontSize: 12.5 }}>umrah or pilgrimage, at most two trips a year</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
         <section className="poster" style={{ margin: '32px calc(50% - 50vw) 0', padding: '36px 0' }}>
           <div className="wrap">
             <p className="big" style={{ margin: '0 0 8px' }}>Caps reset every 31 December — use them or lose them.</p>

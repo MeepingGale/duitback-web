@@ -16,7 +16,7 @@ export function FilingPack({ api, c }: { api: Api; c: CalcResult }) {
   const refund = c.balance < 0;
   const balLabel = refund ? 'Estimated refund · Anggaran bayaran balik' : 'Estimated balance payable · Anggaran baki';
   const employment = Math.floor((+c.inc.salary || 0) + (+c.inc.bonus || 0));
-  const incomeTotal = employment + Math.floor(c.netRent) + Math.floor(c.inc.biz || 0) + Math.floor(c.inc.other || 0);
+  const incomeTotal = employment + Math.floor(c.compTaxable) + Math.floor(c.netRent) + Math.floor(c.inc.biz || 0) + Math.floor(c.inc.other || 0) + Math.floor(c.dividends);
   const catName = (id: string | null) => { const ct = CATS.find((x) => x.id === id); return ct ? ct.en.split(' — ')[0].split(' &')[0] : 'untagged'; };
 
   return (
@@ -68,9 +68,11 @@ export function FilingPack({ api, c }: { api: Api; c: CalcResult }) {
         <thead className="print-only"><tr><th>Source · Punca</th><th style={right}>Amount to enter (RM)</th></tr></thead>
         <tbody>
           <tr><td>Employment (salary + bonus) · Penggajian</td><td style={right} className="mono">{fmt(employment)}</td></tr>
+          {c.compTaxable > 0 && <tr><td>Compensation for loss of employment, taxable part · Pampasan</td><td style={right} className="mono">{fmt(Math.floor(c.compTaxable))}</td></tr>}
           <tr><td>Net rental · Sewaan bersih</td><td style={right} className="mono">{fmt(Math.floor(c.netRent))}</td></tr>
           <tr><td>Business (net) · Perniagaan</td><td style={right} className="mono">{fmt(Math.floor(c.inc.biz || 0))}</td></tr>
           <tr><td>Other · Lain-lain</td><td style={right} className="mono">{fmt(Math.floor(c.inc.other || 0))}</td></tr>
+          {c.dividends > 0 && <tr><td>Dividends · Dividen</td><td style={right} className="mono">{fmt(Math.floor(c.dividends))}</td></tr>}
           <tr className="total"><td style={heading800}>Total · Jumlah</td><td style={{ ...right, ...heading800 }} className="mono">{fmt(incomeTotal)}</td></tr>
         </tbody>
       </table>
@@ -105,8 +107,8 @@ export function FilingPack({ api, c }: { api: Api; c: CalcResult }) {
         <thead className="print-only"><tr><th>Computation · Pengiraan</th><th style={right}>RM</th></tr></thead>
         <tbody>
           <tr><td>Chargeable income · Pendapatan bercukai</td><td style={right} className="mono">{fmt(c.chargeable)}</td></tr>
-          <tr><td>Tax on chargeable income · Cukai</td><td style={right} className="mono">{fmt(c.taxGross)}</td></tr>
-          <tr><td>Less rebates &amp; zakat · Tolak rebat dan zakat</td><td style={right} className="mono">− {fmt(c.rebate + c.zakatRebate)}</td></tr>
+          <tr><td>Tax on chargeable income · Cukai{c.dividendTax > 0 ? ' (incl. 2% dividend tax ' + fmt(c.dividendTax) + ')' : ''}</td><td style={right} className="mono">{fmt(c.taxGross)}</td></tr>
+          <tr><td>Less rebates &amp; zakat · Tolak rebat dan zakat</td><td style={right} className="mono">− {fmt(c.rebate + c.levyRebate + c.zakatRebate)}</td></tr>
           <tr><td>Already paid (PCB + CP500) · Telah dibayar</td><td style={right} className="mono">− {fmt(c.paid)}</td></tr>
           <tr className="total"><td style={heading800} className={refund ? 'amt-refund' : 'amt-due'}>{balLabel}</td><td style={{ ...right, ...heading800 }} className={'mono ' + (refund ? 'amt-refund' : 'amt-due')}>{fmt(Math.abs(c.balance))}</td></tr>
         </tbody>

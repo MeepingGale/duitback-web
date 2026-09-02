@@ -383,6 +383,21 @@ describe('TrackerApp smoke', () => {
     expect(JSON.parse(localStorage.getItem(KEY)!).claims[0].amount).toBe(250);
   });
 
+  it('Family & status in Settings counts fixed reliefs without claim lines', async () => {
+    await completeSetup();
+    fireEvent.click(screen.getByText('Skip tour'));
+    fireEvent.click(screen.getByText('Settings'));
+    await screen.findByText(/Family & status/);
+    fireEvent.click(screen.getAllByText('Yes · Ya')[0]); // disabled individual
+    fireEvent.change(screen.getByLabelText('Under 18 — RM2,000 each'), { target: { value: '2' } });
+    const p = JSON.parse(localStorage.getItem(KEY)!).profile;
+    expect(p.disabled).toBe(true);
+    expect(p.children.u18).toBe(2);
+    await screen.findByText(/Counted for YA2026: RM 11,000/);
+    fireEvent.click(screen.getByText('Claims · Tuntutan'));
+    await screen.findAllByText('profile'); // rows counted from the profile, not lines
+  });
+
   it('returning visitors skip setup and keep their data', async () => {
     await completeSetup('Aisyah');
     cleanup();

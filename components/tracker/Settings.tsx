@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Api } from './App';
+import { CHILDSUB, ChildCounts, capFor, derivedReliefs, fmt } from '@/lib/tax';
 import { BankInput, TinInput } from './bits';
 import { demoData, exportJson, exportVault, getBackupMeta, isDemo, isIOS, isStandalone, parseImport, stashReal } from '@/lib/data';
 import { Kick, pagepad } from './bits';
@@ -46,6 +47,56 @@ export function Settings({ api, lockNow }: { api: Api; lockNow: () => void }) {
           </div>
           <div style={{ fontSize: 11.5, marginTop: 6 }} className="text-muted">Married unlocks the joint-assessment comparison on the Income screen.</div>
         </div>
+      </div>
+
+      <div style={{ border: '2px solid var(--color-divider)', borderTop: 0, padding: 24 }}>
+        <Kick>Family &amp; status · Keluarga &amp; status</Kick>
+        <p className="text-muted" style={{ fontSize: 12.5, margin: '8px 0 14px' }}>
+          LHDN gives these reliefs on who you are, with no receipts — set them once and they are counted automatically for every year.{' '}
+          <span lang="ms">Pelepasan tetap tanpa resit — tetapkan sekali, dikira automatik.</span>
+        </p>
+        {(() => {
+          const yaNum = +d.ya.slice(2);
+          const married = d.profile.marital === 'married';
+          const kids: ChildCounts = { u18: 0, a18pre: 0, a18edu: 0, dis: 0, disedu: 0, ...(d.profile.children || {}) };
+          const setP = (k: 'disabled' | 'spouseWorking' | 'spouseDisabled', v: boolean) => mut((x) => { x.profile[k] = v; });
+          const setKid = (k: keyof ChildCounts, v: number) => mut((x) => { x.profile.children = { ...kids, [k]: Math.max(0, Math.min(20, Math.floor(v || 0))) }; });
+          const yesNo = (label: string, name: string, value: boolean | undefined, on: (v: boolean) => void, amount: string) => (
+            <div className="field" style={{ marginTop: 12 }}>
+              <label>{label}</label>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
+                <div className="seg">
+                  <label className="seg-opt"><input type="radio" name={name} checked={value === true} onChange={() => on(true)} />Yes · Ya</label>
+                  <label className="seg-opt"><input type="radio" name={name} checked={value !== true} onChange={() => on(false)} />No · Tidak</label>
+                </div>
+                <span className="text-muted" style={{ fontSize: 12 }}>{amount}</span>
+              </div>
+            </div>
+          );
+          const derivedNow = derivedReliefs(d.profile, yaNum);
+          const total = Object.values(derivedNow).reduce((a, b) => a + b, 0);
+          return (
+            <>
+              {yesNo('Are you a registered disabled person (OKU)? · Adakah anda OKU?', 'fs-disabled', d.profile.disabled, (v) => setP('disabled', v), 'Disabled individual relief ' + fmt(capFor('disabled_self', yaNum)))}
+              {married && yesNo('Does your spouse have their own income? · Pasangan bekerja?', 'fs-spouse-working', d.profile.spouseWorking === undefined ? true : d.profile.spouseWorking, (v) => setP('spouseWorking', v), 'No income → spouse relief ' + fmt(capFor('spouse', yaNum)))}
+              {married && d.profile.spouseWorking === false && yesNo('Is your spouse a registered disabled person? · Pasangan OKU?', 'fs-spouse-disabled', d.profile.spouseDisabled, (v) => setP('spouseDisabled', v), 'Further relief ' + fmt(capFor('disabled_spouse', yaNum)))}
+              <div className="field" style={{ marginTop: 14 }}>
+                <label>Children · Anak (unmarried; one count per line)</label>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 8 }}>
+                  {CHILDSUB.map((m) => (
+                    <label key={m.id} style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 13 }}>
+                      <input className="input mono" type="number" min={0} max={20} inputMode="numeric" style={{ width: 64 }} aria-label={m.label} value={kids[m.id as keyof ChildCounts]} onChange={(e) => setKid(m.id as keyof ChildCounts, +e.target.value)} />
+                      <span>{m.label}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+              <div style={{ fontSize: 12.5, marginTop: 12, fontFamily: 'var(--font-heading)', fontWeight: 800 }}>
+                Counted for {d.ya}: {fmt(total)} <span className="text-muted" style={{ fontWeight: 400 }}>· Dikira untuk {d.ya}{Object.keys(derivedNow).length ? ' — ' + Object.entries(derivedNow).map(([k, v]) => k.replace('_', ' ') + ' ' + fmt(v)).join(', ') : ''}</span>
+              </div>
+            </>
+          );
+        })()}
       </div>
 
       <div style={{ border: '2px solid var(--color-divider)', borderTop: 0, padding: 24 }}>

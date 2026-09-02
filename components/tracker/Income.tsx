@@ -32,7 +32,7 @@ export function Income({ api, c }: { api: Api; c: CalcResult }) {
   const years = yearsOf(d);
   const dl = deadlineInfo(d, ya, c);
   const isMarried = d.profile.marital === 'married';
-  const bind = (k: Exclude<keyof IncomeYear, 'pcbAuto'>) => (n: number) =>
+  const bind = (k: Exclude<keyof IncomeYear, 'pcbAuto' | 'compIllHealth'>) => (n: number) =>
     mut((x) => {
       x.income[ya] = Object.assign(blankInc(), x.income[ya]);
       (x.income[ya] as IncomeYear)[k] = n;
@@ -41,8 +41,10 @@ export function Income({ api, c }: { api: Api; c: CalcResult }) {
   // Auto-estimate PCB from salary + bonus with the LHDN computerised MTD
   // formula. It stays live (recomputing as inputs change) until the user
   // types their own figure into the PCB field, which always wins.
-  const pcbCategory = !isMarried ? 1 : (c.inc.spInc || 0) > 0 ? 3 : 2;
-  const pcbChildren = c.claims.filter((x) => x.cat === 'child').length;
+  const spouseWorks = d.profile.spouseWorking === undefined ? (c.inc.spInc || 0) > 0 : d.profile.spouseWorking;
+  const pcbCategory = !isMarried ? 1 : spouseWorks ? 3 : 2;
+  const kids = d.profile.children;
+  const pcbChildren = kids ? Object.values(kids).reduce((a, b) => a + (b || 0), 0) : c.claims.filter((x) => x.cat === 'child').length;
   const employment = (c.inc.salary || 0) + (c.inc.bonus || 0);
   const est = useMemo(
     () => estimatePcb({ salary: c.inc.salary || 0, bonus: c.inc.bonus || 0, category: pcbCategory, children: pcbChildren }),
@@ -100,6 +102,20 @@ export function Income({ api, c }: { api: Api; c: CalcResult }) {
             <NumField label="PCB / MTD withheld (RM)" value={c.inc.pcb || 0} onCommit={commitPcbManual} />
             <NumField label="Zakat paid · Zakat (RM)" value={c.inc.zakat || 0} onCommit={bind('zakat')} />
           </div>
+          <h3 className="sec" style={{ margin: '20px 0 8px' }}>Loss of employment · Pampasan kehilangan pekerjaan</h3>
+          <div className="fields2">
+            <NumField label="Compensation received (RM)" value={c.inc.compensation || 0} onCommit={bind('compensation')} />
+            <NumField label="Completed years with that employer" value={c.inc.serviceYears || 0} onCommit={bind('serviceYears')} />
+          </div>
+          <label className="radio" style={{ marginTop: 8 }}>
+            <input type="checkbox" checked={!!c.inc.compIllHealth} onChange={(e) => mut((x) => { x.income[ya] = Object.assign(blankInc(), x.income[ya]); (x.income[ya] as IncomeYear).compIllHealth = e.target.checked; })} />
+            <span className="dot" style={{ borderRadius: 0 }} />
+            Employment lost due to ill health · Sebab kesihatan (fully exempt)
+          </label>
+          <div style={{ fontSize: 11.5, marginTop: 8 }} className="text-muted">
+            RM 10,000 is exempt for each completed year of service with the same employer or group; the rest is employment income (Income Tax Act Sch. 6 para 15, Public Ruling 1/2012).{(c.inc.compensation || 0) > 0 ? ' Exempt ' + fmt(c.compExempt) + ' · taxable ' + fmt(c.compTaxable) + '.' : ''}{' '}
+            <span lang="ms">RM 10,000 dikecualikan bagi setiap tahun genap perkhidmatan.</span>
+          </div>
           {employment > 0 && (
             <div style={{ fontSize: 11.5, marginTop: 8 }}>
               <div className="text-muted">{pcbNote} <a href="../pcb/">How PCB is calculated · Cara kiraan →</a></div>
@@ -126,10 +142,15 @@ export function Income({ api, c }: { api: Api; c: CalcResult }) {
           <h3 className="sec" style={{ margin: '20px 0 8px' }}>Business &amp; other · Perniagaan</h3>
           <div className="fields2">
             <NumField label="Business income, net (RM)" value={c.inc.biz || 0} onCommit={bind('biz')} />
-            <NumField label="Other — dividends, freelance (RM)" value={c.inc.other || 0} onCommit={bind('other')} />
+            <NumField label="Other — freelance, commissions (RM)" value={c.inc.other || 0} onCommit={bind('other')} />
+            <NumField label="Dividends — Malaysian companies (RM)" value={c.inc.dividends || 0} onCommit={bind('dividends')} />
+            <NumField label="Departure levy paid — umrah / religious travel (RM)" value={c.inc.levyRebate || 0} onCommit={bind('levyRebate')} />
           </div>
           <div style={{ fontSize: 11.5, marginTop: 8 }} className="text-muted">
-            Any business income switches the year to Form B (deadline 30 Jun). <span lang="ms">Pendapatan perniagaan menukar borang kepada B.</span>
+            Any business income switches the year to Form B (deadline 30 Jun). <span lang="ms">Pendapatan perniagaan menukar borang kepada B.</span>{' '}
+            Dividends: from YA2025 the share of chargeable income that comes from dividends is taxed at 2% above RM 100,000 instead of the scale (Dividend Rules 2025) — leave out EPF, ASNB, unit-trust, cooperative and foreign dividends, which are exempt.{' '}
+            The departure levy on umrah or religious travel is a rebate, up to two trips a year.{' '}
+            <span lang="ms">Dividen: 2% ke atas bahagian melebihi RM 100,000 mulai TT2025. Levi pelepasan umrah — rebat, maksimum dua kali setahun.</span>
           </div>
           {isMarried && (
             <>
@@ -148,11 +169,14 @@ export function Income({ api, c }: { api: Api; c: CalcResult }) {
           <table className="table" style={{ fontSize: 13, marginTop: 12 }}>
             <tbody>
               <Row label="Total income · Jumlah pendapatan" value={fmt(c.totalIncome)} />
+              {c.compTaxable > 0 && <Row label={<>incl. taxable compensation <span className="text-muted">(after {fmt(c.compExempt)} exempt)</span></>} value={fmt(c.compTaxable)} />}
+              {c.dividends > 0 && <Row label={<>incl. dividends <span className="text-muted">(2% above RM 100,000 of their chargeable share)</span></>} value={fmt(c.dividends)} />}
               <Row label={<>Donations allowed <span className="text-muted">(capped 10% of aggregate)</span></>} value={'− ' + fmt(c.donAllowed)} />
               <Row label={<>Reliefs claimed · Pelepasan <button className="navlink linkbtn" onClick={() => go('claims')} style={{ fontSize: 11 }}>(detail)</button></>} value={'− ' + fmt(c.reliefsNonDon)} />
               <Row label="Chargeable income · Pendapatan bercukai" value={fmt(c.chargeable)} strong />
-              <Row label={<>Tax on chargeable income <span className="text-muted">(YA2025 scale · unchanged for YA2026)</span></>} value={fmt(c.taxGross)} />
+              <Row label={<>Tax on chargeable income <span className="text-muted">(YA2025 scale · unchanged for YA2026{c.dividendTax > 0 ? ' · incl. dividend tax ' + fmt(c.dividendTax) : ''})</span></>} value={fmt(c.taxGross)} />
               <Row label={<>Individual rebate <span className="text-muted">(RM400 if chargeable ≤ RM35,000)</span></>} value={'− ' + fmt(c.rebate)} />
+              {c.levyRebate > 0 && <Row label="Departure levy rebate · Rebat levi pelepasan" value={'− ' + fmt(c.levyRebate)} />}
               <Row label="Zakat rebate · Rebat zakat" value={'− ' + fmt(c.zakatRebate)} />
               <Row label="PCB / MTD already paid" value={'− ' + fmt(c.inc.pcb || 0)} />
               <Row label="CP500 instalments paid" value={'− ' + fmt(c.inc.cp500 || 0)} />

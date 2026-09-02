@@ -4,7 +4,7 @@ import { Bar, Kick, YaTabs, pagepad, yaHead, right, heading800 } from './bits';
 import { reliefRows, yearsOf } from './derive';
 
 export function Claims({ api, c, selCat, setSelCat }: { api: Api; c: CalcResult; selCat: string; setSelCat: (s: string) => void }) {
-  const { d, ya, mut, openAdd, openEdit, ask } = api;
+  const { d, ya, mut, go, openAdd, openEdit, ask } = api;
   const years = yearsOf(d);
   const yaNum = +ya.slice(2);
   const rows = reliefRows(c, ya);
@@ -89,14 +89,26 @@ export function Claims({ api, c, selCat, setSelCat }: { api: Api; c: CalcResult;
                 </div>
               ))}
             </div>
+          ) : selCt.profile ? (
+            <div style={{ border: '2px dashed var(--color-divider)', padding: 18, fontSize: 12.5 }} className="text-muted">
+              {c.derived[selCat]
+                ? 'Counted from your profile · Dikira daripada profil anda: ' + fmt(c.derived[selCat]) + '. No receipts needed.'
+                : 'A fixed relief with no receipts — set it under Settings → Family & status. · Pelepasan tetap tanpa resit — tetapkan dalam Tetapan.'}
+            </div>
           ) : (
             <div style={{ border: '2px dashed var(--color-divider)', padding: 18, fontSize: 12.5 }} className="text-muted">
               No claim lines yet · Tiada baris tuntutan. Add one below.
             </div>
           )}
-          <button className="btn btn-primary btn-block" style={{ marginTop: 14 }} onClick={() => openAdd(selCat)}>
-            Add claim here · Tambah
-          </button>
+          {selCt.profile ? (
+            <button className="btn btn-secondary btn-block" style={{ marginTop: 14 }} onClick={() => go('settings')}>
+              Family &amp; status settings · Tetapan keluarga →
+            </button>
+          ) : (
+            <button className="btn btn-primary btn-block" style={{ marginTop: 14 }} onClick={() => openAdd(selCat)}>
+              Add claim here · Tambah
+            </button>
+          )}
         </div>
       </div>
     </div>

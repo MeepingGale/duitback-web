@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { CATS, CHILDSUB, Claim, MEDSUB, CalcResult, ReceiptItem, capFor, fmt, medSubCap, medSum, to2dp, today, uid } from '@/lib/tax';
+import { CATS, CHILDSUB, Claim, DEFAULT_SUB, CalcResult, ReceiptItem, SUBLIMITS, capFor, fmt, subCap, subSum, to2dp, today, uid } from '@/lib/tax';
 import { getFile, putFile, readFiles } from '@/lib/data';
 import { Api } from './App';
 import { Modal, MoneyInput } from './bits';
@@ -62,14 +62,14 @@ export interface AddState {
 }
 
 export const freshAdd = (cat?: string): AddState => ({
-  cat: cat || 'lifestyle', sub: 'general', childSub: 'u18', date: today(), amount: '', desc: '',
+  cat: cat || 'lifestyle', sub: DEFAULT_SUB[cat || 'lifestyle'] || 'general', childSub: 'u18', date: today(), amount: '', desc: '',
   fileName: null, fileThumb: null, fileFull: null, monthly: false,
 });
 
 /** Prefill the dialog from an existing claim for in-place editing. */
 export const editState = (cl: Claim): AddState => ({
   cat: cl.cat,
-  sub: cl.sub || 'general',
+  sub: cl.sub || DEFAULT_SUB[cl.cat] || 'general',
   childSub: CHILDSUB.find((m) => m.amt === cl.amount)?.id || 'u18',
   date: cl.date,
   amount: String(cl.amount),
@@ -96,8 +96,9 @@ export interface ViewerState {
 
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
-function catOptions(yaNum: number) {
-  return CATS.filter((x) => !x.auto).map((x) => ({
+function catOptions(yaNum: number, keep?: string) {
+  // automatic and profile-driven reliefs aren't claim lines — except a legacy line being edited
+  return CATS.filter((x) => (!x.auto && !x.profile) || x.id === keep).map((x) => ({
     id: x.id,
     label: x.en + (x.id === 'child' ? ' — fixed per child' : x.id === 'donation' ? ' — 10% of income' : ' — max ' + fmt(capFor(x.id, yaNum))),
   }));
@@ -111,28 +112,28 @@ export function AddClaimDialog({ api, c, add, setAdd, onSaved }: { api: Api; c: 
   let capNote = '', capNoteCls = 'text-muted';
   if (addCt) {
     const others = c.claims.filter((x) => x.id !== add.editId);
-    const already = add.cat === 'medical'
-      ? medSum(others.filter((x) => x.cat === 'medical'), yaNum)
+    const already = SUBLIMITS[add.cat]
+      ? subSum(add.cat, others.filter((x) => x.cat === add.cat), yaNum)
       : others.filter((x) => x.cat === add.cat).reduce((a, x) => a + (+x.amount || 0), 0);
     const cap = add.cat === 'donation' ? c.donCap : capFor(add.cat, yaNum);
     const each = +add.amount || 0;
     const total = add.monthly ? each * 12 : each;
     const after = already + total;
-    const sub = MEDSUB.find((m) => m.id === add.sub);
-    const subCap = add.cat === 'medical' && sub ? medSubCap(sub.id, yaNum) : null;
-    const subAlready = subCap ? c.claims.filter((x) => x.cat === 'medical' && (x.sub || 'general') === add.sub).reduce((a, x) => a + (+x.amount || 0), 0) : 0;
+    const sub = (SUBLIMITS[add.cat] || []).find((m) => m.id === add.sub);
+    const subCapV = sub ? subCap(add.cat, sub.id, yaNum) : null;
+    const subAlready = subCapV ? others.filter((x) => x.cat === add.cat && (x.sub || DEFAULT_SUB[add.cat]) === add.sub).reduce((a, x) => a + (+x.amount || 0), 0) : 0;
     if (cap === Infinity) capNote = addCt.note || '';
     else if (cap === 0 && add.cat === 'donation') { capNote = 'Donations count up to 10% of your declared income — enter your income first, or this line counts RM 0 for now. · Derma dikira sehingga 10% pendapatan — isi pendapatan anda dahulu.'; capNoteCls = ''; }
     else if (cap === 0) { capNote = 'This relief is not available for ' + ya + ' — it can be saved for your records but counts RM 0. · Pelepasan ini tiada untuk ' + ya + ' — dikira RM 0.'; capNoteCls = ''; }
-    else if (subCap && subAlready + total > subCap) {
-      capNote = (add.monthly ? '12 × ' + fmt(each) + ' = ' + fmt(total) + '. ' : '') + 'Over the ' + fmt(subCap) + ' sub-limit for this medical type — only ' + fmt(subCap) + ' counts here. Saved and flagged. · Melebihi had kecil ' + fmt(subCap) + ' — hanya ' + fmt(subCap) + ' dikira.';
+    else if (subCapV && subAlready + total > subCapV) {
+      capNote = (add.monthly ? '12 × ' + fmt(each) + ' = ' + fmt(total) + '. ' : '') + 'Over the ' + fmt(subCapV) + ' sub-limit for this type — only ' + fmt(subCapV) + ' counts here. Saved and flagged. · Melebihi had kecil ' + fmt(subCapV) + ' — hanya ' + fmt(subCapV) + ' dikira.';
       capNoteCls = '';
     }
     else if (after > cap) {
       capNote = (add.monthly ? '12 × ' + fmt(each) + ' = ' + fmt(total) + '. ' : '') + 'This takes ' + addCt.en + ' to ' + fmt(after) + ' — ' + fmt(after - cap) + ' over the ' + fmt(cap) + ' cap. Saved and flagged; only ' + fmt(cap) + ' counts. · Melebihi had ' + fmt(cap) + ' — disimpan dan ditanda; hanya ' + fmt(cap) + ' dikira.';
       capNoteCls = '';
     } else {
-      capNote = (add.monthly ? '12 × ' + fmt(each) + ' = ' + fmt(total) + '. ' : '') + fmt(cap - after) + ' left under the ' + fmt(cap) + ' cap after this. · Baki ' + fmt(cap - after) + ' di bawah had. ' + (add.cat === 'medical' && subCap ? 'Sub-limit for this type · Had kecil jenis ini: ' + fmt(subCap) + '. ' : '') + (addCt.note || '');
+      capNote = (add.monthly ? '12 × ' + fmt(each) + ' = ' + fmt(total) + '. ' : '') + fmt(cap - after) + ' left under the ' + fmt(cap) + ' cap after this. · Baki ' + fmt(cap - after) + ' di bawah had. ' + (subCapV ? 'Sub-limit for this type · Had kecil jenis ini: ' + fmt(subCapV) + '. ' : '') + (addCt.note || '');
     }
   }
 
@@ -150,7 +151,7 @@ export function AddClaimDialog({ api, c, add, setAdd, onSaved }: { api: Api; c: 
         const cl = dd.claims.find((q) => q.id === add.editId);
         if (!cl) return;
         cl.cat = add.cat;
-        cl.sub = add.cat === 'medical' ? add.sub : undefined;
+        cl.sub = SUBLIMITS[add.cat] ? add.sub : undefined;
         cl.date = add.date || cl.date;
         cl.desc = add.desc || '(no description)';
         cl.amount = amt;
@@ -170,10 +171,10 @@ export function AddClaimDialog({ api, c, add, setAdd, onSaved }: { api: Api; c: 
       if (add.monthly) {
         for (let m = 1; m <= 12; m++) {
           const mm = String(m).padStart(2, '0');
-          dd.claims.unshift({ id: uid(), ya: dd.ya, cat: add.cat, sub: add.cat === 'medical' ? add.sub : undefined, date: yr + '-' + mm + '-15', desc: (add.desc || '(recurring)') + ' — ' + MONTHS[m - 1], amount: amt, receipt: m === 1 ? add.fileName || null : null });
+          dd.claims.unshift({ id: uid(), ya: dd.ya, cat: add.cat, sub: SUBLIMITS[add.cat] ? add.sub : undefined, date: yr + '-' + mm + '-15', desc: (add.desc || '(recurring)') + ' — ' + MONTHS[m - 1], amount: amt, receipt: m === 1 ? add.fileName || null : null });
         }
       } else {
-        dd.claims.unshift({ id: uid(), ya: dd.ya, cat: add.cat, sub: add.cat === 'medical' ? add.sub : undefined, date: add.date || today(), desc: add.desc || '(no description)', amount: amt, receipt: add.fileName || null });
+        dd.claims.unshift({ id: uid(), ya: dd.ya, cat: add.cat, sub: SUBLIMITS[add.cat] ? add.sub : undefined, date: add.date || today(), desc: add.desc || '(no description)', amount: amt, receipt: add.fileName || null });
       }
       if (add.fileName) dd.receipts.unshift({ id: recId!, ya: dd.ya, cat: add.cat, name: add.fileName, sub: (add.desc || '') + ' · ' + fmt(add.monthly ? amt * 12 : amt), thumb: add.fileThumb, hasFull: !!add.fileFull });
     });
@@ -186,15 +187,15 @@ export function AddClaimDialog({ api, c, add, setAdd, onSaved }: { api: Api; c: 
         <div className="dialog-title">{add.editId ? 'Edit claim · Sunting tuntutan' : 'New claim · Tuntutan baharu'} <span className="bm" style={{ fontSize: 13 }}>({ya})</span></div>
         <div className="field">
           <label>Relief category · Kategori</label>
-          <select className="input" value={add.cat} onChange={(e) => setAdd({ ...add, cat: e.target.value })}>
-            {catOptions(yaNum).map((o) => <option key={o.id} value={o.id}>{o.label}</option>)}
+          <select className="input" value={add.cat} onChange={(e) => setAdd({ ...add, cat: e.target.value, sub: DEFAULT_SUB[e.target.value] || 'general' })}>
+            {catOptions(yaNum, add.editId ? add.cat : undefined).map((o) => <option key={o.id} value={o.id}>{o.label}</option>)}
           </select>
         </div>
-        {add.cat === 'medical' && (
+        {SUBLIMITS[add.cat] && (
           <div className="field">
-            <label>Medical sub-type · Jenis (sub-limits enforced)</label>
-            <select className="input" value={add.sub} onChange={(e) => setAdd({ ...add, sub: e.target.value })}>
-              {MEDSUB.map((m) => { const cap = medSubCap(m.id, yaNum); return <option key={m.id} value={m.id}>{m.label + (cap ? ' — max ' + fmt(cap) : '')}</option>; })}
+            <label>Type · Jenis (sub-limits enforced · had kecil dikira)</label>
+            <select className="input" aria-label="Type · Jenis" value={add.sub} onChange={(e) => setAdd({ ...add, sub: e.target.value })}>
+              {SUBLIMITS[add.cat].map((m) => { const cap = subCap(add.cat, m.id, yaNum); return <option key={m.id} value={m.id}>{m.label + (cap ? ' — max ' + fmt(cap) : '')}</option>; })}
             </select>
           </div>
         )}

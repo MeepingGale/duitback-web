@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { blankInc, calc, capFor, clamp2dpStr, composeTin, Data, fmt, fmtAmountStr, jointComparison, looksLikeTin, medSubCap, medSum, parseTin, taxOn, to2dp } from './tax';
+import { blankInc, calc, capFor, clamp2dpStr, compensationExempt, composeTin, Data, derivedReliefs, fmt, fmtAmountStr, jointComparison, looksLikeTin, medSubCap, medSum, parseTin, subSum, taxOn, to2dp } from './tax';
 import { demoData, parseImport, pruneEmptyFutureYears } from './data';
 
 describe('taxOn — YA2025 resident scale', () => {
@@ -268,5 +268,76 @@ describe('parseImport', () => {
   it('rejects non-DuitBack JSON and garbage', () => {
     expect(parseImport('{"hello":1}').error).toBeTruthy();
     expect(parseImport('not json').error).toBeTruthy();
+  });
+});
+
+
+describe('YA2025+ rules added from the LHDN relief, rebate and dividend pages', () => {
+  const base = (): Data => ({ profile: { name: 'T', taxNo: '', bank: '', marital: 'single' }, ya: 'YA2026', income: { YA2026: { ...blankInc(), salary: 90000 } }, claims: [], receipts: [], docs: [], status: {} });
+
+  it('derives disabled, spouse and child reliefs from the profile — only where no claim lines exist', () => {
+    const d = base();
+    d.profile = { ...d.profile, marital: 'married', disabled: true, spouseWorking: false, spouseDisabled: true, children: { u18: 2, a18pre: 0, a18edu: 1, dis: 0, disedu: 0 } };
+    expect(derivedReliefs(d.profile, 2026)).toEqual({ disabled_self: 7000, spouse: 4000, disabled_spouse: 6000, child: 12000 });
+    expect(derivedReliefs(d.profile, 2024).disabled_self).toBe(6000); // historical cap
+    const c = calc(d, 'YA2026');
+    expect(c.derived).toEqual({ disabled_self: 7000, spouse: 4000, disabled_spouse: 6000, child: 12000 });
+    expect(c.reliefsNonDon).toBe(9000 + 7000 + 4000 + 6000 + 12000);
+    // a manual child line takes precedence over the profile count for that category
+    d.claims.push({ id: 'k', ya: 'YA2026', cat: 'child', date: '2026-01-01', desc: 'one child', amount: 2000, receipt: null });
+    const c2 = calc(d, 'YA2026');
+    expect(c2.derived.child).toBeUndefined();
+    expect(c2.sums.child).toBe(2000);
+    // spouse reliefs need a spouse without income; disabled-spouse rides on the spouse relief
+    d.profile.spouseWorking = true;
+    expect(derivedReliefs(d.profile, 2026)).toEqual({ disabled_self: 7000, child: 12000 });
+  });
+
+  it('exempts RM10,000 of loss-of-employment compensation per completed year (all of it on ill health)', () => {
+    expect(compensationExempt(45000, 3.8)).toBe(30000);
+    expect(compensationExempt(25000, 4)).toBe(25000);
+    expect(compensationExempt(45000, 1, true)).toBe(45000);
+    const d = base();
+    d.income.YA2026 = { ...blankInc(), salary: 90000, compensation: 45000, serviceYears: 3 };
+    const c = calc(d, 'YA2026');
+    expect(c.compExempt).toBe(30000);
+    expect(c.compTaxable).toBe(15000);
+    expect(c.totalIncome).toBe(105000);
+  });
+
+  it('taxes the dividend share of chargeable income at 2% above RM100,000 instead of the scale', () => {
+    const d = base();
+    d.income.YA2026 = { ...blankInc(), salary: 200000, dividends: 150000 };
+    const c = calc(d, 'YA2026');
+    // aggregate 350,000 − 9,000 = 341,000 chargeable; dividend share = 341,000 × 150/350
+    expect(c.chargeable).toBe(341000);
+    expect(c.chargeableDiv).toBeCloseTo(146142.86, 2);
+    expect(c.dividendTax).toBeCloseTo(922.86, 2);
+    expect(c.taxGross).toBe(Math.round(taxOn(341000 - 146142.86) + 922.86));
+    // dividends within the threshold add nothing
+    d.income.YA2026 = { ...blankInc(), salary: 90000, dividends: 50000 };
+    const c2 = calc(d, 'YA2026');
+    expect(c2.dividendTax).toBe(0);
+    expect(c2.taxGross).toBe(taxOn(c2.chargeable - c2.chargeableDiv));
+  });
+
+  it('enforces the education, parents-medical and housing sub-limits', () => {
+    const mk = (cat: string, sub: string | undefined, amount: number) => ({ id: cat + sub + amount, ya: 'YA2026', cat, sub, date: '2026-01-01', desc: '', amount, receipt: null });
+    expect(subSum('edu_self', [mk('edu_self', 'upskill', 3000), mk('edu_self', 'degree', 2000)], 2026)).toBe(2000 + 2000);
+    expect(subSum('parents_med', [mk('parents_med', 'exam', 1500), mk('parents_med', undefined, 3000)], 2026)).toBe(1000 + 3000);
+    expect(subSum('housing', [mk('housing', 'gt500', 7000)], 2026)).toBe(5000);
+    const d = base();
+    d.claims.push(mk('housing', 'gt500', 7000), mk('edu_self', 'upskill', 3000));
+    const c = calc(d, 'YA2026');
+    expect(c.sums.housing).toBe(5000);
+    expect(c.sums.edu_self).toBe(2000);
+  });
+
+  it('applies the departure levy rebate after the individual rebate, capped by tax', () => {
+    const d = base();
+    d.income.YA2026 = { ...blankInc(), salary: 90000, levyRebate: 150, zakat: 100 };
+    const c = calc(d, 'YA2026');
+    expect(c.levyRebate).toBe(150);
+    expect(c.taxNet).toBe(c.taxGross - 150 - 100);
   });
 });

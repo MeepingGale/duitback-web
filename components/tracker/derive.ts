@@ -1,5 +1,5 @@
 // Presentation-level derivations shared across screens — pure functions.
-import { CATS, CalcResult, Data, calc, capFor, fmt } from '@/lib/tax';
+import { CATS, CalcResult, Data, calc, capFor, fmt, SUBLIMITS } from '@/lib/tax';
 
 export interface ReliefRow {
   id: string;
@@ -21,7 +21,10 @@ export function reliefRows(c: CalcResult, ya: string): ReliefRow[] {
   const yaNum = +ya.slice(2);
   return CATS.map((ct) => {
     const cap = ct.id === 'donation' ? c.donCap : capFor(ct.id, yaNum);
-    const rawClaimed = ct.auto ? 9000 : c.claims.filter((x) => x.cat === ct.id).reduce((a, x) => a + (+x.amount || 0), 0);
+    const lines = c.claims.filter((x) => x.cat === ct.id);
+    const lineSum = lines.reduce((a, x) => a + (+x.amount || 0), 0);
+    const fromProfile = !lines.length && !!c.derived[ct.id];
+    const rawClaimed = ct.auto ? 9000 : fromProfile ? c.derived[ct.id] : lineSum;
     const noCap = cap === Infinity;
     const na = cap === 0 && !ct.auto;
     const over = !noCap && !na && rawClaimed > cap;
@@ -37,9 +40,9 @@ export function reliefRows(c: CalcResult, ya: string): ReliefRow[] {
       over,
       tagCls: over ? 'tag-outline' : pct >= 100 && !noCap && !na ? 'tag-accent' : 'tag-neutral',
       tagLabel: na ? 'Not available' : over ? 'Over cap · flagged' : noCap ? (rawClaimed ? 'No cap' : '—') : pct >= 100 ? 'Maxed' : fmt(Math.max(0, cap - rawClaimed)) + ' left',
-      count: ct.auto ? 'auto' : String(c.claims.filter((x) => x.cat === ct.id).length),
+      count: ct.auto ? 'auto' : fromProfile ? 'profile' : String(lines.length),
       claimed: rawClaimed,
-      allowed: noCap ? rawClaimed : Math.min(ct.id === 'medical' ? c.sums.medical || 0 : rawClaimed, cap),
+      allowed: noCap ? rawClaimed : Math.min(SUBLIMITS[ct.id] && lines.length ? c.sums[ct.id] || 0 : rawClaimed, cap),
     };
   });
 }

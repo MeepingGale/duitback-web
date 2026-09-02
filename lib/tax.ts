@@ -15,7 +15,17 @@ export interface IncomeYear {
   biz: number;
   spInc: number;
   spRel: number;
+  /** Malaysian single-tier dividends — 2% on the chargeable portion above RM100,000 from YA2025 */
+  dividends: number;
+  /** compensation for loss of employment; RM10,000 exempt per completed year (ITA Sch 6 para 15) */
+  compensation: number;
+  serviceYears: number;
+  compIllHealth?: boolean;
+  /** departure levy paid for umrah / religious travel — rebate, max 2 trips */
+  levyRebate: number;
 }
+
+export interface ChildCounts { u18: number; a18pre: number; a18edu: number; dis: number; disedu: number }
 
 export interface Claim {
   id: string;
@@ -63,6 +73,11 @@ export interface Profile {
   bank: string;
   marital: 'single' | 'married';
   pin?: string;
+  // statutory reliefs that need no receipts — derived from these, not from claim lines
+  disabled?: boolean;
+  spouseWorking?: boolean;
+  spouseDisabled?: boolean;
+  children?: ChildCounts;
 }
 
 export interface Data {
@@ -82,6 +97,8 @@ export interface Cat {
   bm: string;
   cap: number | null;
   auto?: boolean;
+  /** fixed relief counted from the profile (Settings → Family & status), not from receipts */
+  profile?: boolean;
   note: string;
 }
 
@@ -100,10 +117,10 @@ export const CATS: Cat[] = [
   { id: 'sspn', en: 'SSPN net savings', bm: 'Simpanan SSPN', cap: 8000, note: 'Net deposit for children’s education savings.' },
   { id: 'childcare', en: 'Childcare fees', bm: 'Taska / tadika', cap: 3000, note: 'Registered childcare centre or kindergarten; from YA2026 also daycare and after-school transit centres, for children up to 12 (up to 6 before).' },
   { id: 'breastfeed', en: 'Breastfeeding equipment', bm: 'Peralatan penyusuan', cap: 1000, note: 'Child ≤ 2 years; claimable once every 2 years.' },
-  { id: 'spouse', en: 'Spouse / alimony', bm: 'Suami / isteri', cap: 4000, note: 'Spouse with no income, or alimony paid.' },
-  { id: 'child', en: 'Child relief', bm: 'Anak', cap: null, note: 'No overall cap — fixed amount per child; add one line per child. RM2,000 under 18; RM8,000 in diploma/degree; disabled RM8,000 (+RM8,000 if studying).' },
-  { id: 'disabled_self', en: 'Disabled individual', bm: 'Individu OKU', cap: 7000, note: 'Raised to RM7,000 from YA2025.' },
-  { id: 'disabled_spouse', en: 'Disabled spouse', bm: 'Pasangan OKU', cap: 6000, note: 'Raised to RM6,000 from YA2025.' },
+  { id: 'spouse', profile: true, en: 'Spouse / alimony', bm: 'Suami / isteri', cap: 4000, note: 'Spouse with no income, or alimony paid.' },
+  { id: 'child', profile: true, en: 'Child relief', bm: 'Anak', cap: null, note: 'No overall cap — fixed amount per child; add one line per child. RM2,000 under 18; RM8,000 in diploma/degree; disabled RM8,000 (+RM8,000 if studying).' },
+  { id: 'disabled_self', profile: true, en: 'Disabled individual', bm: 'Individu OKU', cap: 7000, note: 'Raised to RM7,000 from YA2025.' },
+  { id: 'disabled_spouse', profile: true, en: 'Disabled spouse', bm: 'Pasangan OKU', cap: 6000, note: 'Raised to RM6,000 from YA2025.' },
   { id: 'equip', en: 'Disabled supporting equipment', bm: 'Peralatan OKU', cap: 6000, note: 'Basic supporting equipment for self or disabled dependents.' },
   { id: 'ev', en: 'EV charging · CCTV · composting', bm: 'Pengecas EV / CCTV / kompos', cap: 2500, note: 'EV charger install/rental/subscription, food-waste composter or grinder; from YA2026 also household CCTV (once every two years). Until YA2027.' },
   { id: 'tourism', en: 'Domestic tourism', bm: 'Pelancongan domestik', cap: 1000, note: 'YA2026 only — entrance fees to tourist attractions and cultural or arts programmes in Malaysia (Visit Malaysia 2026).' },
@@ -129,11 +146,75 @@ export const MEDSUB_OVERRIDES: Record<number, Record<string, number>> = {
   2025: { learning: 6000 },
 };
 
-export function medSubCap(id: string, yaNum: number): number | null {
-  const o = MEDSUB_OVERRIDES[yaNum];
-  if (o && id in o) return o[id];
-  const m = MEDSUB.find((x) => x.id === id);
+export interface SubLimit { id: string; label: string; cap: number | null }
+
+/** Categories whose total is made of sub-limited parts (LHDN relief list). */
+export const SUBLIMITS: Record<string, SubLimit[]> = {
+  medical: MEDSUB,
+  edu_self: [
+    { id: 'degree', label: 'Degree, masters, PhD or law/accounting/technical course', cap: null },
+    { id: 'upskill', label: 'Upskilling / self-enhancement course', cap: 2000 },
+  ],
+  parents_med: [
+    { id: 'care', label: 'Treatment, dental, special needs, carer expenses', cap: null },
+    { id: 'exam', label: 'Full medical examination', cap: 1000 },
+  ],
+  housing: [
+    { id: 'le500', label: 'First home priced up to RM500,000', cap: 7000 },
+    { id: 'gt500', label: 'First home priced RM500,001–750,000', cap: 5000 },
+  ],
+};
+export const DEFAULT_SUB: Record<string, string> = { medical: 'general', edu_self: 'degree', parents_med: 'care', housing: 'le500' };
+
+export function subCap(cat: string, id: string, yaNum: number): number | null {
+  if (cat === 'medical') { const o = MEDSUB_OVERRIDES[yaNum]; if (o && id in o) return o[id]; }
+  const m = (SUBLIMITS[cat] || []).find((x) => x.id === id);
   return m ? m.cap : null;
+}
+
+export function medSubCap(id: string, yaNum: number): number | null {
+  return subCap('medical', id, yaNum);
+}
+
+/** Sum of a category's claims with each sub-limit enforced. */
+export function subSum(cat: string, claims: Claim[], yaNum: number): number {
+  const bySub: Record<string, number> = {};
+  claims.forEach((c) => {
+    const s = c.sub || DEFAULT_SUB[cat] || 'general';
+    bySub[s] = (bySub[s] || 0) + (+c.amount || 0);
+  });
+  let t = 0;
+  (SUBLIMITS[cat] || []).forEach((m) => {
+    const v = bySub[m.id] || 0;
+    const cap = subCap(cat, m.id, yaNum);
+    t += cap ? Math.min(v, cap) : v;
+  });
+  return t;
+}
+
+/** Reliefs that come from who you are, not what you bought (Settings → Family & status). */
+export function derivedReliefs(p: Profile, yaNum: number): Record<string, number> {
+  const out: Record<string, number> = {};
+  if (p.disabled) out.disabled_self = capFor('disabled_self', yaNum);
+  const married = p.marital === 'married';
+  const spouseRelief = married && p.spouseWorking === false;
+  if (spouseRelief) out.spouse = capFor('spouse', yaNum);
+  if (spouseRelief && p.spouseDisabled) out.disabled_spouse = capFor('disabled_spouse', yaNum);
+  const k = p.children;
+  if (k) {
+    const child = CHILDSUB.reduce((a, m) => a + (k[m.id as keyof ChildCounts] || 0) * m.amt, 0);
+    if (child > 0) out.child = child;
+  }
+  return out;
+}
+
+export const PROFILE_CATS = ['spouse', 'disabled_self', 'disabled_spouse', 'child'];
+
+/** Exempt part of a loss-of-employment compensation: RM10,000 per completed year, all of it on ill-health. */
+export function compensationExempt(amount: number, years: number, illHealth?: boolean): number {
+  if (!amount) return 0;
+  if (illHealth) return amount;
+  return Math.min(amount, 10000 * Math.max(0, Math.floor(years || 0)));
 }
 
 // caps where they differed from the current schedule (historical years approximate)
@@ -232,23 +313,12 @@ export function today(): string {
 }
 
 export function blankInc(): IncomeYear {
-  return { salary: 0, bonus: 0, pcb: 0, zakat: 0, rent: 0, rentExp: 0, other: 0, cp500: 0, biz: 0, spInc: 0, spRel: 9000 };
+  return { salary: 0, bonus: 0, pcb: 0, zakat: 0, rent: 0, rentExp: 0, other: 0, cp500: 0, biz: 0, spInc: 0, spRel: 9000, dividends: 0, compensation: 0, serviceYears: 0, levyRebate: 0 };
 }
 
 // sub-limit-aware medical total for a given year of assessment
 export function medSum(claims: Claim[], yaNum: number): number {
-  const bySub: Record<string, number> = {};
-  claims.forEach((c) => {
-    const s = c.sub || 'general';
-    bySub[s] = (bySub[s] || 0) + (+c.amount || 0);
-  });
-  let t = 0;
-  MEDSUB.forEach((m) => {
-    const v = bySub[m.id] || 0;
-    const cap = medSubCap(m.id, yaNum);
-    t += cap ? Math.min(v, cap) : v;
-  });
-  return t;
+  return subSum('medical', claims, yaNum);
 }
 
 export interface CalcResult {
@@ -270,6 +340,14 @@ export interface CalcResult {
   paid: number;
   balance: number;
   formType: 'B' | 'BE';
+  /** fixed reliefs counted from the profile this year (category → amount) */
+  derived: Record<string, number>;
+  compTaxable: number;
+  compExempt: number;
+  dividends: number;
+  chargeableDiv: number;
+  dividendTax: number;
+  levyRebate: number;
 }
 
 export function calc(d: Data, ya: string): CalcResult {
@@ -277,13 +355,25 @@ export function calc(d: Data, ya: string): CalcResult {
   const claims = d.claims.filter((c) => c.ya === ya);
   const inc = Object.assign(blankInc(), d.income[ya] || {});
   const netRent = Math.max(0, (+inc.rent || 0) - (+inc.rentExp || 0));
-  const totalIncome = (+inc.salary || 0) + (+inc.bonus || 0) + netRent + (+inc.other || 0) + (+inc.biz || 0);
+  const compExempt = compensationExempt(+inc.compensation || 0, +inc.serviceYears || 0, inc.compIllHealth);
+  const compTaxable = Math.max(0, (+inc.compensation || 0) - compExempt);
+  const dividends = +inc.dividends || 0;
+  // aggregate income — dividends count from YA2025 (Income Tax (Determination of Chargeable Income … Dividend) Rules 2025)
+  const totalIncome = (+inc.salary || 0) + (+inc.bonus || 0) + compTaxable + netRent + (+inc.other || 0) + (+inc.biz || 0) + dividends;
   const sums: Record<string, number> = {};
   claims.forEach((c) => {
-    if (c.cat !== 'medical') sums[c.cat] = (sums[c.cat] || 0) + (+c.amount || 0);
+    if (!SUBLIMITS[c.cat]) sums[c.cat] = (sums[c.cat] || 0) + (+c.amount || 0);
   });
-  const medClaims = claims.filter((c) => c.cat === 'medical');
-  if (medClaims.length) sums.medical = medSum(medClaims, yaNum);
+  Object.keys(SUBLIMITS).forEach((cat) => {
+    const cl = claims.filter((c) => c.cat === cat);
+    if (cl.length) sums[cat] = subSum(cat, cl, yaNum);
+  });
+  // fixed family/status reliefs from the profile — only where no claim lines were entered for that category
+  const derivedAll = derivedReliefs(d.profile, yaNum);
+  const derived: Record<string, number> = {};
+  PROFILE_CATS.forEach((cat) => {
+    if (!sums[cat] && derivedAll[cat]) { sums[cat] = derivedAll[cat]; derived[cat] = derivedAll[cat]; }
+  });
   const donRaw = sums.donation || 0;
   const donCap = Math.round(totalIncome * 0.10);
   const donAllowed = Math.min(donRaw, donCap);
@@ -295,16 +385,21 @@ export function calc(d: Data, ya: string): CalcResult {
     reliefsNonDon += cp === Infinity ? cl : Math.min(cl, cp);
   });
   const chargeable = Math.max(0, totalIncome - donAllowed - reliefsNonDon);
-  const taxGross = taxOn(chargeable);
+  // dividends: their share of chargeable income (A/B × C) leaves the scale; 2% applies above RM100,000 of it
+  const chargeableDiv = dividends > 0 && totalIncome > 0 ? to2dp(chargeable * dividends / totalIncome) : 0;
+  const dividendTax = to2dp(0.02 * Math.max(0, chargeableDiv - 100000));
+  const taxGross = Math.round(taxOn(chargeable - chargeableDiv) + dividendTax);
   const rebate = chargeable <= 35000 ? Math.min(400, taxGross) : 0;
-  const zakatRebate = Math.min(+inc.zakat || 0, Math.max(0, taxGross - rebate));
-  const taxNet = Math.max(0, taxGross - rebate - zakatRebate);
+  const levyRebate = Math.min(+inc.levyRebate || 0, Math.max(0, taxGross - rebate));
+  const zakatRebate = Math.min(+inc.zakat || 0, Math.max(0, taxGross - rebate - levyRebate));
+  const taxNet = Math.max(0, taxGross - rebate - levyRebate - zakatRebate);
   const paid = (+inc.pcb || 0) + (+inc.cp500 || 0);
   const balance = taxNet - paid;
   return {
     claims, inc, sums, netRent, totalIncome, donRaw, donCap, donAllowed, reliefsNonDon,
     totalAllowed: reliefsNonDon + donAllowed, chargeable, taxGross, rebate, zakatRebate,
     taxNet, paid, balance, formType: (+inc.biz || 0) > 0 ? 'B' : 'BE',
+    derived, compTaxable, compExempt, dividends, chargeableDiv, dividendTax, levyRebate,
   };
 }
 
