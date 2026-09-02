@@ -372,7 +372,7 @@ button.linkbtn:hover { color: var(--color-accent-800); }
 .idemo-page i { display: block; height: 7px; background: #e6e3e3; border-radius: 3px; }
 .idemo-page .idemo-hero { height: 38px; width: 100%; background: #ae1800; opacity: .85; border-radius: 4px; }
 .idemo-toolbar { position: absolute; left: 0; right: 0; bottom: 0; height: 34px; background: #f4f4f4; border-top: 1px solid #ddd; display: flex; align-items: center; justify-content: space-around; font-size: 13px; color: #1a73e8; }
-.idemo-toolbar span { display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; position: relative; }
+.idemo-toolbar > span { display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; position: relative; }
 .idemo-tap { position: absolute; width: 22px; height: 22px; border-radius: 50%; border: 2.5px solid #ec3013; box-shadow: 0 0 0 4px rgba(236, 48, 19, .18); animation: duit-tap 1.6s ease-out infinite; pointer-events: none; }
 @keyframes duit-tap { 0% { transform: scale(.35); opacity: 0; } 20% { opacity: 1; } 60% { transform: scale(1.15); opacity: .9; } 100% { transform: scale(1.6); opacity: 0; } }
 .idemo-sheet { position: absolute; left: 0; right: 0; bottom: 0; background: #fff; border-radius: 12px 12px 0 0; box-shadow: 0 -4px 14px rgba(0,0,0,.18); padding: 6px 0 4px; animation: duit-sheet 3.6s ease-in-out infinite; }
@@ -395,6 +395,13 @@ button.linkbtn:hover { color: var(--color-accent-800); }
 @keyframes duit-home { 0%, 60% { opacity: 0; } 70%, 92% { opacity: 1; } 100% { opacity: 0; } }
 .idemo-appicon-pop { animation: duit-pop 4s ease-out infinite; }
 @keyframes duit-pop { 0%, 62% { transform: scale(.4); } 76%, 100% { transform: scale(1); } }
+/* iOS 26 compact layout: one pill at the bottom, Share lives behind ··· */
+.idemo-pill { position: absolute; left: 10px; right: 10px; bottom: 8px; height: 26px; border-radius: 13px; background: #ececec; display: flex; align-items: center; justify-content: space-between; padding: 0 9px; font-size: 10px; color: #444; box-shadow: 0 1px 4px rgba(0,0,0,.12); }
+.idemo-pill > span { position: relative; display: inline-flex; align-items: center; justify-content: center; min-width: 16px; height: 16px; color: #1a73e8; font-size: 12px; }
+.idemo-pill-url { color: #444; }
+.idemo-more { font-weight: 800; letter-spacing: -1px; }
+.idemo-menu.idemo-cmenu { top: auto; left: auto; right: 10px; bottom: 40px; width: 112px; }
+.idemo-cmenu .idemo-row-hot { position: relative; }
 /* mac: a menu bar with the File menu dropping open */
 .idemo-mac { height: 120px; border-radius: 8px; background: #f6f6f6; }
 .idemo-menubar { display: flex; gap: 12px; align-items: center; height: 22px; padding: 0 10px; background: #e9e9ec; font-size: 10.5px; color: #222; }
@@ -403,4 +410,6 @@ button.linkbtn:hover { color: var(--color-accent-800); }
 .idemo-menu { position: absolute; top: 24px; left: 30px; width: 120px; background: #fff; border: 1px solid #ddd; border-radius: 6px; box-shadow: 0 4px 12px rgba(0,0,0,.15); font-size: 10px; padding: 3px 0; animation: duit-menu 3.2s ease-in-out infinite; }
 .idemo-menu div { padding: 4px 10px; display: flex; align-items: center; gap: 5px; }
 @keyframes duit-menu { 0%, 15% { opacity: 0; transform: translateY(-4px); } 30%, 88% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; } }
+.idemo-menu.idemo-cmenu { animation-name: duit-cmenu; }
+@keyframes duit-cmenu { 0%, 15% { opacity: 0; transform: translateY(4px); } 30%, 88% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; } }
 @media (prefers-reduced-motion: reduce) { .idemo-sheet, .idemo-dialog, .idemo-home, .idemo-appicon-pop, .idemo-menu, .idemo-tap { animation: none; } .idemo-home { opacity: 0; } .idemo-tap { opacity: 1; transform: none; } .idemo-menu { opacity: 1; } }

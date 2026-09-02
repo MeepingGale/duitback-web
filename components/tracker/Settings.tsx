@@ -171,7 +171,7 @@ export function Settings({ api, lockNow }: { api: Api; lockNow: () => void }) {
           </ol>
         ) : env.webkit ? (
           <ol style={{ margin: 0, paddingLeft: 20, fontSize: 13.5, lineHeight: 1.7 }}>
-            <li>Open this page in Safari and tap <strong>Share</strong> (the square with an arrow). <span lang="ms">Ketik <strong>Kongsi</strong>.</span></li>
+            <li>Open this page in Safari and tap <strong>Share</strong> — the square with an arrow in the bottom bar, or behind the <strong>···</strong> button beside the address bar in Safari&apos;s compact layout. <span lang="ms">Ketik <strong>Kongsi</strong> (atau ··· dahulu).</span></li>
             <li>Choose <strong>Add to Home Screen</strong>. <span lang="ms">Pilih <strong>Tambah ke Skrin Utama</strong>.</span></li>
             <li>Tap <strong>Add</strong>, then open DuitBack from the Home Screen icon. <span lang="ms">Ketik <strong>Tambah</strong>.</span></li>
           </ol>

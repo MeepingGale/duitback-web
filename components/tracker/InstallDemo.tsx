@@ -12,7 +12,7 @@ const PlusIcon = () => (
 );
 const Tap = ({ style }: { style: React.CSSProperties }) => <span className="idemo-tap" style={style} aria-hidden="true" />;
 
-export type DemoWhere = 'bottom' | 'top-right' | 'mac';
+export type DemoWhere = 'bottom' | 'compact' | 'top-right' | 'mac';
 
 export function InstallDemo({ phase, where }: { phase: 1 | 2 | 3; where: DemoWhere }) {
   if (where === 'mac') {
@@ -28,11 +28,23 @@ export function InstallDemo({ phase, where }: { phase: 1 | 2 | 3; where: DemoWhe
     );
   }
   const bottom = where === 'bottom';
+  const compact = where === 'compact';
   return (
-    <div className={'idemo idemo-p' + phase} role="img" aria-label={phase === 1 ? 'Animation: tapping the Share button' : phase === 2 ? 'Animation: the share sheet slides up and Add to Home Screen is tapped' : 'Animation: tapping Add, then the app icon appears on the Home Screen'}>
+    <div className={'idemo idemo-p' + phase} role="img" aria-label={phase === 1 ? (compact ? 'Animation: tapping the ··· button beside the address bar, then Share' : 'Animation: tapping the Share button') : phase === 2 ? 'Animation: the share sheet slides up and Add to Home Screen is tapped' : 'Animation: tapping Add, then the app icon appears on the Home Screen'}>
       <div className="idemo-screen">
-        <div className="idemo-addr"><span className="idemo-url">duitback</span>{!bottom && <span className="idemo-share-top"><ShareIcon />{phase === 1 && <Tap style={{ right: -6, top: -6 }} />}</span>}</div>
+        {!compact && <div className="idemo-addr"><span className="idemo-url">duitback</span>{!bottom && <span className="idemo-share-top"><ShareIcon />{phase === 1 && <Tap style={{ right: -6, top: -6 }} />}</span>}</div>}
         <div className="idemo-page"><i style={{ width: '55%' }} /><i style={{ width: '80%' }} /><i className="idemo-hero" /><i style={{ width: '70%' }} /><i style={{ width: '60%' }} /></div>
+        {compact && (
+          <>
+            <div className="idemo-pill"><span>‹</span><span className="idemo-pill-url">duitback</span><span className="idemo-more">···{phase === 1 && <Tap style={{ left: -3, top: -3 }} />}</span></div>
+            {phase === 1 && (
+              <div className="idemo-menu idemo-cmenu">
+                <div className="idemo-row-hot"><ShareIcon size={11} /> Share<Tap style={{ right: 6, top: 1, animationDelay: '1.2s' }} /></div>
+                <div>Add Bookmark</div><div>Reader</div><div>Translate</div>
+              </div>
+            )}
+          </>
+        )}
         {bottom && (
           <div className="idemo-toolbar"><span>‹</span><span>›</span><span className="idemo-share-btn"><ShareIcon size={15} />{phase === 1 && <Tap style={{ left: -4, top: -4 }} />}</span><span>▢</span><span>▣</span></div>
         )}

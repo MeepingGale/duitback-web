@@ -361,6 +361,8 @@ export interface InstallEnv {
   /** WebKit-engined: Safari's 7-day storage clean-up applies (every iOS browser is WebKit) */
   webkit: boolean;
   standalone: boolean;
+  /** iOS / iPadOS major version from the UA, when it says (Safari's toolbar layouts changed in iOS 26) */
+  iosMajor?: number;
 }
 
 /** Where are we running? Drives the install guide's steps and whether it auto-shows. */
@@ -379,7 +381,8 @@ export function installEnv(): InstallEnv {
     : 'other';
   const device: InstallEnv['device'] = iphone ? 'iphone' : ipad ? 'ipad' : mac ? 'mac' : 'other';
   const webkit = iphone || ipad || (mac && browser === 'safari');
-  return { device, browser, webkit, standalone: isStandalone() };
+  const ver = / OS (\d+)_\d/.exec(ua);
+  return { device, browser, webkit, standalone: isStandalone(), iosMajor: ver ? +ver[1] : undefined };
 }
 
 const GUIDE_KEY = 'duitback_install_guide';

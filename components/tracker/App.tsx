@@ -84,10 +84,10 @@ export default function TrackerApp() {
     setBooted(true);
     const onInstall = (e: Event) => { e.preventDefault(); setInstallEvt(e as unknown as { prompt: () => void }); };
     window.addEventListener('beforeinstallprompt', onInstall);
-    return () => { window.removeEventListener('beforeinstallprompt', onInstall); window.removeEventListener('hashchange', applyHash); };
     if ('serviceWorker' in navigator && process.env.NODE_ENV === 'production') {
       navigator.serviceWorker.register('/duitback-web/sw.js', { scope: '/duitback-web/' }).catch(() => {});
     }
+    return () => { window.removeEventListener('beforeinstallprompt', onInstall); window.removeEventListener('hashchange', applyHash); };
   }, []);
 
   // the tour drives the screen: each step lands on the screen it teaches

@@ -4,7 +4,7 @@ import { Kick, useDialogKeys } from './bits';
 import { DemoWhere, InstallDemo } from './InstallDemo';
 
 type Point = 'bottom-center' | 'top-right' | 'top-left' | null;
-interface Step { point: Point; t: string; b: React.ReactNode; bm: string; mock?: 'share' | 'add' | 'dock' | 'menu'; demo?: { phase: 1 | 2 | 3; where: DemoWhere } }
+interface Step { point: Point; t: string; b: React.ReactNode; bm: string; mock?: 'share' | 'add' | 'dock' | 'menu'; mockNote?: string; demo?: { phase: 1 | 2 | 3; where: DemoWhere } }
 
 const Share = () => (
   <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -43,8 +43,14 @@ function stepsFor(env: InstallEnv, canPrompt: boolean): Step[] {
   if (phone || pad) {
     const safari = env.browser === 'safari';
     const where: Point = phone && safari ? 'bottom-center' : 'top-right';
+    // iOS 26 Safari defaults to the Compact layout: one address pill at the bottom, Share behind its ··· button.
+    // The Bottom and Top layouts (and iOS 18 and earlier) keep the Share button visible in the bottom bar.
+    const compact = phone && safari && (env.iosMajor ?? 0) >= 26;
+    const first: Step = compact
+      ? { point: where, t: 'Find Share · Cari Kongsi', b: <>Safari&apos;s look depends on a setting, so check the bottom of the screen. If there is a <strong>···</strong> button beside the address bar, tap it, then <strong>Share</strong> — that is the usual layout:</>, bm: 'Rupa Safari bergantung pada tetapan. Jika ada butang ··· di sebelah bar alamat di bawah, ketik ia, kemudian Kongsi.', demo: { phase: 1, where: 'compact' }, mock: 'share', mockNote: 'No ··· button? Then Safari is in the Bottom or Top layout and the Share button is in the bar itself — the square with an arrow: · Tiada butang ···? Butang Kongsi ada di bar itu sendiri:' }
+      : { point: where, t: 'Tap Share · Ketik Kongsi', b: <>The square with an arrow, {where === 'bottom-center' ? 'in the bar at the bottom of the screen' : 'at the top-right of the address bar'} — watch where the finger goes:</>, bm: where === 'bottom-center' ? 'Petak dengan anak panah, di bar bawah skrin.' : 'Petak dengan anak panah, di kanan atas bar alamat.', demo: { phase: 1, where: where === 'bottom-center' ? 'bottom' : 'top-right' } };
     return [
-      { point: where, t: 'Tap Share · Ketik Kongsi', b: <>The square with an arrow, {where === 'bottom-center' ? 'in the bar at the bottom of the screen' : 'at the top-right of the address bar'} — watch where the finger goes:</>, bm: where === 'bottom-center' ? 'Petak dengan anak panah, di bar bawah skrin.' : 'Petak dengan anak panah, di kanan atas bar alamat.', demo: { phase: 1, where: where === 'bottom-center' ? 'bottom' : 'top-right' } },
+      first,
       { point: null, t: 'Add to Home Screen · Tambah ke Skrin Utama', b: <>A sheet slides up. Scroll it down until you see <strong>Add to Home Screen</strong>, and tap it{!safari ? <> — if it is missing in {env.browser === 'chrome' ? 'Chrome' : env.browser === 'firefox' ? 'Firefox' : 'this browser'}, open this page in Safari and do the same there</> : ''}:</>, bm: 'Skrol helaian ke bawah dan ketik Tambah ke Skrin Utama.', demo: { phase: 2, where: where === 'bottom-center' ? 'bottom' : 'top-right' } },
       { point: 'top-right', t: 'Tap Add · Ketik Tambah', b: <>Confirm with <strong>Add</strong> at the top right. DuitBack now has an icon on your Home Screen — open it from there from now on; that is the version whose data Safari never clears.</>, bm: 'Sahkan dengan Tambah. Buka DuitBack dari ikon Skrin Utama selepas ini — data versi itu tidak dipadam Safari.', demo: { phase: 3, where: where === 'bottom-center' ? 'bottom' : 'top-right' } },
     ];
@@ -96,6 +102,7 @@ export function InstallTour({ env, install, onClose }: { env: InstallEnv; instal
         <h3 style={{ fontFamily: 'var(--font-heading)', fontWeight: 800, fontSize: 19, margin: '8px 0 6px' }}>{st.t}</h3>
         <p style={{ fontSize: 13.5, lineHeight: 1.55, margin: '0 0 6px', color: 'var(--color-neutral-800)' }}>{st.b}</p>
         {st.demo && <InstallDemo phase={st.demo.phase} where={st.demo.where} />}
+        {st.mockNote && <p className="text-muted" style={{ fontSize: 12, margin: '10px 0 0' }}>{st.mockNote}</p>}
         {st.mock && <Mock kind={st.mock} />}
         <p lang="ms" style={{ fontSize: 12.5, lineHeight: 1.5, margin: '0 0 14px', color: 'var(--color-neutral-700)' }}>{st.bm}</p>
         {copied === 'fail' && i === 0 && (

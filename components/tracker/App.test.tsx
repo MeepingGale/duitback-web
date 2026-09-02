@@ -493,6 +493,22 @@ describe('TrackerApp smoke', () => {
     }
   });
 
+  it('on iOS 26 Safari the guide leads with the ··· button and still shows where Share sits in the older layouts', async () => {
+    const ua = Object.getOwnPropertyDescriptor(window.navigator, 'userAgent');
+    Object.defineProperty(window.navigator, 'userAgent', { value: 'Mozilla/5.0 (iPhone; CPU iPhone OS 26_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.0 Mobile/15E148 Safari/604.1', configurable: true });
+    try {
+      await completeSetup();
+      fireEvent.click(screen.getByText('Skip tour'));
+      await screen.findByText('Find Share · Cari Kongsi', {}, { timeout: 3000 });
+      expect(screen.getByRole('img', { name: /tapping the ··· button/ })).toBeTruthy();
+      expect(screen.getByText(/No ··· button\?/)).toBeTruthy();
+      fireEvent.click(screen.getByText('Next →'));
+      await screen.findByText('Add to Home Screen · Tambah ke Skrin Utama');
+    } finally {
+      if (ua) Object.defineProperty(window.navigator, 'userAgent', ua);
+    }
+  });
+
   it('inside an in-app browser the guide says to open Safari and offers the link', async () => {
     const ua = Object.getOwnPropertyDescriptor(window.navigator, 'userAgent');
     Object.defineProperty(window.navigator, 'userAgent', { value: 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 Instagram 320.0.0.0', configurable: true });
