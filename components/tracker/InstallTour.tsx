@@ -77,7 +77,7 @@ export function InstallTour({ env, install, onClose }: { env: InstallEnv; instal
     ? { bottom: 14, left: '50%', transform: 'translateX(-50%) rotate(180deg)' }
     : st.point === 'top-right' ? { top: 10, right: 14 }
     : st.point === 'top-left' ? { top: 10, left: 22 } : null;
-  const cardPos: React.CSSProperties = st.point === 'bottom-center' ? { top: 'max(16px, 14vh)' } : st.point ? { bottom: 'max(16px, 14vh)' } : { top: '50%', transform: 'translateY(-50%)' };
+  const cardPos: React.CSSProperties = st.point === 'bottom-center' ? { top: 'max(16px, 14vh)' } : st.point ? { bottom: 'max(16px, 14vh)' } : { top: '50%' };
   const link = typeof location !== 'undefined' ? location.origin + location.pathname : '';
   return (
     <>
