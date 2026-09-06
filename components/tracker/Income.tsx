@@ -207,7 +207,7 @@ export function Income({ api, c }: { api: Api; c: CalcResult }) {
           <table className="table" style={{ fontSize: 13, marginTop: 8 }}>
                 <tbody>
                   <Row label="Separate — you + spouse each assessed" value={fmt(jc.sep)} />
-                  <Row label="Joint — combined income, RM4,000 spouse relief" value={fmt(jc.joint)} />
+                  <Row label={'Joint — combined income, RM4,000 spouse relief' + (d.profile.spouseDisabled ? ' + disabled-spouse relief' : '')} value={fmt(jc.joint)} />
                 </tbody>
               </table>
           </div>

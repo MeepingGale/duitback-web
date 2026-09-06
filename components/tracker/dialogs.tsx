@@ -101,7 +101,7 @@ function catOptions(yaNum: number, keep?: string) {
   // automatic and profile-driven reliefs aren't claim lines — except a legacy line being edited
   return CATS.filter((x) => (!x.auto && !x.profile) || x.id === keep).map((x) => ({
     id: x.id,
-    label: x.en + (x.id === 'child' ? ' — fixed per child' : x.id === 'donation' ? ' — 10% of income' : ' — max ' + fmt(capFor(x.id, yaNum))),
+    label: x.en + (x.id === 'child' ? ' — fixed per child' : x.id === 'donation' ? ' — 10% of income for approved bodies; government gifts unlimited' : ' — max ' + fmt(capFor(x.id, yaNum))),
   }));
 }
 
