@@ -1,4 +1,4 @@
-import { CATS, CalcResult, capFor, fmt } from '@/lib/tax';
+import { CATS, SUBLIMITS, CalcResult, capFor, fmt } from '@/lib/tax';
 import { Api } from './App';
 import { Bar, Kick, YaTabs, pagepad, yaHead, right, heading800 } from './bits';
 import { reliefRows, yearsOf } from './derive';
@@ -13,7 +13,7 @@ export function Claims({ api, c, selCat, setSelCat }: { api: Api; c: CalcResult;
   const selCap = selCt.id === 'donation' ? c.donCap : capFor(selCt.id, yaNum);
   const selCatNote =
     (selCt.id === 'donation'
-      ? 'Cap for you now: ' + fmt(c.donCap) + ' (10% of aggregate income). '
+      ? 'Approved bodies, sports, national-interest projects and wakaf share a pool of ' + fmt(c.donCap) + ' (10% of aggregate income); government gifts and certified in-kind gifts have no limit. '
       : selCap === Infinity
         ? ''
         : selCap === 0
@@ -79,7 +79,7 @@ export function Claims({ api, c, selCat, setSelCat }: { api: Api; c: CalcResult;
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 4 }}>
                     <span style={{ fontSize: 11 }} className="text-muted mono">
                       {x.date}
-                      {x.sub && x.sub !== 'general' ? ' · ' + x.sub : ''}
+                      {x.sub && x.sub !== 'general' ? ' · ' + ((SUBLIMITS[x.cat] || []).find((m) => m.id === x.sub)?.label.split(' — ')[0] || x.sub) : ''}
                     </span>
                     <span style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
                       {x.receipt && <span className="tag tag-neutral" style={{ fontSize: 10 }}>{x.receipt}</span>}

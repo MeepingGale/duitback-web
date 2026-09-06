@@ -113,10 +113,12 @@ export function AddClaimDialog({ api, c, add, setAdd, onSaved }: { api: Api; c: 
   let capNote = '', capNoteCls = 'text-muted';
   if (addCt) {
     const others = c.claims.filter((x) => x.id !== add.editId);
-    const already = SUBLIMITS[add.cat]
+    let already = SUBLIMITS[add.cat]
       ? subSum(add.cat, others.filter((x) => x.cat === add.cat), yaNum)
       : others.filter((x) => x.cat === add.cat).reduce((a, x) => a + (+x.amount || 0), 0);
-    const cap = add.cat === 'donation' ? c.donCap : capFor(add.cat, yaNum);
+    const donSub = add.cat === 'donation' ? (add.sub || DEFAULT_SUB.donation) : null;
+    const cap = donSub ? (donSub === 'approved' ? c.donCap : Infinity) : capFor(add.cat, yaNum);
+    if (donSub === 'approved') already = others.filter((x) => x.cat === 'donation' && (!x.sub || x.sub === 'approved')).reduce((a, x) => a + (+x.amount || 0), 0);
     const each = +add.amount || 0;
     const total = add.monthly ? each * 12 : each;
     const after = already + total;
@@ -124,7 +126,7 @@ export function AddClaimDialog({ api, c, add, setAdd, onSaved }: { api: Api; c: 
     const subCapV = sub ? subCap(add.cat, sub.id, yaNum) : null;
     const subAlready = subCapV ? others.filter((x) => x.cat === add.cat && (x.sub || DEFAULT_SUB[add.cat]) === add.sub).reduce((a, x) => a + (+x.amount || 0), 0) : 0;
     if (cap === Infinity) capNote = addCt.note || '';
-    else if (cap === 0 && add.cat === 'donation') { capNote = 'Donations count up to 10% of your declared income — enter your income first, or this line counts RM 0 for now. · Derma dikira sehingga 10% pendapatan — isi pendapatan anda dahulu.'; capNoteCls = ''; }
+    else if (cap === 0 && add.cat === 'donation') { capNote = 'Gifts to approved bodies count up to 10% of your declared income — enter your income first, or this line counts RM 0 for now. · Derma kepada badan diluluskan dikira sehingga 10% pendapatan — isi pendapatan anda dahulu.'; capNoteCls = ''; }
     else if (cap === 0) { capNote = 'This relief is not available for ' + ya + ' — it can be saved for your records but counts RM 0. · Pelepasan ini tiada untuk ' + ya + ' — dikira RM 0.'; capNoteCls = ''; }
     else if (subCapV && subAlready + total > subCapV) {
       capNote = (add.monthly ? '12 × ' + fmt(each) + ' = ' + fmt(total) + '. ' : '') + 'Over the ' + fmt(subCapV) + ' sub-limit for this type — only ' + fmt(subCapV) + ' counts here. Saved and flagged. · Melebihi had kecil ' + fmt(subCapV) + ' — hanya ' + fmt(subCapV) + ' dikira.';

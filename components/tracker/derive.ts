@@ -20,7 +20,8 @@ export interface ReliefRow {
 export function reliefRows(c: CalcResult, ya: string): ReliefRow[] {
   const yaNum = +ya.slice(2);
   return CATS.map((ct) => {
-    const cap = ct.id === 'donation' ? c.donCap : capFor(ct.id, yaNum);
+    // donations: only the pooled lines are limited to 10%; government and certified in-kind gifts sit on top
+    const cap = ct.id === 'donation' ? c.donCap + Math.max(0, c.donRaw - c.donPooled) : capFor(ct.id, yaNum);
     const lines = c.claims.filter((x) => x.cat === ct.id);
     const lineSum = lines.reduce((a, x) => a + (+x.amount || 0), 0);
     const fromProfile = !lines.length && !!c.derived[ct.id];

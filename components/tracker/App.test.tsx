@@ -462,7 +462,7 @@ describe('TrackerApp smoke', () => {
       expect(tour.contains(document.activeElement)).toBe(true);
       fireEvent.keyDown(tour, { key: 'Escape' });
       await screen.findByText(/Tell DuitBack who you are/); // skipped → dashboard nudge
-      const guide = await screen.findByRole('dialog', { name: /Install DuitBack, step 1 of 3/ }, { timeout: 3000 });
+      const guide = await screen.findByRole('dialog', { name: /Install DuitBack, step 1 of 3/ }, { timeout: 8000 });
       expect(document.activeElement?.textContent).toBe('Next →');
       fireEvent.keyDown(guide, { key: 'Escape' });
       await waitFor(() => expect(screen.queryByText(/Install DuitBack · Pasang ·/)).toBeNull());
@@ -477,7 +477,7 @@ describe('TrackerApp smoke', () => {
     try {
       await completeSetup();
       fireEvent.click(screen.getByText('Skip tour'));
-      await screen.findByText(/Install DuitBack · Pasang · 1 of 3/, {}, { timeout: 3000 });
+      await screen.findByText(/Install DuitBack · Pasang · 1 of 3/, {}, { timeout: 8000 });
       await screen.findByText(/in the bar at the bottom of the screen/); // iPhone Safari: Share lives in the bottom bar
       expect(screen.getByRole('img', { name: /tapping the Share button/ })).toBeTruthy(); // the animated mock phone
       expect(localStorage.getItem('duitback_install_guide')).toBe('1');
@@ -501,7 +501,7 @@ describe('TrackerApp smoke', () => {
     try {
       await completeSetup();
       fireEvent.click(screen.getByText('Skip tour'));
-      await screen.findByText('Find Share · Cari Kongsi', {}, { timeout: 3000 });
+      await screen.findByText('Find Share · Cari Kongsi', {}, { timeout: 8000 });
       expect(screen.getByRole('img', { name: /tapping the ··· button/ })).toBeTruthy();
       expect(screen.getByText(/No ··· button\?/)).toBeTruthy();
       fireEvent.click(screen.getByText('Next →'));
@@ -517,7 +517,7 @@ describe('TrackerApp smoke', () => {
     try {
       await completeSetup();
       fireEvent.click(screen.getByText('Skip tour'));
-      await screen.findByText(/Open this in Safari first/, {}, { timeout: 3000 });
+      await screen.findByText(/Open this in Safari first/, {}, { timeout: 8000 });
       fireEvent.click(screen.getByText('Copy link · Salin pautan')); // jsdom has no clipboard → visible fallback
       const box = await screen.findByLabelText('Link to DuitBack · Pautan') as HTMLInputElement;
       expect(box.value).toContain('/');

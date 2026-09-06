@@ -130,7 +130,7 @@ export const CATS: Cat[] = [
   { id: 'ev', en: 'EV charging · CCTV · composting', bm: 'Pengecas EV / CCTV / kompos', cap: 2500, note: 'EV charger install, purchase/hire-purchase, rental or subscription (to YA2027); food-waste composter once in YA2025–27; from YA2026 also food-waste grinder or household CCTV, once in YA2026–27. RM2,500 total.' },
   { id: 'tourism', en: 'Domestic tourism', bm: 'Pelancongan domestik', cap: 1000, note: 'YA2026 only — entrance fees to tourist attractions and cultural or arts programmes in Malaysia (Visit Malaysia 2026).' },
   { id: 'housing', en: 'Housing loan interest — first home', bm: 'Faedah pinjaman rumah', cap: 7000, note: 'From YA2025. RM7,000 if price ≤ RM500k; RM5,000 if RM500,001–750k. SPA signed 1 Jan 2025–31 Dec 2027; three consecutive YAs from the first year interest is paid (may run past YA2027). Malaysian citizen and tax resident only.' },
-  { id: 'donation', en: 'Donations & gifts', bm: 'Derma', cap: null, note: 'Approved institutions — capped at 10% of aggregate income.' },
+  { id: 'donation', en: 'Donations & gifts', bm: 'Derma', cap: null, note: 'Government gifts: no limit. Approved bodies, sports, national-interest projects and wakaf: 10% of aggregate income shared. Library or medical gifts: RM20,000 each. Certified artefacts and paintings at their valuation.' },
 ];
 
 /** The schedule year the current caps describe (Budget 2026 → YA2026). */
@@ -349,6 +349,8 @@ export interface CalcResult {
   donRaw: number;
   donCap: number;
   donAllowed: number;
+  /** donation lines that share the 10% pool (approved bodies, sports, national-interest projects, wakaf) */
+  donPooled: number;
   reliefsNonDon: number;
   totalAllowed: number;
   chargeable: number;
@@ -427,7 +429,7 @@ export function calc(d: Data, ya: string): CalcResult {
   const paid = (+inc.pcb || 0) + (+inc.cp500 || 0);
   const balance = taxNet - paid;
   return {
-    claims, inc, sums, netRent, totalIncome, donRaw, donCap, donAllowed, reliefsNonDon,
+    claims, inc, sums, netRent, totalIncome, donRaw, donCap, donAllowed, donPooled, reliefsNonDon,
     totalAllowed: reliefsNonDon + donAllowed, chargeable, taxGross, rebate, zakatRebate,
     taxNet, paid, balance, formType: (+inc.biz || 0) > 0 ? 'B' : 'BE',
     derived, compTaxable, compExempt, dividends, chargeableDiv, dividendTax, levyRebate,
