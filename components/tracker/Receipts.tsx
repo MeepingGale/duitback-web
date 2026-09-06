@@ -52,9 +52,9 @@ export function Receipts({ api, setTag, setViewer }: { api: Api; setTag: (t: Tag
 
       <div style={{ display: 'flex', gap: 8, margin: '16px 0', flexWrap: 'wrap' }}>
         {filters.map((f) => (
-          <span key={f.id} className={'tag ' + (rFilter === f.id ? 'tag-accent' : f.id === 'untagged' ? 'tag-outline' : 'tag-neutral')} style={{ cursor: 'pointer' }} onClick={() => setRFilter(f.id)}>
+          <button key={f.id} type="button" className={'tag ' + (rFilter === f.id ? 'tag-accent' : f.id === 'untagged' ? 'tag-outline' : 'tag-neutral')} aria-pressed={rFilter === f.id} onClick={() => setRFilter(f.id)}>
             {f.label}
-          </span>
+          </button>
         ))}
       </div>
 
@@ -82,7 +82,7 @@ export function Receipts({ api, setTag, setViewer }: { api: Api; setTag: (t: Tag
             const ct = CATS.find((x) => x.id === r.cat);
             return (
               <div key={r.id} style={{ border: '1px solid ' + (r.cat ? 'var(--color-divider)' : 'var(--color-accent)'), background: r.cat ? 'var(--color-bg)' : 'var(--color-accent-100)' }}>
-                <div style={{ height: 110, background: 'var(--color-neutral-200)', display: 'grid', placeItems: 'center', overflow: 'hidden', cursor: 'pointer' }} className="text-muted" onClick={() => openViewer(r)}>
+                <button type="button" style={{ height: 110, width: '100%', padding: 0, border: 0, font: 'inherit', color: 'inherit', background: 'var(--color-neutral-200)', display: 'grid', placeItems: 'center', overflow: 'hidden', cursor: 'pointer' }} className="text-muted" aria-label={'Open ' + r.name + ' · Buka'} onClick={() => openViewer(r)}>
                   {r.thumb ? (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img src={r.thumb} alt={r.name} className="grayscale" style={{ width: '100%', height: 110, objectFit: 'cover' }} />
@@ -91,7 +91,7 @@ export function Receipts({ api, setTag, setViewer }: { api: Api; setTag: (t: Tag
                       <path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z" /><path d="M14 2v4a2 2 0 0 0 2 2h4" /><path d="M16 13H8" /><path d="M16 17H8" />
                     </svg>
                   )}
-                </div>
+                </button>
                 <div style={{ padding: '10px 12px' }}>
                   <div style={{ ...heading800, fontSize: 13, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{r.name}</div>
                   <div style={{ fontSize: 11.5 }} className="text-muted">{r.sub}</div>

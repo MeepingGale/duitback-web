@@ -49,7 +49,7 @@ export function Claims({ api, c, selCat, setSelCat }: { api: Api; c: CalcResult;
             </thead>
             <tbody>
               {rows.map((r) => (
-                <tr key={r.id} className={'rrow' + (selCat === r.id ? ' sel' : '')} onClick={() => setSelCat(r.id)}>
+                <tr key={r.id} className={'rrow' + (selCat === r.id ? ' sel' : '')} tabIndex={0} aria-current={selCat === r.id ? 'true' : undefined} onClick={() => setSelCat(r.id)} onKeyDown={(e) => { if (e.target === e.currentTarget && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); setSelCat(r.id); } }}>
                   <td>{r.en} <span className="bm">· {r.bm}</span><CatHelp id={r.id} ya={yaNum} /></td>
                   <td style={{ ...right, whiteSpace: 'nowrap' }} className="mono">{r.capL}</td>
                   <td style={right} className="mono">{r.claimedL}</td>

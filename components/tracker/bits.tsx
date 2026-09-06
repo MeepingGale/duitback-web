@@ -167,14 +167,14 @@ export function YaTabs({ tabs, onAddYear }: { tabs: YaTab[]; onAddYear?: () => v
   return (
     <div style={{ display: 'inline-flex', border: '1px solid var(--color-divider)' }}>
       {tabs.map((t) => (
-        <span key={t.label} className={'yatab' + (t.on ? ' on' : '')} onClick={t.pick}>
+        <button key={t.label} type="button" className={'yatab' + (t.on ? ' on' : '')} aria-pressed={t.on} onClick={t.pick}>
           {t.label}
-        </span>
+        </button>
       ))}
       {onAddYear && (
-        <span className="yatab" onClick={onAddYear} title="Add next year">
+        <button type="button" className="yatab" onClick={onAddYear} title="Add next year" aria-label="Add next year">
           +
-        </span>
+        </button>
       )}
     </div>
   );
