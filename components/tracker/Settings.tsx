@@ -18,7 +18,7 @@ export function Settings({ api, lockNow }: { api: Api; lockNow: () => void }) {
 
   return (
     <div className="pagepad" data-screen-label="Settings" style={pagepad(900)}>
-      <h2 style={{ margin: '0 0 18px' }}>Settings <span className="bm" style={{ fontSize: 15 }}>· Tetapan</span></h2>
+      <h1 className="screen-title" style={{ margin: '0 0 18px' }}>Settings <span className="bm" style={{ fontSize: 15 }}>· Tetapan</span></h1>
 
       <div style={{ border: '2px solid var(--color-divider)', padding: 24 }}>
         <Kick>Profile · Profil</Kick>

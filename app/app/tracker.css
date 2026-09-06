@@ -85,6 +85,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 h1 { font-size: 42px; }
 h2 { font-size: 32px; }
+.screen-title { font-size: 32px; } /* each screen's title is its h1, kept at the h2 size */
 h3 { font-size: 25px; }
 h4 { font-size: 20px; }
 h5 { font-size: 16px; }

@@ -25,7 +25,7 @@ export function StatusScreen({ api, c, demo }: { api: Api; c: CalcResult; demo: 
   return (
     <div className="pagepad" data-screen-label="Status" style={pagepad(1200)}>
       <div style={yaHead}>
-        <h2 style={{ margin: 0 }}>Filing status <span className="bm" style={{ fontSize: 15 }}>· Status pemfailan</span></h2>
+        <h1 className="screen-title" style={{ margin: 0 }}>Filing status <span className="bm" style={{ fontSize: 15 }}>· Status pemfailan</span></h1>
         <YaTabs tabs={years.map((y) => ({ label: y, on: y === ya, pick: () => mut((x) => { x.ya = y; }) }))} />
       </div>
       <p className="text-muted" style={{ fontSize: 12.5, margin: '8px 0 0' }}>{dl.formLine}</p>

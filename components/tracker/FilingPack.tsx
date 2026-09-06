@@ -29,7 +29,7 @@ export function FilingPack({ api, c }: { api: Api; c: CalcResult }) {
         </div>
       </div>
 
-      <header className="pack-head" data-tour="pack-sheet">
+      <div className="pack-head" data-tour="pack-sheet">
         <div>
           <div className="print-only pack-brand"><Wordmark width={118} /></div>
           <Kick>Filing pack · Pek pemfailan</Kick>
@@ -45,7 +45,7 @@ export function FilingPack({ api, c }: { api: Api; c: CalcResult }) {
           <dt>Filing deadline · Tarikh akhir</dt><dd>{dl.dlLabel}</dd>
           <dt>Generated · Dijana</dt><dd className="mono">{today()}</dd>
         </dl>
-      </header>
+      </div>
 
       <div className="print-only pack-glance">
         <div><div className="k">Total income</div><div className="v mono">{fmt(c.totalIncome)}</div></div>

@@ -231,8 +231,8 @@ export default function TrackerApp() {
   // ---------- first-run setup ----------
   if (!data) {
     return (
-      <div role="main" style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
-        <div className="pagepad" style={{ padding: '32px 24px 48px', maxWidth: 600, width: '100%', margin: '0 auto', boxSizing: 'border-box' }}>
+      <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+        <div role="main" className="pagepad" style={{ padding: '32px 24px 48px', maxWidth: 600, width: '100%', margin: '0 auto', boxSizing: 'border-box' }}>
           <a className="btn btn-ghost" href="../" style={{ marginLeft: -8, marginBottom: 22 }}>← Back to home · Kembali</a>
           <div><span style={{ display: 'inline-flex', alignItems: 'center' }}><Wordmark /></span></div>
           <Kick style={{ marginTop: 26 }}>Welcome · Selamat datang</Kick>
@@ -293,7 +293,7 @@ export default function TrackerApp() {
   const demo = isDemo(d);
 
   return (
-    <div role="main" style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
       <div className="nav app-nav no-print" style={{ position: 'sticky', top: 0, background: 'var(--color-bg)', zIndex: 5 }}>
         <span className="nav-brand" style={{ display: 'inline-flex', alignItems: 'center' }}>
           <a href="../" title="duıtback — home" aria-label="duıtback. — home" style={{ display: 'inline-flex', alignItems: 'center' }}>
@@ -324,7 +324,7 @@ export default function TrackerApp() {
         </div>
       )}
 
-      <div className="screen-clip">
+      <div role="main" className="screen-clip">
       <div ref={hostRef} key={slide.n} className={'screen-host' + (slide.dir ? ' ' + slide.dir : '')}>
         {screen === 'dash' && <Dashboard api={api} c={c} />}
         {screen === 'claims' && <Claims api={api} c={c} selCat={selCat} setSelCat={setSelCat} />}

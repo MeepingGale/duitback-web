@@ -26,7 +26,7 @@ export function Claims({ api, c, selCat, setSelCat }: { api: Api; c: CalcResult;
       <div style={yaHead}>
         <div>
           <Kick>{ya} · Reliefs &amp; deductions · Pelepasan</Kick>
-          <h2 style={{ margin: '6px 0 2px' }}>Claims against caps</h2>
+          <h1 className="screen-title" style={{ margin: '6px 0 2px' }}>Claims against caps</h1>
           <p className="text-muted" style={{ fontSize: 12.5, margin: 0 }}>
             Caps follow the {ya} LHDN schedule · click a row to see its claim lines. Medical sub-limits are enforced; child relief has no overall cap (fixed amount per child).
           </p>

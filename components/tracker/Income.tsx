@@ -88,7 +88,7 @@ export function Income({ api, c }: { api: Api; c: CalcResult }) {
   return (
     <div className="pagepad" data-screen-label="Income" style={pagepad(1200)}>
       <div style={yaHead}>
-        <h2 style={{ margin: 0 }}>Income <span className="bm" style={{ fontSize: 15 }}>· Pendapatan</span></h2>
+        <h1 className="screen-title" style={{ margin: 0 }}>Income <span className="bm" style={{ fontSize: 15 }}>· Pendapatan</span></h1>
         <YaTabs tabs={years.map((y) => ({ label: y, on: y === ya, pick: () => mut((x) => { x.ya = y; }) }))} />
       </div>
 
