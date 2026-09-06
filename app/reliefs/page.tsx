@@ -89,15 +89,15 @@ export default function ReliefsPage() {
               <tbody>
                 {rows.map((c) => (
                   <tr key={c.id}>
-                    <td style={{ minWidth: 190 }}>
+                    <td style={{ minWidth: 190, verticalAlign: 'top' }}>
                       <span style={{ fontFamily: 'var(--font-heading)', fontWeight: 800, fontSize: 13.5 }}>{c.en}</span>
                       <br />
                       <span lang="ms" style={{ color: 'var(--color-neutral-700)', fontSize: 12.5 }}>{c.bm}</span>
                     </td>
-                    <td style={{ textAlign: 'right', whiteSpace: 'nowrap', fontVariantNumeric: 'tabular-nums', fontFamily: 'var(--font-heading)', fontWeight: 800 }}>
+                    <td style={{ textAlign: 'right', whiteSpace: 'nowrap', fontVariantNumeric: 'tabular-nums', fontFamily: 'var(--font-heading)', fontWeight: 800, verticalAlign: 'top' }}>
                       {c.id === 'donation' ? '10% of income' : c.cap === null ? 'per child' : fmt(c.cap)}
                     </td>
-                    <td style={{ fontSize: 12.5, color: 'var(--color-neutral-800)', minWidth: 260 }}>
+                    <td style={{ fontSize: 12.5, color: 'var(--color-neutral-800)', minWidth: 260, verticalAlign: 'top' }}>
                       {c.note}
                       {RELIEF_HELP[c.id] && (
                         <details className="help-static" id={'what-counts-' + c.id}>
