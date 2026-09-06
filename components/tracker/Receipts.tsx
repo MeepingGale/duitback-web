@@ -100,7 +100,7 @@ export function Receipts({ api, setTag, setViewer }: { api: Api; setTag: (t: Tag
                     {!r.cat && (
                       <button className="navlink linkbtn" style={{ fontSize: 12, marginLeft: 'auto' }} onClick={() => { setTag({ rid: r.id, cat: 'lifestyle', merchant: '', amount: '', makeClaim: true }); setDlg('tag'); }}>Tag →</button>
                     )}
-                    <button className="navlink linkbtn" style={{ fontSize: 11, marginLeft: r.cat ? 'auto' : 0 }} onClick={() => ask('Delete this receipt? · Padam resit ini?', () => { delFile(r.id); mut((dd) => { dd.receipts = dd.receipts.filter((q) => q.id !== r.id); }); })}>Delete</button>
+                    <button className="navlink linkbtn" style={{ fontSize: 11, marginLeft: r.cat ? 'auto' : 0 }} onClick={() => ask('Delete this receipt? · Padam resit ini?', () => { delFile(r.id); mut((dd) => { /* claim lines point at receipts by file name — drop the pointer when the last file of that name goes */ dd.receipts = dd.receipts.filter((q) => q.id !== r.id); const stillNamed = dd.receipts.some((q) => q.ya === r.ya && q.name === r.name); if (!stillNamed) dd.claims.forEach((cl) => { if (cl.ya === r.ya && cl.receipt === r.name) cl.receipt = null; }); }); })}>Delete</button>
                   </div>
                 </div>
               </div>

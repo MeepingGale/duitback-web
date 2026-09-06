@@ -85,10 +85,18 @@ export function emptyData(): Data {
   return { profile: { name: 'there', taxNo: '', bank: '', marital: 'single' }, ya: 'YA' + y, income, claims: [], receipts: [], docs: [], status };
 }
 
+/** Claim lines point at receipts by file name. A pointer whose file is gone (deleted before the
+ *  vault started clearing pointers) would otherwise be printed in the filing pack as evidence. */
+export function tidy(d: Data): Data {
+  const names = new Set((d.receipts || []).map((r) => r.ya + '/' + r.name));
+  for (const c of d.claims) if (c.receipt && !names.has(c.ya + '/' + c.receipt)) c.receipt = null;
+  return d;
+}
+
 export function loadData(): Data | null {
   try {
     const d = JSON.parse(localStorage.getItem(KEY) || 'null');
-    return d && d.claims ? (d as Data) : null;
+    return d && d.claims ? tidy(d as Data) : null;
   } catch {
     return null;
   }
@@ -122,7 +130,7 @@ export function popStash(): Data | null {
     if (!raw) return null;
     localStorage.removeItem(STASH_KEY);
     const d = JSON.parse(raw);
-    return d && d.profile ? (d as Data) : null;
+    return d && d.profile ? tidy(d as Data) : null;
   } catch { return null; }
 }
 

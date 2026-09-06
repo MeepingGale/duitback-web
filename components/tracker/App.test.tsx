@@ -289,6 +289,23 @@ describe('TrackerApp smoke', () => {
     expect((screen.getByAltText('r.png') as HTMLImageElement).src).toContain('BBB');
   });
 
+  it('deleting a receipt clears the claim line that pointed at it', async () => {
+    await completeSetup();
+    cleanup();
+    const d = JSON.parse(localStorage.getItem(KEY)!);
+    d.claims.unshift({ id: 'c1', ya: d.ya, cat: 'lifestyle', date: '2026-09-01', desc: 'Router', amount: 300, receipt: 'r.png' });
+    d.receipts.unshift({ id: 'ra', ya: d.ya, cat: 'lifestyle', name: 'r.png', sub: 'a', thumb: 'data:image/png;base64,AAA', hasFull: false });
+    localStorage.setItem(KEY, JSON.stringify(d));
+    render(<TrackerApp />);
+    fireEvent.click(await screen.findByText('Receipts · Resit'));
+    fireEvent.click(await screen.findByText('Delete'));
+    fireEvent.click(await screen.findByText('Delete · Padam'));
+    await waitFor(() => expect(screen.queryByText('r.png')).toBeNull());
+    fireEvent.click(screen.getByText('Claims · Tuntutan'));
+    await screen.findByText('Edit · Sunting'); // the Router line is still there…
+    expect(screen.queryByText('r.png')).toBeNull(); // …but no longer claims a file that is gone
+  });
+
   it('PCB auto-estimates from salary + bonus, and a typed figure overrides it', async () => {
     await completeSetup();
     cleanup();
