@@ -3,6 +3,7 @@ import { CATS, CHILDSUB, Claim, DEFAULT_SUB, CalcResult, ReceiptItem, SUBLIMITS,
 import { getFile, putFile, readFiles } from '@/lib/data';
 import { Api } from './App';
 import { Modal, MoneyInput } from './bits';
+import { CatHelp } from '@/components/Help';
 
 /** Inline preview of the receipts linked to a claim — flips through them when
  *  the same filename matches more than one vault item. */
@@ -186,7 +187,7 @@ export function AddClaimDialog({ api, c, add, setAdd, onSaved }: { api: Api; c: 
     <Modal onClose={() => setDlg(null)} onSubmit={() => { if (+add.amount > 0) saveClaim(); }} label={add.editId ? 'Edit claim · Sunting tuntutan' : 'New claim · Tuntutan baharu'}>
         <div className="dialog-title">{add.editId ? 'Edit claim · Sunting tuntutan' : 'New claim · Tuntutan baharu'} <span className="bm" style={{ fontSize: 13 }}>({ya})</span></div>
         <div className="field">
-          <label>Relief category · Kategori</label>
+          <label>Relief category · Kategori<CatHelp id={add.cat} ya={yaNum} /></label>
           <select className="input" value={add.cat} onChange={(e) => setAdd({ ...add, cat: e.target.value, sub: DEFAULT_SUB[e.target.value] || 'general' })}>
             {catOptions(yaNum, add.editId ? add.cat : undefined).map((o) => <option key={o.id} value={o.id}>{o.label}</option>)}
           </select>
@@ -287,7 +288,7 @@ export function TagDialog({ api, tag, setTag }: { api: Api; tag: TagState; setTa
         <div className="dialog-title">Tag receipt · Tag resit</div>
         <div className="dialog-body" style={{ margin: 0 }}>{rec?.name || ''}</div>
         <div className="field">
-          <label>Relief category · Kategori</label>
+          <label>Relief category · Kategori<CatHelp id={tag.cat} ya={yaNum} /></label>
           <select className="input" value={tag.cat} onChange={(e) => setTag({ ...tag, cat: e.target.value })}>
             {catOptions(yaNum).map((o) => <option key={o.id} value={o.id}>{o.label}</option>)}
           </select>

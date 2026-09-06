@@ -2,6 +2,7 @@ import { CATS, CalcResult, capFor, fmt } from '@/lib/tax';
 import { Api } from './App';
 import { Bar, Kick, YaTabs, pagepad, yaHead, right, heading800 } from './bits';
 import { reliefRows, yearsOf } from './derive';
+import { CatHelp } from '@/components/Help';
 
 export function Claims({ api, c, selCat, setSelCat }: { api: Api; c: CalcResult; selCat: string; setSelCat: (s: string) => void }) {
   const { d, ya, mut, go, openAdd, openEdit, ask } = api;
@@ -49,7 +50,7 @@ export function Claims({ api, c, selCat, setSelCat }: { api: Api; c: CalcResult;
             <tbody>
               {rows.map((r) => (
                 <tr key={r.id} className={'rrow' + (selCat === r.id ? ' sel' : '')} onClick={() => setSelCat(r.id)}>
-                  <td>{r.en} <span className="bm">· {r.bm}</span></td>
+                  <td>{r.en} <span className="bm">· {r.bm}</span><CatHelp id={r.id} ya={yaNum} /></td>
                   <td style={{ ...right, whiteSpace: 'nowrap' }} className="mono">{r.capL}</td>
                   <td style={right} className="mono">{r.claimedL}</td>
                   <td style={right} className="mono">{r.leftL}</td>

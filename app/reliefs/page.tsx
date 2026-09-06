@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { CATS, CHILDSUB, MEDSUB, OVERRIDES, SCHEDULE_YA, fmt, medSubCap } from '@/lib/tax';
 import { CtaLink, Kicker, SiteFooter, SiteHeader } from '@/components/ui';
+import { CatHelp } from '@/components/Help';
 
 export const metadata: Metadata = {
   title: 'Senarai Pelepasan Cukai YA2026 · Tax Relief List',
@@ -74,7 +75,7 @@ export default function ReliefsPage() {
                 {rows.map((c) => (
                   <tr key={c.id}>
                     <td style={{ minWidth: 190 }}>
-                      <span style={{ fontFamily: 'var(--font-heading)', fontWeight: 800, fontSize: 13.5 }}>{c.en}</span>
+                      <span style={{ fontFamily: 'var(--font-heading)', fontWeight: 800, fontSize: 13.5 }}>{c.en}</span><CatHelp id={c.id} ya={SCHEDULE_YA} />
                       <br />
                       <span lang="ms" style={{ color: 'var(--color-neutral-700)', fontSize: 12.5 }}>{c.bm}</span>
                     </td>

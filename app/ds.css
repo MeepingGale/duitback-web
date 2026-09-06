@@ -169,3 +169,39 @@ input.input[type='date']::-webkit-date-and-time-value { text-align: left; }
 .fields2 > .field { display: flex; flex-direction: column; justify-content: flex-end; }
 @media (max-width: 480px) { .fields2 { grid-template-columns: 1fr; } }
 .mono { font-variant-numeric: tabular-nums; }
+
+/* dialogs (bits.tsx Modal) — shared: the tracker and the public pages' help popovers */
+.dialog-backdrop {
+  position: fixed; inset: 0; display: grid; place-items: center;
+  padding: var(--space-4);
+  background: color-mix(in srgb, var(--color-neutral-900) 50%, transparent);
+}
+.dialog {
+  width: min(440px, 100%); display: flex; flex-direction: column; gap: var(--space-3);
+  padding: var(--space-4); border-radius: var(--radius-lg);
+  background: var(--color-surface); box-shadow: var(--shadow-lg);
+  max-height: calc(100vh - 32px); max-height: calc(100dvh - 32px); overflow-y: auto;
+}
+.dialog-title {
+  font-family: var(--font-heading); font-weight: var(--font-heading-weight);
+  font-size: 20px;
+}
+.dialog-body { font-size: 14px; opacity: 0.85; }
+.dialog-actions { display: flex; justify-content: flex-end; gap: var(--space-2); margin-top: var(--space-2); }
+
+/* "what counts" help (components/Help.tsx) */
+.help { display: inline-block; vertical-align: middle; margin-left: 6px; }
+.help-btn { display: inline-flex; align-items: center; justify-content: center; width: 18px; height: 18px; padding: 0; border-radius: 50%; border: 1.5px solid var(--color-accent-700); background: transparent; color: var(--color-accent-700); font-family: var(--font-heading); font-weight: 800; font-size: 11px; line-height: 1; cursor: pointer; }
+.help-btn:hover { background: var(--color-accent-700); color: #fff; }
+.help-btn:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 2px; }
+.help-panel { font-size: 13px; line-height: 1.5; font-weight: 400; text-align: left; white-space: normal; max-height: 62vh; overflow-y: auto; padding-right: 4px; }
+.help-title { font-family: var(--font-heading); font-weight: 800; font-size: 15px; margin-bottom: 4px; }
+.help-cap { font-family: var(--font-heading); font-weight: 800; font-size: 13px; color: var(--color-accent-700); margin-bottom: 4px; }
+.help-who { font-size: 12.5px; color: var(--color-neutral-700); margin-bottom: 4px; }
+.help-panel .kick { margin: 10px 0 3px; }
+.help-panel ul { margin: 0; padding-left: 18px; display: grid; gap: 4px; }
+.help-panel ul.subs li::marker { color: var(--color-neutral-700); }
+.help-panel ul.can li::marker { color: var(--color-ok); }
+.help-panel ul.cant li::marker { color: var(--color-accent-700); }
+.help-panel .proof { margin: 10px 0 0; }
+.help-panel [lang="ms"] { display: block; margin: 8px 0 0; color: var(--color-neutral-700); font-size: 12.5px; }

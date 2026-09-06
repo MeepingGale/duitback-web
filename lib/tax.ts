@@ -135,7 +135,7 @@ export const SCHEDULE_YA = 2026;
 
 export const MEDSUB = [
   { id: 'general', label: 'General treatment / serious illness / fertility', cap: null as number | null },
-  { id: 'checkup', label: 'Full check-up / mental health exam', cap: 1000 },
+  { id: 'checkup', label: 'Check-up, screening test, self-test device or mental health consultation', cap: 1000 },
   { id: 'vax', label: 'Vaccination — any MOH-approved vaccine from YA2026', cap: 1000 },
   { id: 'dental', label: 'Dental exam & treatment', cap: 1000 },
   { id: 'learning', label: 'Learning disability (autism, ADHD, Down syndrome…), child ≤18', cap: 10000 },

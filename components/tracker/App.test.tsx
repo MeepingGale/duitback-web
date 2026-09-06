@@ -561,6 +561,21 @@ describe('TrackerApp smoke', () => {
     }
   });
 
+  it('every relief row and the claim form explain what counts, in a dialog that Escape closes', async () => {
+    await completeSetup();
+    fireEvent.click(screen.getByText('Skip tour'));
+    fireEvent.click(screen.getByText('Claims · Tuntutan'));
+    fireEvent.click(await screen.findByRole('button', { name: 'What counts · Medical — self, spouse, child' }));
+    const dlg = await screen.findByRole('dialog', { name: 'What counts · Medical — self, spouse, child' });
+    expect(dlg.textContent).toMatch(/Chiropractic/);
+    expect(dlg.textContent).toMatch(/RM 10,000 for YA2026/);
+    expect(dlg.textContent).toMatch(/Dental exam & treatment: RM 1,000/);
+    fireEvent.keyDown(dlg, { key: 'Escape' });
+    await waitFor(() => expect(screen.queryByRole('dialog', { name: /What counts/ })).toBeNull());
+    fireEvent.click(screen.getByText('+ New claim'));
+    await waitFor(() => expect(screen.getAllByRole('button', { name: /What counts · Lifestyle/ }).length).toBe(2)); // the table row's and the form's
+  });
+
   it('returning visitors skip setup and keep their data', async () => {
     await completeSetup('Aisyah');
     cleanup();
