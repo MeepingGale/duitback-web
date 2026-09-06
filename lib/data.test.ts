@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { tidy } from './data';
+import { parseImport, tidy } from './data';
 import type { Data } from './tax';
 
 describe('tidy', () => {
@@ -14,5 +14,20 @@ describe('tidy', () => {
     } as unknown as Data;
     tidy(d);
     expect(d.claims.map((c) => c.receipt)).toEqual(['r.png', null, null]);
+  });
+
+  it('fills the fields an older or hand-made backup may lack, so every screen can render it', () => {
+    const r = parseImport(JSON.stringify({ ya: 'YA2026', profile: { name: 'Old export', bank: null }, claims: [], income: { YA2026: { salary: 90000 } } }));
+    expect(r.error).toBeUndefined();
+    const d = r.data!;
+    expect(d.profile).toMatchObject({ name: 'Old export', taxNo: '', bank: '', marital: 'single' });
+    expect(d.receipts).toEqual([]);
+    expect(d.docs).toEqual([]);
+    expect(d.status.YA2026).toEqual({ stage: 'tracking' });
+  });
+
+  it('points ya at a year that exists', () => {
+    const d = parseImport(JSON.stringify({ ya: 'YA2030', profile: {}, claims: [], income: { YA2025: {} } })).data!;
+    expect(d.ya).toBe('YA2025');
   });
 });

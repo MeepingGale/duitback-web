@@ -1,7 +1,7 @@
 import { ZipEntry, buildZip } from './zip';
 // Persistence + seed data. Same localStorage key and IndexedDB store as every
 // previous DuitBack build, so existing users keep their data across the port.
-import { Data, IncomeYear, blankInc, uid } from './tax';
+import { Data, IncomeYear, Profile, blankInc, uid } from './tax';
 
 export const KEY = 'cukaiku_v3';
 
@@ -85,10 +85,21 @@ export function emptyData(): Data {
   return { profile: { name: 'there', taxNo: '', bank: '', marital: 'single' }, ya: 'YA' + y, income, claims: [], receipts: [], docs: [], status };
 }
 
-/** Claim lines point at receipts by file name. A pointer whose file is gone (deleted before the
- *  vault started clearing pointers) would otherwise be printed in the filing pack as evidence. */
+/** Make loaded or imported data safe to render: older or hand-edited backups may lack fields that
+ *  later builds added (a missing bank string crashed Settings), and claim lines may point at receipt
+ *  files that were deleted before the vault started clearing pointers — those would be printed in
+ *  the filing pack as evidence. */
 export function tidy(d: Data): Data {
-  const names = new Set((d.receipts || []).map((r) => r.ya + '/' + r.name));
+  const p = (d.profile && typeof d.profile === 'object' ? d.profile : {}) as Partial<Profile>;
+  d.profile = { ...p, name: typeof p.name === 'string' ? p.name : 'there', taxNo: typeof p.taxNo === 'string' ? p.taxNo : '', bank: typeof p.bank === 'string' ? p.bank : '', marital: p.marital === 'married' ? 'married' : 'single' };
+  d.claims = Array.isArray(d.claims) ? d.claims : [];
+  d.receipts = Array.isArray(d.receipts) ? d.receipts : [];
+  d.docs = Array.isArray(d.docs) ? d.docs : [];
+  d.income = d.income && typeof d.income === 'object' ? d.income : {};
+  d.status = d.status && typeof d.status === 'object' ? d.status : {};
+  for (const y of Object.keys(d.income)) if (!d.status[y]) d.status[y] = { stage: 'tracking' };
+  if (!d.income[d.ya]) { const y = Object.keys(d.income)[0] || 'YA' + new Date().getFullYear(); if (!d.income[y]) d.income[y] = blankInc(); if (!d.status[y]) d.status[y] = { stage: 'tracking' }; d.ya = y; }
+  const names = new Set(d.receipts.map((r) => r.ya + '/' + r.name));
   for (const c of d.claims) if (c.receipt && !names.has(c.ya + '/' + c.receipt)) c.receipt = null;
   return d;
 }
@@ -298,10 +309,7 @@ export async function exportJson(d: Data): Promise<boolean> {
 export function parseImport(text: string): { data?: Data; error?: string } {
   try {
     const j = JSON.parse(text);
-    if (j && Array.isArray(j.claims) && j.income) {
-      if (!j.income[j.ya]) j.ya = Object.keys(j.income)[0];
-      return { data: j as Data };
-    }
+    if (j && Array.isArray(j.claims) && j.income) return { data: tidy(j as Data) };
     return { error: 'That file is not a DuitBack export. · Fail itu bukan eksport DuitBack.' };
   } catch {
     return { error: 'Could not read that file as JSON. · Fail tidak dapat dibaca sebagai JSON.' };
