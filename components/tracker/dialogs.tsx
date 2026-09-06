@@ -191,7 +191,7 @@ export function AddClaimDialog({ api, c, add, setAdd, onSaved }: { api: Api; c: 
         <div className="dialog-title">{add.editId ? 'Edit claim · Sunting tuntutan' : 'New claim · Tuntutan baharu'} <span className="bm" style={{ fontSize: 13 }}>({ya})</span></div>
         <div className="field">
           <label>Relief category · Kategori<CatHelp id={add.cat} ya={yaNum} /></label>
-          <select className="input" value={add.cat} onChange={(e) => setAdd({ ...add, cat: e.target.value, sub: DEFAULT_SUB[e.target.value] || 'general' })}>
+          <select className="input" aria-label="Relief category · Kategori" value={add.cat} onChange={(e) => setAdd({ ...add, cat: e.target.value, sub: DEFAULT_SUB[e.target.value] || 'general' })}>
             {catOptions(yaNum, add.editId ? add.cat : undefined).map((o) => <option key={o.id} value={o.id}>{o.label}</option>)}
           </select>
         </div>
@@ -206,7 +206,7 @@ export function AddClaimDialog({ api, c, add, setAdd, onSaved }: { api: Api; c: 
         {add.cat === 'child' && (
           <div className="field">
             <label>Child type · Jenis (sets the fixed amount — one line per child)</label>
-            <select className="input" value={add.childSub} onChange={(e) => {
+            <select className="input" aria-label="Child type · Jenis anak" value={add.childSub} onChange={(e) => {
               const m = CHILDSUB.find((x) => x.id === e.target.value);
               setAdd({ ...add, childSub: e.target.value, amount: m ? String(m.amt) : add.amount });
             }}>
@@ -292,7 +292,7 @@ export function TagDialog({ api, tag, setTag }: { api: Api; tag: TagState; setTa
         <div className="dialog-body" style={{ margin: 0 }}>{rec?.name || ''}</div>
         <div className="field">
           <label>Relief category · Kategori<CatHelp id={tag.cat} ya={yaNum} /></label>
-          <select className="input" value={tag.cat} onChange={(e) => setTag({ ...tag, cat: e.target.value })}>
+          <select className="input" aria-label="Relief category · Kategori" value={tag.cat} onChange={(e) => setTag({ ...tag, cat: e.target.value })}>
             {catOptions(yaNum).map((o) => <option key={o.id} value={o.id}>{o.label}</option>)}
           </select>
         </div>

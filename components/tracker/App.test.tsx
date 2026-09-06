@@ -118,6 +118,25 @@ describe('TrackerApp smoke', () => {
     expect(localStorage.getItem(KEY)).toBeNull();
   });
 
+  it('the passcode curtain makes the app behind it inert until unlocked', async () => {
+    await completeSetup();
+    fireEvent.click(screen.getByText('Skip tour'));
+    fireEvent.click(screen.getByText('Settings'));
+    const inputs = document.querySelectorAll('input[type="password"]');
+    fireEvent.change(inputs[0], { target: { value: '1234' } });
+    fireEvent.change(inputs[1], { target: { value: '1234' } });
+    fireEvent.click(screen.getByText('Set passcode · Tetapkan'));
+    await screen.findByText(/Passcode set/);
+    fireEvent.click(screen.getByText('Lock now · Kunci sekarang'));
+    await screen.findByText('Unlock · Buka');
+    expect(screen.getByText('+ New claim').closest('[inert]')).not.toBeNull(); // shell behind the curtain
+    expect(screen.getByLabelText('Passcode · Kod laluan').closest('[inert]')).toBeNull(); // the curtain itself stays usable
+    fireEvent.change(screen.getByLabelText('Passcode · Kod laluan'), { target: { value: '1234' } });
+    fireEvent.click(screen.getByText('Unlock · Buka'));
+    await waitFor(() => expect(screen.queryByText('Unlock · Buka')).toBeNull());
+    expect(screen.getByText('+ New claim').closest('[inert]')).toBeNull();
+  });
+
   it('income inputs keep focus while typing — no remount per keystroke', async () => {
     await completeSetup();
     fireEvent.click(screen.getByText('Skip tour'));

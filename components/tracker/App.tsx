@@ -294,6 +294,8 @@ export default function TrackerApp() {
 
   return (
     <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+      {/* everything behind the passcode curtain is inert while locked: no focus, no clicks, hidden from assistive tech and find-in-page */}
+      <div style={{ display: 'contents' }} inert={locked}>
       <header className="nav app-nav no-print" style={{ position: 'sticky', top: 0, background: 'var(--color-bg)', zIndex: 5 }}>
         <span className="nav-brand" style={{ display: 'inline-flex', alignItems: 'center' }}>
           <a href="../" title="duıtback — home" aria-label="duıtback. — home" style={{ display: 'inline-flex', alignItems: 'center' }}>
@@ -337,6 +339,7 @@ export default function TrackerApp() {
       </div>
 
       <SiteFooter wide taxNo={d.profile.taxNo || ''} />
+      </div>
 
       {locked && (
         <div style={{ position: 'fixed', inset: 0, background: 'var(--color-bg)', zIndex: 40, display: 'grid', placeItems: 'center' }}>
