@@ -76,7 +76,7 @@ export function Income({ api, c }: { api: Api; c: CalcResult }) {
       '· Anggaran formula PCB berkomputer LHDN — taip angka sebenar borang EA anda untuk menggantikan.'
     : 'Using your entered PCB figure. · Menggunakan angka PCB anda.';
 
-  const jc = isMarried ? jointComparison(c) : null;
+  const jc = isMarried ? jointComparison(c, { spouseDisabled: d.profile.spouseDisabled, yaNum: +ya.slice(2) }) : null;
   const jointVerdict = jc
     ? jc.sep === jc.joint
       ? 'No difference on these numbers.'

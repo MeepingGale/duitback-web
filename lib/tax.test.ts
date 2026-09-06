@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { blankInc, calc, capFor, clamp2dpStr, compensationExempt, composeTin, Data, derivedReliefs, fmt, fmtAmountStr, jointComparison, looksLikeTin, medSubCap, medSum, parseTin, subSum, taxOn, to2dp } from './tax';
+import { blankInc, calc, capFor, clamp2dpStr, compensationExempt, composeTin, Data, derivedReliefs, fmt, fmtAmountStr, jointComparison, looksLikeTin, medSubCap, medSum, parseTin, subCap, subSum, taxOn, to2dp } from './tax';
 import { demoData, parseImport, pruneEmptyFutureYears } from './data';
 
 describe('taxOn — YA2025 resident scale', () => {
@@ -55,12 +55,16 @@ describe('medSum — medical sub-limits', () => {
     expect(medSum([mk(undefined, 3000)], 2026)).toBe(3000);
   });
 
-  it('learning-disability sub-limit follows the year: RM4k (2023) → RM6k (2024–25) → RM10k (2026, Budget 2026)', () => {
+  it('learning-disability sub-limit follows the year: RM4k (2023–24) → RM6k (2025) → RM10k (2026, Budget 2026); dental only from YA2024', () => {
     expect(medSubCap('learning', 2023)).toBe(4000);
+    expect(medSubCap('learning', 2024)).toBe(4000);
     expect(medSubCap('learning', 2025)).toBe(6000);
     expect(medSubCap('learning', 2026)).toBe(10000);
     expect(medSum([mk('learning', 9000)], 2025)).toBe(6000);
     expect(medSum([mk('learning', 9000)], 2026)).toBe(9000);
+    expect(medSubCap('dental', 2023)).toBe(0);
+    expect(medSum([mk('dental', 500)], 2023)).toBe(0); // a 0 cap is enforced, not treated as uncapped
+    expect(medSum([mk('dental', 500)], 2024)).toBe(500);
   });
 
   it('domestic tourism relief exists for YA2026 only', () => {
@@ -291,11 +295,12 @@ describe('YA2025+ rules added from the LHDN relief, rebate and dividend pages', 
     // spouse reliefs need a spouse without income; disabled-spouse rides on the spouse relief
     d.profile.spouseWorking = true;
     expect(derivedReliefs(d.profile, 2026)).toEqual({ disabled_self: 7000, child: 12000 });
-    // both earning and splitting child relief 50/50
+    // 50% applies when a co-claimant who is not a spouse living together (e.g. an ex-spouse) also claims the child — s.48(4)
     d.profile.childShare = 50;
     expect(derivedReliefs(d.profile, 2026).child).toBe(6000);
-    // the split only exists when the spouse has income
-    d.profile.spouseWorking = false;
+    d.profile.spouseWorking = false; // the rule does not depend on the spouse's income
+    expect(derivedReliefs(d.profile, 2026).child).toBe(6000);
+    d.profile.childShare = 100;
     expect(derivedReliefs(d.profile, 2026).child).toBe(12000);
   });
 
@@ -364,5 +369,64 @@ describe('YA2025+ rules added from the LHDN relief, rebate and dividend pages', 
     const c = calc(d, 'YA2026');
     expect(c.levyRebate).toBe(150);
     expect(c.taxNet).toBe(c.taxGross - 150 - 100);
+  });
+});
+
+describe('corrections from the September 2026 fact-check', () => {
+  const base = (): Data => ({ profile: { name: 'T', taxNo: '', bank: '', marital: 'single' }, ya: 'YA2026', income: { YA2026: { ...blankInc(), salary: 40000 } }, claims: [], receipts: [], docs: [], status: {} } as unknown as Data);
+
+  it('formal alimony to a former wife counts within the RM4,000 spouse relief, even for a single filer', () => {
+    const d = base();
+    d.profile.alimony = 3000;
+    expect(derivedReliefs(d.profile, 2026).spouse).toBe(3000);
+    d.profile.alimony = 6000;
+    expect(derivedReliefs(d.profile, 2026).spouse).toBe(4000);
+    d.profile = { ...d.profile, marital: 'married', spouseWorking: false, alimony: 1000 };
+    expect(derivedReliefs(d.profile, 2026).spouse).toBe(4000); // spouse relief already fills the cap
+  });
+
+  it('the RM400 spouse rebate joins the individual rebate below RM35,000 chargeable income (s.6A(2))', () => {
+    const d = base();
+    d.income.YA2026 = { ...blankInc(), salary: 44000 };
+    d.profile = { ...d.profile, marital: 'married', spouseWorking: false };
+    const c = calc(d, 'YA2026'); // chargeable 44,000 − 9,000 − 4,000 = 31,000 → tax 480
+    expect(c.chargeable).toBe(31000);
+    expect(c.taxGross).toBe(480);
+    expect(c.rebate).toBe(480); // RM800 available, limited to the tax itself → nothing left to pay
+    expect(c.taxNet).toBe(0);
+    d.profile.spouseWorking = true; // no spouse relief: chargeable 35,000 → tax 600, individual rebate only
+    const c2 = calc(d, 'YA2026');
+    expect(c2.taxGross).toBe(600);
+    expect(c2.rebate).toBe(400);
+  });
+
+  it('joint assessment counts a disabled spouse with income for the further RM6,000', () => {
+    const d = base();
+    d.income.YA2026 = { ...blankInc(), salary: 120000, spInc: 30000, spRel: 9000 };
+    d.profile = { ...d.profile, marital: 'married', spouseWorking: true, spouseDisabled: true };
+    const c = calc(d, 'YA2026');
+    const plain = jointComparison(c).joint;
+    const withDs = jointComparison(c, { spouseDisabled: true, yaNum: 2026 }).joint;
+    expect(plain - withDs).toBeCloseTo(6000 * 0.25, 0); // RM6,000 less chargeable income in the 25% band
+  });
+
+  it('year-gated sub-limits: JPK upskilling ends YA2026, parents\' check-up starts YA2024', () => {
+    expect(subCap('edu_self', 'upskill', 2026)).toBe(2000);
+    expect(subCap('edu_self', 'upskill', 2027)).toBe(0);
+    expect(subCap('parents_med', 'exam', 2023)).toBe(0);
+    expect(subCap('parents_med', 'exam', 2024)).toBe(1000);
+  });
+
+  it('donations: the 10% pool covers only approved bodies; government gifts are unlimited and library gifts stop at RM20,000', () => {
+    const d = base();
+    d.income.YA2026 = { ...blankInc(), salary: 150000 };
+    d.claims.push({ id: 'g', ya: 'YA2026', cat: 'donation', sub: 'gov', date: '2026-03-01', desc: 'state government', amount: 40000, receipt: null });
+    expect(calc(d, 'YA2026').donAllowed).toBe(40000);
+    d.claims = [{ id: 'a', ya: 'YA2026', cat: 'donation', sub: 'approved', date: '2026-03-01', desc: 'approved fund', amount: 20000, receipt: null }];
+    expect(calc(d, 'YA2026').donAllowed).toBe(15000); // 10% of 150,000
+    d.claims = [{ id: 'l', ya: 'YA2026', cat: 'donation', sub: 'library', date: '2026-03-01', desc: 'library', amount: 25000, receipt: null }];
+    expect(calc(d, 'YA2026').donAllowed).toBe(20000);
+    d.claims = [{ id: 'x', ya: 'YA2026', cat: 'donation', date: '2026-03-01', desc: 'legacy line without a type', amount: 20000, receipt: null }];
+    expect(calc(d, 'YA2026').donAllowed).toBe(15000); // untyped lines are treated as approved-body gifts
   });
 });

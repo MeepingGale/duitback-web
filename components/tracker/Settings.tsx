@@ -80,7 +80,12 @@ export function Settings({ api, lockNow }: { api: Api; lockNow: () => void }) {
             <>
               {yesNo('Are you a registered disabled person (OKU)? · Adakah anda OKU?', 'fs-disabled', d.profile.disabled, (v) => setP('disabled', v), 'Disabled individual relief ' + fmt(capFor('disabled_self', yaNum)))}
               {married && yesNo('Does your spouse have their own income? · Pasangan bekerja?', 'fs-spouse-working', d.profile.spouseWorking === undefined ? true : d.profile.spouseWorking, (v) => setP('spouseWorking', v), 'No income → spouse relief ' + fmt(capFor('spouse', yaNum)))}
-              {married && d.profile.spouseWorking === false && yesNo('Is your spouse a registered disabled person? · Pasangan OKU?', 'fs-spouse-disabled', d.profile.spouseDisabled, (v) => setP('spouseDisabled', v), 'Further relief ' + fmt(capFor('disabled_spouse', yaNum)))}
+              {married && yesNo('Is your spouse a registered disabled person? · Pasangan OKU?', 'fs-spouse-disabled', d.profile.spouseDisabled, (v) => setP('spouseDisabled', v), 'Further relief ' + fmt(capFor('disabled_spouse', yaNum)) + (d.profile.spouseWorking === false ? '' : ' — counts under joint assessment; see the Income screen'))}
+              <div className="field" style={{ marginTop: 12 }}>
+                <label>Alimony paid to a former wife this year · Nafkah kepada bekas isteri</label>
+                <input className="input mono" type="number" min={0} inputMode="decimal" style={{ maxWidth: 200 }} aria-label="Alimony paid to a former wife · Nafkah" value={d.profile.alimony || ''} onChange={(e) => mut((x) => { x.profile.alimony = Math.max(0, +e.target.value || 0); })} />
+                <div className="text-muted" style={{ fontSize: 11.5, marginTop: 4 }}>Court order or formal written agreement only; counts within the RM4,000 spouse relief. <span lang="ms">Perjanjian rasmi sahaja; dalam had RM4,000.</span></div>
+              </div>
               <div className="field" style={{ marginTop: 14 }}>
                 <label>Children · Anak — count each child in one line only · setiap anak dalam satu baris sahaja</label>
                 <div className="text-muted" style={{ fontSize: 11.5, margin: '0 0 8px' }}>
@@ -97,15 +102,15 @@ export function Settings({ api, lockNow }: { api: Api; lockNow: () => void }) {
                 </div>
               </div>
               {kidCount > 0 && <div className="text-muted" style={{ fontSize: 12, marginTop: 8 }}>{kidCount} {kidCount === 1 ? 'child' : 'children'} counted · {kidCount} anak dikira</div>}
-              {married && d.profile.spouseWorking === true && kidCount > 0 && (
+              {kidCount > 0 && (
                 <div className="field" style={{ marginTop: 12 }}>
-                  <label>Child relief split with your spouse · Pembahagian pelepasan anak</label>
+                  <label>Does someone who is not your spouse, such as an ex-spouse, also claim the same child? · Penuntut lain bukan pasangan?</label>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
                     <div className="seg">
-                      <label className="seg-opt"><input type="radio" name="fs-child-share" checked={d.profile.childShare !== 50} onChange={() => mut((x) => { x.profile.childShare = 100; })} />I claim 100%</label>
-                      <label className="seg-opt"><input type="radio" name="fs-child-share" checked={d.profile.childShare === 50} onChange={() => mut((x) => { x.profile.childShare = 50; })} />We split 50 / 50</label>
+                      <label className="seg-opt"><input type="radio" name="fs-child-share" checked={d.profile.childShare !== 50} onChange={() => mut((x) => { x.profile.childShare = 100; })} />No, I claim 100%</label>
+                      <label className="seg-opt"><input type="radio" name="fs-child-share" checked={d.profile.childShare === 50} onChange={() => mut((x) => { x.profile.childShare = 50; })} />Yes, we each claim 50%</label>
                     </div>
-                    <span className="text-muted" style={{ fontSize: 12 }}>Both of you earning and filing separately: one parent claims all of it, or each claims half — never both in full. <span lang="ms">Seorang tuntut penuh, atau masing-masing separuh.</span></span>
+                    <span className="text-muted" style={{ fontSize: 12 }}>The 50% rule is for co-claimants who are not spouses living together (ITA s.48(4)). Spouses filing separately don't split: each enters only the children they claim, in full. <span lang="ms">Pasangan taksiran berasingan tidak berkongsi; masukkan anak yang anda tuntut sahaja.</span></span>
                   </div>
                 </div>
               )}
