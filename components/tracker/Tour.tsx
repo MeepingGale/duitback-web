@@ -209,11 +209,14 @@ export function Tour({ step, steps, d, c, onNext, onBack, onDone }: { step: numb
     const sync = () => { const el = find(); if (el && !cancelled) setBox(clampToViewport(el.getBoundingClientRect())); };
     window.addEventListener('resize', sync);
     window.addEventListener('scroll', sync, true);
+    // screens slide in when the tour changes them — the first measurement can land mid-slide, so measure again when it settles
+    document.addEventListener('animationend', sync, true);
     return () => {
       cancelled = true;
       cancelAnimationFrame(raf);
       window.removeEventListener('resize', sync);
       window.removeEventListener('scroll', sync, true);
+      document.removeEventListener('animationend', sync, true);
     };
   }, [step, info.target]);
 
