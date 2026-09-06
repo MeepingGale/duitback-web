@@ -568,8 +568,9 @@ describe('TrackerApp smoke', () => {
     fireEvent.click(await screen.findByRole('button', { name: 'What counts · Medical — self, spouse, child' }));
     const dlg = await screen.findByRole('dialog', { name: 'What counts · Medical — self, spouse, child' });
     expect(dlg.textContent).toMatch(/Chiropractic/);
-    expect(dlg.textContent).toMatch(/RM 10,000 for YA2026/);
-    expect(dlg.textContent).toMatch(/Dental exam & treatment: RM 1,000/);
+    expect(dlg.textContent).toMatch(/RM 10,000 · YA2026/);
+    expect(dlg.textContent).toMatch(/Dental exam & treatmentRM 1,000/); // sub-limit table row
+    expect(dlg.textContent).toMatch(/pneumococcal, HPV, influenza, rotavirus, varicella, meningococcal, Tdap, COVID-19/);
     fireEvent.keyDown(dlg, { key: 'Escape' });
     await waitFor(() => expect(screen.queryByRole('dialog', { name: /What counts/ })).toBeNull());
     fireEvent.click(screen.getByText('+ New claim'));
