@@ -294,7 +294,7 @@ export default function TrackerApp() {
 
   return (
     <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
-      <div className="nav app-nav no-print" style={{ position: 'sticky', top: 0, background: 'var(--color-bg)', zIndex: 5 }}>
+      <header className="nav app-nav no-print" style={{ position: 'sticky', top: 0, background: 'var(--color-bg)', zIndex: 5 }}>
         <span className="nav-brand" style={{ display: 'inline-flex', alignItems: 'center' }}>
           <a href="../" title="duıtback — home" aria-label="duıtback. — home" style={{ display: 'inline-flex', alignItems: 'center' }}>
             <Wordmark />
@@ -308,10 +308,10 @@ export default function TrackerApp() {
           ))}
         </nav>
         <button className="btn btn-primary" data-tour="new-claim" onClick={() => openAdd()}>+ New claim</button>
-      </div>
+      </header>
 
       {demo && (
-        <div className="no-print demobar" style={{ display: 'flex', alignItems: 'center', gap: 14, flexWrap: 'wrap', padding: '9px 36px', background: 'var(--color-accent-700)', color: 'var(--color-bg)' }}>
+        <div className="no-print demobar" role="region" aria-label="Demo mode · Mod demo" style={{ display: 'flex', alignItems: 'center', gap: 14, flexWrap: 'wrap', padding: '9px 36px', background: 'var(--color-accent-700)', color: 'var(--color-bg)' }}>
           <span style={{ fontSize: 12, fontFamily: 'var(--font-heading)', fontWeight: 800, letterSpacing: '.08em', textTransform: 'uppercase' }}>Demo mode · Mod demo</span>
           <span style={{ fontSize: 12.5, opacity: 0.92 }}>Amirah&apos;s sample data — nothing here is yours · Data contoh sahaja</span>
           <button className="btn" style={{ marginLeft: 'auto', background: 'var(--color-bg)', color: 'var(--color-text)', padding: '5px 12px', fontSize: 12 }} onClick={() => {

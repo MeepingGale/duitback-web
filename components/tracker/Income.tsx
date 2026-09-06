@@ -95,14 +95,14 @@ export function Income({ api, c }: { api: Api; c: CalcResult }) {
       <div className="claimsgrid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(340px,1fr))', gap: 0, border: '2px solid var(--color-divider)', marginTop: 18 }}>
         <div data-tour="income-sources" style={{ padding: 24, borderRight: '2px solid var(--color-divider)' }}>
           <Kick>Sources · Punca pendapatan — editable</Kick>
-          <h3 className="sec" style={{ margin: '16px 0 8px' }}>Employment · Penggajian</h3>
+          <h2 className="sec" style={{ margin: '16px 0 8px' }}>Employment · Penggajian</h2>
           <div className="fields2">
             <NumField label="Salary / year · Gaji (RM)" value={c.inc.salary || 0} onCommit={bind('salary')} />
             <NumField label="Bonus (RM)" value={c.inc.bonus || 0} onCommit={bind('bonus')} />
             <NumField label="PCB / MTD withheld (RM)" value={c.inc.pcb || 0} onCommit={commitPcbManual} />
             <NumField label="Zakat paid · Zakat (RM)" value={c.inc.zakat || 0} onCommit={bind('zakat')} />
           </div>
-          <h3 className="sec" style={{ margin: '20px 0 8px' }}>Loss of employment · Pampasan kehilangan pekerjaan</h3>
+          <h2 className="sec" style={{ margin: '20px 0 8px' }}>Loss of employment · Pampasan kehilangan pekerjaan</h2>
           <div className="fields2">
             <NumField label="Compensation received (RM)" value={c.inc.compensation || 0} onCommit={bind('compensation')} />
             <NumField label="Completed years with that employer" value={c.inc.serviceYears || 0} onCommit={bind('serviceYears')} />
@@ -130,7 +130,7 @@ export function Income({ api, c }: { api: Api; c: CalcResult }) {
               )}
             </div>
           )}
-          <h3 className="sec" style={{ margin: '20px 0 8px' }}>Rental · Sewaan</h3>
+          <h2 className="sec" style={{ margin: '20px 0 8px' }}>Rental · Sewaan</h2>
           <div className="fields2">
             <NumField label="Gross rent / year (RM)" value={c.inc.rent || 0} onCommit={bind('rent')} />
             <NumField label="Allowable expenses (RM)" value={c.inc.rentExp || 0} onCommit={bind('rentExp')} />
@@ -139,7 +139,7 @@ export function Income({ api, c }: { api: Api; c: CalcResult }) {
           <div style={{ fontSize: 11.5, marginTop: 8 }} className="text-muted">
             Allowable: repairs, management fees, assessment &amp; quit rent, loan interest. Net rental {fmt(c.netRent)}. CP500 = LHDN&apos;s bi-monthly instalment scheme for rental/business income; paid amounts offset the final bill.
           </div>
-          <h3 className="sec" style={{ margin: '20px 0 8px' }}>Business &amp; other · Perniagaan</h3>
+          <h2 className="sec" style={{ margin: '20px 0 8px' }}>Business &amp; other · Perniagaan</h2>
           <div className="fields2">
             <NumField label="Business income, net (RM)" value={c.inc.biz || 0} onCommit={bind('biz')} />
             <NumField label="Other — freelance, commissions (RM)" value={c.inc.other || 0} onCommit={bind('other')} />
@@ -154,7 +154,7 @@ export function Income({ api, c }: { api: Api; c: CalcResult }) {
           </div>
           {isMarried && (
             <>
-              <h3 className="sec" style={{ margin: '20px 0 8px' }}>Spouse · Pasangan (for joint comparison)</h3>
+              <h2 className="sec" style={{ margin: '20px 0 8px' }}>Spouse · Pasangan (for joint comparison)</h2>
               {(c.inc.spInc || 0) > 0 && d.profile.spouseWorking === false && (
                 <div style={{ fontSize: 12, margin: '0 0 8px', color: 'var(--color-accent-700)' }}>
                   Spouse income is entered here, so the RM 4,000 spouse relief is not counted this year — it needs a spouse with no income. If that&apos;s wrong, clear the spouse income; if it&apos;s right, set &quot;spouse has income&quot; in Settings.{' '}

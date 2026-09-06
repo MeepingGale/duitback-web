@@ -160,7 +160,7 @@ export default function ReliefsPage() {
           <div className="faq">
             {RELIEF_FAQ.map((f) => (
               <div key={f.q}>
-                <h3>{f.q}</h3>
+                <h2>{f.q}</h2>
                 <p>{f.a}</p>
               </div>
             ))}
