@@ -128,6 +128,7 @@ export function AddClaimDialog({ api, c, add, setAdd, onSaved }: { api: Api; c: 
     if (cap === Infinity) capNote = addCt.note || '';
     else if (cap === 0 && add.cat === 'donation') { capNote = 'Gifts to approved bodies count up to 10% of your declared income — enter your income first, or this line counts RM 0 for now. · Derma kepada badan diluluskan dikira sehingga 10% pendapatan — isi pendapatan anda dahulu.'; capNoteCls = ''; }
     else if (cap === 0) { capNote = 'This relief is not available for ' + ya + ' — it can be saved for your records but counts RM 0. · Pelepasan ini tiada untuk ' + ya + ' — dikira RM 0.'; capNoteCls = ''; }
+    else if (subCapV === 0) { capNote = 'This type is not available for ' + ya + ' — it can be saved for your records but counts RM 0. · Jenis ini tiada untuk ' + ya + ' — dikira RM 0.'; capNoteCls = ''; }
     else if (subCapV && subAlready + total > subCapV) {
       capNote = (add.monthly ? '12 × ' + fmt(each) + ' = ' + fmt(total) + '. ' : '') + 'Over the ' + fmt(subCapV) + ' sub-limit for this type — only ' + fmt(subCapV) + ' counts here. Saved and flagged. · Melebihi had kecil ' + fmt(subCapV) + ' — hanya ' + fmt(subCapV) + ' dikira.';
       capNoteCls = '';
@@ -198,7 +199,7 @@ export function AddClaimDialog({ api, c, add, setAdd, onSaved }: { api: Api; c: 
           <div className="field">
             <label>Type · Jenis (sub-limits enforced · had kecil dikira)</label>
             <select className="input" aria-label="Type · Jenis" value={add.sub} onChange={(e) => setAdd({ ...add, sub: e.target.value })}>
-              {SUBLIMITS[add.cat].map((m) => { const cap = subCap(add.cat, m.id, yaNum); return <option key={m.id} value={m.id}>{m.label + (cap ? ' — max ' + fmt(cap) : '')}</option>; })}
+              {SUBLIMITS[add.cat].map((m) => { const cap = subCap(add.cat, m.id, yaNum); return <option key={m.id} value={m.id}>{m.label + (cap === 0 ? ' — not available for ' + ya : cap ? ' — max ' + fmt(cap) : '')}</option>; })}
             </select>
           </div>
         )}

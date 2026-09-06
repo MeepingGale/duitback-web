@@ -190,6 +190,23 @@ describe('TrackerApp smoke', () => {
     expect(screen.queryByText(/not available for YA/)).toBeNull();
   });
 
+  it('a sub-type that did not exist in the year is labelled and explained, not silently counted as RM 0', async () => {
+    await completeSetup();
+    cleanup();
+    const d = JSON.parse(localStorage.getItem(KEY)!);
+    d.income.YA2023 = { salary: 60000 };
+    d.status.YA2023 = { stage: 'tracking' };
+    d.ya = 'YA2023';
+    localStorage.setItem(KEY, JSON.stringify(d));
+    render(<TrackerApp />);
+    fireEvent.click(await screen.findByText('+ New claim'));
+    await screen.findByText('New claim · Tuntutan baharu');
+    fireEvent.change(document.querySelectorAll('select')[0], { target: { value: 'medical' } });
+    fireEvent.change(document.querySelectorAll('select')[1], { target: { value: 'dental' } });
+    await screen.findByText(/This type is not available for YA2023/);
+    expect(screen.getByText('Dental exam & treatment — not available for YA2023')).toBeTruthy();
+  });
+
   it('bank picker composes and enforces digits with the IBG length hint', async () => {
     await completeSetup();
     fireEvent.click(screen.getByText('Skip tour'));

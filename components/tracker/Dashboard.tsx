@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { CATS, CalcResult, calc, fmt } from '@/lib/tax';
+import { CATS, CalcResult, calc, capFor, fmt } from '@/lib/tax';
 import { dismissFamilyHint, dismissInstallHint, exportVault, familyHintDismissed, familySetUp, getBackupMeta, installEnv, installHintDismissed, isDemo } from '@/lib/data';
 import { Api } from './App';
 import { Bar, Kick, YaTabs, pagepad, yaHead, right, heading800 } from './bits';
@@ -18,7 +18,15 @@ export function Dashboard({ api, c }: { api: Api; c: CalcResult }) {
   const nClaims = c.claims.length;
   const nRec = d.receipts.filter((r) => r.ya === ya).length;
   const claimedByYou = Math.max(0, c.totalAllowed - 9000);
-  const capClaimable = CATS.reduce((a, ct) => a + (ct.cap || 0), 0) + c.donCap - 9000;
+  // denominator = the caps this person can actually reach this year: claim-line categories at the year's rates
+  // (donations at the 10% pool), plus profile reliefs only when they apply; the automatic RM 9,000 sits outside
+  const yaNum = +ya.slice(2);
+  const capClaimable = CATS.reduce((a, ct) => {
+    if (ct.auto) return a;
+    if (ct.profile) return a + (c.derived[ct.id] || 0);
+    const cap = ct.id === 'donation' ? c.donCap : capFor(ct.id, yaNum);
+    return a + (Number.isFinite(cap) ? cap : 0);
+  }, 0);
   const usedPct = capClaimable ? Math.min(100, Math.round((claimedByYou / capClaimable) * 100)) : 0;
 
   // years can be added only up to the current calendar year — a YA can't
