@@ -62,8 +62,9 @@ export function Help({ label, children }: { label: string; children: ReactNode }
   );
 }
 
-/** What one relief category covers this year: cap, sub-limits, who, counts, doesn't count, proof. */
-export function CatHelp({ id, ya }: { id: string; ya: number }) {
+/** The body of one relief's explanation: cap, sub-limits, who, counts, doesn't count, proof.
+ *  Plain markup with no hooks, so the public reliefs page can render it into static HTML. */
+export function HelpBody({ id, ya }: { id: string; ya: number }) {
   const cat = CATS.find((c) => c.id === id);
   const h = RELIEF_HELP[id];
   if (!cat || !h) return null;
@@ -74,7 +75,7 @@ export function CatHelp({ id, ya }: { id: string; ya: number }) {
     : cap === 0 ? 'not available in YA' + ya
     : fmt(cap ?? 0) + ' · YA' + ya;
   return (
-    <Help label={'What counts · ' + cat.en}>
+    <div className="help-body">
       <div className="help-head">
         <div className="help-title">{cat.en} <span lang="ms">· {cat.bm}</span></div>
         <div className="help-cap">{capLine}</div>
@@ -93,10 +94,17 @@ export function CatHelp({ id, ya }: { id: string; ya: number }) {
       {h.lists?.map((l) => (
         <p key={l.title} className="help-list"><b>{l.title}:</b> {l.items.join(', ')}.</p>
       ))}
-      <div className="help-h cant">Doesn't count</div>
+      <div className="help-h cant">Doesn&apos;t count</div>
       <ul className="cant">{h.cant.map((t, i) => <li key={i}>{t}</li>)}</ul>
       <p className="help-proof"><b>Keep:</b> {h.proof}</p>
       <p lang="ms">{h.bm}</p>
-    </Help>
+    </div>
   );
+}
+
+/** The "i" popover for one relief category. */
+export function CatHelp({ id, ya }: { id: string; ya: number }) {
+  const cat = CATS.find((c) => c.id === id);
+  if (!cat || !RELIEF_HELP[id]) return null;
+  return <Help label={'What counts · ' + cat.en}><HelpBody id={id} ya={ya} /></Help>;
 }

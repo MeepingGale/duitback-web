@@ -1,7 +1,8 @@
 import type { Metadata } from 'next';
 import { CATS, CHILDSUB, MEDSUB, OVERRIDES, SCHEDULE_YA, fmt, medSubCap } from '@/lib/tax';
 import { CtaLink, Kicker, SiteFooter, SiteHeader } from '@/components/ui';
-import { CatHelp } from '@/components/Help';
+import { HelpBody } from '@/components/Help';
+import { RELIEF_FAQ, RELIEF_HELP } from '@/lib/reliefHelp';
 
 export const metadata: Metadata = {
   title: 'Senarai Pelepasan Cukai YA2026 · Tax Relief List',
@@ -14,6 +15,19 @@ export const metadata: Metadata = {
       'The full LHDN personal relief schedule for YA2026, bilingual, with caps, sub-limits and per-child amounts — plus a free local-first tracker.',
     url: '/reliefs/',
   },
+};
+
+const faqLd = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: [
+    ...RELIEF_FAQ.map((f) => ({ '@type': 'Question', name: f.q, acceptedAnswer: { '@type': 'Answer', text: f.a } })),
+    ...CATS.filter((c) => RELIEF_HELP[c.id]).map((c) => {
+      const h = RELIEF_HELP[c.id];
+      const cap = c.id === 'donation' ? '10% of aggregate income' : c.cap === null ? 'a fixed amount per child' : fmt(c.cap);
+      return { '@type': 'Question', name: 'What counts under the ' + c.en + ' relief in YA' + SCHEDULE_YA + '?', acceptedAnswer: { '@type': 'Answer', text: 'Cap: ' + cap + '. For: ' + h.who + '. Counts: ' + h.can.join(' ') + ' Does not count: ' + h.cant.join(' ') + ' Keep: ' + h.proof } };
+    }),
+  ],
 };
 
 const jsonLd = {
@@ -38,6 +52,7 @@ export default function ReliefsPage() {
   return (
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqLd) }} />
       <SiteHeader home="../" />
       <main className="wrap" style={{ paddingBottom: 48 }}>
         <section style={{ padding: '48px 0 8px' }}>
@@ -75,14 +90,22 @@ export default function ReliefsPage() {
                 {rows.map((c) => (
                   <tr key={c.id}>
                     <td style={{ minWidth: 190 }}>
-                      <span style={{ fontFamily: 'var(--font-heading)', fontWeight: 800, fontSize: 13.5 }}>{c.en}</span><CatHelp id={c.id} ya={SCHEDULE_YA} />
+                      <span style={{ fontFamily: 'var(--font-heading)', fontWeight: 800, fontSize: 13.5 }}>{c.en}</span>
                       <br />
                       <span lang="ms" style={{ color: 'var(--color-neutral-700)', fontSize: 12.5 }}>{c.bm}</span>
                     </td>
                     <td style={{ textAlign: 'right', whiteSpace: 'nowrap', fontVariantNumeric: 'tabular-nums', fontFamily: 'var(--font-heading)', fontWeight: 800 }}>
                       {c.id === 'donation' ? '10% of income' : c.cap === null ? 'per child' : fmt(c.cap)}
                     </td>
-                    <td style={{ fontSize: 12.5, color: 'var(--color-neutral-800)', minWidth: 260 }}>{c.note}</td>
+                    <td style={{ fontSize: 12.5, color: 'var(--color-neutral-800)', minWidth: 260 }}>
+                      {c.note}
+                      {RELIEF_HELP[c.id] && (
+                        <details className="help-static" id={'what-counts-' + c.id}>
+                          <summary>What counts · Apa yang dikira</summary>
+                          <HelpBody id={c.id} ya={SCHEDULE_YA} />
+                        </details>
+                      )}
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -130,6 +153,21 @@ export default function ReliefsPage() {
         </section>
 
         <section style={{ padding: '24px 0 8px' }}>
+          <Kicker>Common questions · Soalan lazim</Kicker>
+          <p style={{ fontSize: 13, color: 'var(--color-neutral-800)', margin: '8px 0 14px', maxWidth: 640 }}>
+            Answered from LHDN&apos;s Form BE explanatory notes and the Budget 2026 measures. Open <em>What counts</em> on any row above for the full list.
+          </p>
+          <div className="faq">
+            {RELIEF_FAQ.map((f) => (
+              <div key={f.q}>
+                <h3>{f.q}</h3>
+                <p>{f.a}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        <section style={{ padding: '24px 0 8px' }}>
           <Kicker>Rebates · Rebat cukai</Kicker>
           <p style={{ fontSize: 13, color: 'var(--color-neutral-800)', margin: '8px 0 10px', maxWidth: 640 }}>
             Rebates come off the tax itself, after the scale — the tracker applies all of them:
@@ -157,7 +195,8 @@ export default function ReliefsPage() {
         </section>
 
         <p style={{ fontSize: 11.5, color: 'var(--color-neutral-700)', marginTop: 28 }}>
-          Unofficial reference · estimates of the LHDN schedule, not tax advice — confirm against MyTax before filing.{' '}
+          Sources: LHDN Form BE explanatory notes (YA2025, Part G) and the Budget 2026 measures for YA2026; verified 6 September 2026.
+          {' '}Unofficial reference · estimates of the LHDN schedule, not tax advice — confirm against MyTax before filing.{' '}
           <span lang="ms">Rujukan tidak rasmi — sahkan dengan MyTax sebelum memfailkan.</span>
         </p>
       </main>
