@@ -1,5 +1,6 @@
 import { createWorker, OEM } from 'tesseract.js';
 import type { Worker } from 'tesseract.js';
+import { toBitmap } from './qr';
 
 const BASE = '/duitback-web';
 /** Folder under public/ocr/ that scripts/ocr-assets.mjs fills from node_modules; it checks this matches the installed version. */
@@ -39,8 +40,7 @@ function scheduleRelease(): void { clearTimeout(idle); idle = setTimeout(release
 /** Downscale to ~1800px on the long side and turn the photo into a contrast-stretched greyscale PNG —
  *  a phone photo is 3000+px of mostly paper, and the engine reads faster and better from this. */
 export async function prepareForOcr(src: string | Blob, max = 1800): Promise<string> {
-  const blob = typeof src === 'string' ? await (await fetch(src)).blob() : src;
-  const bmp = await createImageBitmap(blob, { imageOrientation: 'from-image' }); // honours EXIF rotation
+  const bmp = await toBitmap(src);
   try {
     const s = Math.min(1, max / Math.max(bmp.width, bmp.height));
     const cv = document.createElement('canvas');

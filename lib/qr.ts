@@ -7,9 +7,12 @@ export async function decodeQrPixels(data: Uint8ClampedArray, width: number, hei
   return r?.data || null;
 }
 
-async function toBitmap(src: string | Blob): Promise<ImageBitmap> {
+/** Decode to a bitmap, honouring EXIF rotation from phone cameras where the browser supports the option
+ *  (older WebKit throws on it, so fall back to a plain decode rather than fail the scan). */
+export async function toBitmap(src: string | Blob): Promise<ImageBitmap> {
   const blob = typeof src === 'string' ? await (await fetch(src)).blob() : src;
-  return createImageBitmap(blob, { imageOrientation: 'from-image' }); // honours EXIF rotation from phone cameras
+  try { return await createImageBitmap(blob, { imageOrientation: 'from-image' }); }
+  catch { return createImageBitmap(blob); }
 }
 
 function pixels(bmp: ImageBitmap, max: number): ImageData {
