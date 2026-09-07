@@ -1,6 +1,9 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { CATS, CHILDSUB, Claim, DEFAULT_SUB, CalcResult, ReceiptItem, SUBLIMITS, capFor, fmt, subCap, subSum, to2dp, today, uid } from '@/lib/tax';
 import { getFile, putFile, readFiles } from '@/lib/data';
+import type { OcrProgress } from '@/lib/ocr';
+import type { ProofType, ReceiptRead } from '@/lib/receiptRead';
+import { markEInvoice } from './derive';
 import { Api } from './App';
 import { Modal, MoneyInput } from './bits';
 import { CatHelp } from '@/components/Help';
@@ -82,6 +85,13 @@ export const editState = (cl: Claim): AddState => ({
 export interface TagState {
   rid: string | null;
   cat: string;
+  /** the person changed the category themselves — the reader must not override it */
+  catTouched?: boolean;
+  /** claim date; the reader fills it from the receipt, otherwise today */
+  date?: string;
+  proof?: ProofType;
+  /** what the on-device reader made of the photo, kept so the dialog can show it and flag a mismatch */
+  read?: ReceiptRead & { confidence: number; ms: number };
   merchant: string;
   amount: string;
   makeClaim: boolean;
@@ -150,7 +160,7 @@ export function AddClaimDialog({ api, c, add, setAdd, onSaved }: { api: Api; c: 
     if (add.editId) {
       const attach = add.fileName && editTarget && !editTarget.receipt;
       const recId2 = attach ? uid() : null;
-      if (attach && add.fileFull) putFile(recId2!, add.fileFull);
+      if (attach && add.fileFull) { putFile(recId2!, add.fileFull); markEInvoice(mut, recId2!, add.fileFull); }
       mut((dd) => {
         const cl = dd.claims.find((q) => q.id === add.editId);
         if (!cl) return;
@@ -169,7 +179,7 @@ export function AddClaimDialog({ api, c, add, setAdd, onSaved }: { api: Api; c: 
       return;
     }
     let recId: string | null = null;
-    if (add.fileName) { recId = uid(); if (add.fileFull) putFile(recId, add.fileFull); }
+    if (add.fileName) { recId = uid(); if (add.fileFull) { putFile(recId, add.fileFull); markEInvoice(mut, recId, add.fileFull); } }
     mut((dd) => {
       const yr = +dd.ya.slice(2);
       if (add.monthly) {
@@ -273,6 +283,45 @@ export function TagDialog({ api, tag, setTag }: { api: Api; tag: TagState; setTa
   const { d, ya, mut, setDlg } = api;
   const yaNum = +ya.slice(2);
   const rec = d.receipts.find((r) => r.id === tag.rid);
+  const isImage = !!rec && (!!rec.thumb || /\.(jpe?g|png|webp|gif|bmp|heic)$/i.test(rec.name));
+  const [reading, setReading] = useState<OcrProgress | null>(null);
+  const [readErr, setReadErr] = useState('');
+  const latest = useRef(tag);
+  latest.current = tag;
+
+  const typed = +tag.amount || 0;
+  const readAmt = tag.read?.amount;
+  const mismatch = readAmt !== undefined && typed > 0 && Math.abs(typed - readAmt) >= 0.01;
+
+  // Read the photo on this device: nothing leaves the browser. Fills only what the person has not typed.
+  const readReceipt = async () => {
+    if (!rec || reading) return;
+    setReadErr('');
+    setReading({ status: 'starting', progress: 0 });
+    try {
+      const full = rec.hasFull ? await getFile(rec.id) : null;
+      const src = full || rec.thumb;
+      if (!src || !src.startsWith('data:image/')) throw new Error('not-image');
+      const [{ readReceiptImage }, { parseReceiptText }] = await Promise.all([import('@/lib/ocr'), import('@/lib/receiptRead')]);
+      const res = await readReceiptImage(src, setReading);
+      const read = parseReceiptText(res.text, { einvoice: !!rec.einv });
+      const t = latest.current;
+      setTag({
+        ...t,
+        merchant: t.merchant || read.merchant || '',
+        amount: t.amount || (read.amount !== undefined ? read.amount.toFixed(2) : ''),
+        cat: t.catTouched || !read.cat ? t.cat : read.cat,
+        date: t.date || read.date,
+        proof: rec.einv ? 'einvoice' : read.proof,
+        read: { ...read, confidence: res.confidence, ms: res.ms },
+      });
+      if (read.amount === undefined && !read.merchant) setReadErr('Could not make out this photo — try a sharper, straight-on shot in good light. · Foto tidak dapat dibaca — cuba foto yang lebih jelas.');
+    } catch (e) {
+      setReadErr((e as Error).message === 'not-image'
+        ? 'Reading works on photos; this file is not one. · Hanya foto boleh dibaca.'
+        : 'The reader could not start — check your connection for the one-time download, then try again. · Pembaca gagal dimuatkan.');
+    } finally { setReading(null); }
+  };
 
   const saveTag = () => {
     mut((dd) => {
@@ -281,25 +330,54 @@ export function TagDialog({ api, tag, setTag }: { api: Api; tag: TagState; setTa
       r.cat = tag.cat;
       const amt = to2dp(+tag.amount || 0);
       r.sub = (tag.merchant || 'Receipt') + (amt ? ' · ' + fmt(amt) : '');
-      if (tag.makeClaim && amt) dd.claims.unshift({ id: uid(), ya: dd.ya, cat: tag.cat, sub: tag.cat === 'medical' ? 'general' : undefined, date: today(), desc: tag.merchant || r.name, amount: amt, receipt: r.name });
+      if (tag.proof) r.proof = tag.proof; else if (r.einv) r.proof = 'einvoice';
+      if (tag.makeClaim && amt) dd.claims.unshift({ id: uid(), ya: dd.ya, cat: tag.cat, sub: DEFAULT_SUB[tag.cat] || (SUBLIMITS[tag.cat] ? 'general' : undefined), date: tag.date || today(), desc: tag.merchant || r.name, amount: amt, receipt: r.name });
     });
     setDlg(null);
   };
+
+  const pct = reading ? Math.round((reading.progress || 0) * 100) : 0;
+  const readingLabel = !reading ? '' : /recognizing/.test(reading.status) ? `Reading… ${pct}% · Membaca` : /load|download|initializ/.test(reading.status) ? 'Loading the reader (one-time download) · Memuatkan pembaca…' : 'Preparing photo… · Menyediakan foto';
+  const catLabel = (id?: string) => CATS.find((c) => c.id === id)?.en.split(' — ')[0] || id || '';
 
   return (
     <Modal onClose={() => setDlg(null)} onSubmit={saveTag} label="Tag receipt · Tag resit">
         <div className="dialog-title">Tag receipt · Tag resit</div>
         <div className="dialog-body" style={{ margin: 0 }}>{rec?.name || ''}</div>
+        {rec?.einv && (
+          <div className="einv-line">
+            <span className="tag tag-accent-2">Validated e-invoice · e-Invois sah</span>
+            <a href={rec.einv.url} target="_blank" rel="noopener noreferrer" style={{ fontSize: 12 }}>Check on MyInvois ↗</a>
+            <span className="text-muted mono" style={{ fontSize: 11 }}>{rec.einv.uuid}</span>
+          </div>
+        )}
         <div className="field">
           <label>Relief category · Kategori<CatHelp id={tag.cat} ya={yaNum} /></label>
-          <select className="input" aria-label="Relief category · Kategori" value={tag.cat} onChange={(e) => setTag({ ...tag, cat: e.target.value })}>
+          <select className="input" aria-label="Relief category · Kategori" value={tag.cat} onChange={(e) => setTag({ ...tag, cat: e.target.value, catTouched: true })}>
             {catOptions(yaNum).map((o) => <option key={o.id} value={o.id}>{o.label}</option>)}
           </select>
         </div>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
           <div className="field"><label>Merchant · Kedai</label><input className="input" aria-label="Merchant · Kedai" value={tag.merchant} onChange={(e) => setTag({ ...tag, merchant: e.target.value })} /></div>
           <div className="field"><label>Amount · Jumlah (RM)</label><MoneyInput ariaLabel="Amount · Jumlah (RM)" value={tag.amount} onChange={(v) => setTag({ ...tag, amount: v })} /></div>
+          <div className="field"><label>Date · Tarikh</label><input className="input" type="date" aria-label="Date · Tarikh" value={tag.date || today()} onChange={(e) => setTag({ ...tag, date: e.target.value })} /></div>
+          <div className="field" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'flex-end' }}>
+            <button type="button" className="btn btn-secondary" onClick={readReceipt} disabled={!isImage || !!reading} aria-busy={!!reading} title={isImage ? 'Read merchant, date and total from the photo, on this device' : 'Reading works on photos, not PDFs'}>
+              {reading ? readingLabel : 'Read receipt · Baca resit'}
+            </button>
+          </div>
         </div>
+        {!isImage && rec && <div className="text-muted" style={{ fontSize: 12 }}>Reading works on photos; PDFs are kept as they are. · Hanya foto boleh dibaca.</div>}
+        {readErr && <div style={{ fontSize: 12, color: 'var(--color-accent-700)' }}>{readErr}</div>}
+        {tag.read && !readErr && (
+          <div className="text-muted read-line" style={{ fontSize: 12 }}>
+            Read from the photo on this device · Dibaca dari foto: {tag.read.merchant || '—'} · {tag.read.date || 'no date'} · {tag.read.amount !== undefined ? fmt(tag.read.amount) : 'no total found'}
+            {tag.read.cat ? ` · ${catLabel(tag.read.cat)} (from “${tag.read.catWhy}”)` : ''} · {Math.round(tag.read.confidence)}% sure. Check before saving. · Semak dahulu.
+          </div>
+        )}
+        {mismatch && (
+          <div style={{ fontSize: 12, color: 'var(--color-accent-700)' }}>The photo says {fmt(readAmt!)}; you typed {fmt(typed)}. · Foto: {fmt(readAmt!)}.</div>
+        )}
         <label className="radio" style={{ marginTop: 4 }}>
           <input type="checkbox" checked={tag.makeClaim} onChange={(e) => setTag({ ...tag, makeClaim: e.target.checked })} />
           <span className="dot" style={{ borderRadius: 0 }} />

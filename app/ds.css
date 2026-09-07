@@ -238,3 +238,8 @@ input.input[type='date']::-webkit-date-and-time-value { text-align: left; }
 }
 @keyframes help-up { from { transform: translateY(24px); opacity: 0; } }
 @media (prefers-reduced-motion: reduce) { .help-pop { animation: none; } }
+
+/* tag-receipt dialog: e-invoice line and what the on-device reader found */
+.einv-line { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; font-size: 12px; margin: 2px 0 8px; }
+.read-line { line-height: 1.45; }
+.tag-accent-2 { text-decoration: none; }

@@ -46,6 +46,10 @@ export interface ReceiptItem {
   sub: string;
   thumb: string | null;
   hasFull?: boolean;
+  /** what kind of evidence this is — set from a MyInvois QR, the receipt reader, or the person */
+  proof?: 'einvoice' | 'receipt' | 'statement';
+  /** the validated e-invoice this photo carries (decoded from its MyInvois QR) */
+  einv?: { uuid: string; longId: string; url: string };
 }
 
 export interface DocItem {

@@ -134,7 +134,7 @@ export function FilingPack({ api, c }: { api: Api; c: CalcResult }) {
         <thead><tr><th style={{ width: 24 }}>#</th><th>File · Fail</th><th>Relief · Pelepasan</th><th>Note · Nota</th></tr></thead>
         <tbody>
           {recAll.map((r, i) => (
-            <tr key={r.id}><td className="mono">{i + 1}</td><td>{r.name}</td><td>{catName(r.cat)}</td><td className="text-muted">{r.sub}</td></tr>
+            <tr key={r.id}><td className="mono">{i + 1}</td><td>{r.name}</td><td>{catName(r.cat)}</td><td className="text-muted">{r.einv ? 'e-Invoice ' + r.einv.uuid + ' · ' : ''}{r.sub}</td></tr>
           ))}
           {recAll.length === 0 && <tr><td colSpan={4} className="text-muted">No receipts filed for {ya}.</td></tr>}
         </tbody>

@@ -89,3 +89,70 @@ test.describe('on an iPhone', () => {
     expect(box!.y).toBeGreaterThan(vp.h * 0.1);
   });
 });
+
+test.describe('receipt reading on the device', () => {
+  const EINV = 'https://myinvois.hasil.gov.my/F9D425P6DS7D8IU/share/7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d';
+
+  test('a photo carrying a MyInvois QR is marked as a validated e-invoice on upload', async ({ page }) => {
+    const QRCode = await import('qrcode');
+    const buffer = await QRCode.toBuffer(EINV, { type: 'png', width: 420, margin: 4 });
+    await page.goto('app/?demo=1#receipts');
+    await page.locator('input[type="file"]').first().setInputFiles({ name: 'einvoice.png', mimeType: 'image/png', buffer });
+    const badge = page.getByRole('link', { name: 'e-Invoice ✓' });
+    await expect(badge).toBeVisible({ timeout: 15_000 });
+    await expect(badge).toHaveAttribute('href', EINV);
+    await page.getByRole('button', { name: 'Tag →' }).first().click();
+    const dlg = page.getByRole('dialog', { name: 'Tag receipt · Tag resit' });
+    await expect(dlg).toContainText('Validated e-invoice');
+    await expect(dlg).toContainText('F9D425P6DS7D8IU');
+  });
+
+  test('several photos picked at once all land in the vault', async ({ page, context }) => {
+    const sheet = await context.newPage();
+    const shot = async (label: string) => { await sheet.setContent(`<body style="margin:0;background:#fff"><pre style="font:32px monospace;padding:30px">${label}</pre></body>`); return sheet.locator('pre').screenshot({ type: 'png' }); };
+    const files = [{ name: 'one.png', mimeType: 'image/png', buffer: await shot('KEDAI SATU') }, { name: 'two.png', mimeType: 'image/png', buffer: await shot('KEDAI DUA') }, { name: 'three.png', mimeType: 'image/png', buffer: await shot('KEDAI TIGA') }];
+    await sheet.close();
+    await page.goto('app/?demo=1#receipts');
+    await expect(page.getByRole('button', { name: /All · Semua \(3\)/ })).toBeVisible();
+    await page.locator('input[type="file"]').first().setInputFiles(files);
+    await expect(page.getByRole('button', { name: /All · Semua \(6\)/ })).toBeVisible({ timeout: 15_000 });
+    for (const f of files) await expect(page.getByText(f.name)).toBeVisible();
+  });
+
+  test('"Read receipt" fills the form from a photo using the on-device engine', async ({ page, context }) => {
+    test.setTimeout(180_000); // first run downloads the engine and language packs from the local server
+    // render a clean receipt and photograph it — the same pixels a phone camera would hand the app
+    const sheet = await context.newPage();
+    await sheet.setContent(`<body style="margin:0;background:#fff"><pre style="font:28px/1.5 Menlo,Consolas,monospace;color:#000;padding:40px;width:640px;margin:0">KLINIK MEDIVIRON SDN BHD
+No 12 Jalan Damai
+Kuala Lumpur
+
+TAX INVOICE
+Date: 14/05/2026
+
+Consultation          60.00
+Medicine              60.00
+
+Total              RM 120.00
+Cash                  150.00
+Change                 30.00
+
+Thank you
+</pre></body>`);
+    const buffer = await sheet.locator('pre').screenshot({ type: 'png' });
+    await sheet.close();
+
+    await page.goto('app/?demo=1#receipts');
+    await page.locator('input[type="file"]').first().setInputFiles({ name: 'klinik.png', mimeType: 'image/png', buffer });
+    await page.getByRole('button', { name: 'Tag →' }).first().click();
+    const dlg = page.getByRole('dialog', { name: 'Tag receipt · Tag resit' });
+    await dlg.getByRole('button', { name: 'Read receipt · Baca resit' }).click();
+    await expect(dlg).toContainText('Read from the photo on this device', { timeout: 150_000 });
+    await expect(dlg.getByLabel('Amount · Jumlah (RM)')).toHaveValue('120.00');
+    await expect(dlg.getByLabel('Date · Tarikh')).toHaveValue('2026-05-14');
+    await expect(dlg.getByLabel('Relief category · Kategori')).toHaveValue('medical');
+    await expect(dlg.getByLabel('Merchant · Kedai')).toHaveValue(/Klinik Mediviron/i);
+    await dlg.getByRole('button', { name: 'Save · Simpan' }).click();
+    await expect(page.getByText('Klinik Mediviron Sdn Bhd · RM 120', { exact: false })).toBeVisible();
+  });
+});

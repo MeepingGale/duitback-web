@@ -21,6 +21,14 @@ async function completeSetup(name = 'Testy') {
   await screen.findByText('Hello, ' + name);
 }
 
+vi.mock('@/lib/ocr', () => ({
+  readReceiptImage: vi.fn(async (_src: string, onProgress?: (p: { status: string; progress: number }) => void) => {
+    onProgress?.({ status: 'recognizing text', progress: 0.5 });
+    return { text: 'KLINIK MEDIVIRON SDN BHD\nNo 12 Jalan Damai\nTAX INVOICE\nDate: 14/05/2026\nConsultation 60.00\nMedicine 60.00\nTotal RM120.00\nCash 150.00\nChange 30.00', confidence: 87, ms: 1200 };
+  }),
+  releaseOcr: vi.fn(),
+}));
+
 describe('TrackerApp smoke', () => {
   it('first run shows setup; completing it lands on the dashboard with the tour', async () => {
     await completeSetup('Nicholas');
@@ -304,6 +312,74 @@ describe('TrackerApp smoke', () => {
     fireEvent.click(screen.getByText('Claims · Tuntutan'));
     await screen.findByText('Edit · Sunting'); // the Router line is still there…
     expect(screen.queryByText('r.png')).toBeNull(); // …but no longer claims a file that is gone
+  });
+
+  it('"Read receipt" fills merchant, date, amount and category from the photo, and flags a typed amount that disagrees', async () => {
+    await completeSetup();
+    cleanup();
+    const d = JSON.parse(localStorage.getItem(KEY)!);
+    d.receipts.unshift({ id: 'rp', ya: d.ya, cat: null, name: 'klinik.jpg', sub: 'Uploaded · untagged', thumb: 'data:image/png;base64,AAA', hasFull: false });
+    localStorage.setItem(KEY, JSON.stringify(d));
+    render(<TrackerApp />);
+    fireEvent.click(await screen.findByText('Receipts · Resit'));
+    fireEvent.click(await screen.findByText('Tag →'));
+    await screen.findByText('Tag receipt · Tag resit');
+    fireEvent.click(screen.getByText('Read receipt · Baca resit'));
+    await screen.findByText(/Read from the photo on this device/);
+    expect((screen.getByLabelText('Merchant · Kedai') as HTMLInputElement).value).toBe('Klinik Mediviron Sdn Bhd');
+    expect((screen.getByLabelText('Amount · Jumlah (RM)') as HTMLInputElement).value).toBe('120.00');
+    expect((screen.getByLabelText('Date · Tarikh') as HTMLInputElement).value).toBe('2026-05-14');
+    expect((screen.getByRole('combobox', { name: 'Relief category · Kategori' }) as HTMLSelectElement).value).toBe('medical');
+    expect(screen.getByText(/87% sure/)).toBeTruthy();
+    // a typed figure that disagrees with the photo is called out, never silently replaced
+    fireEvent.change(screen.getByLabelText('Amount · Jumlah (RM)'), { target: { value: '126' } });
+    await screen.findByText(/The photo says RM 120/);
+    fireEvent.click(screen.getByText('Save · Simpan'));
+    await waitFor(() => expect(screen.queryByText('Tag receipt · Tag resit')).toBeNull());
+    const saved = JSON.parse(localStorage.getItem(KEY)!);
+    expect(saved.receipts.find((r: { id: string }) => r.id === 'rp')).toMatchObject({ cat: 'medical', proof: 'receipt', sub: 'Klinik Mediviron Sdn Bhd · RM 126' });
+    expect(saved.claims[0]).toMatchObject({ cat: 'medical', desc: 'Klinik Mediviron Sdn Bhd', amount: 126, date: '2026-05-14', receipt: 'klinik.jpg' });
+  });
+
+  it('the reader never overrides a category the person picked, and PDFs cannot be read', async () => {
+    await completeSetup();
+    cleanup();
+    const d = JSON.parse(localStorage.getItem(KEY)!);
+    d.receipts.unshift(
+      { id: 'rp', ya: d.ya, cat: null, name: 'klinik.jpg', sub: 'Uploaded · untagged', thumb: 'data:image/png;base64,AAA', hasFull: false },
+      { id: 'pdf', ya: d.ya, cat: null, name: 'statement.pdf', sub: 'Uploaded · untagged', thumb: null, hasFull: false },
+    );
+    localStorage.setItem(KEY, JSON.stringify(d));
+    render(<TrackerApp />);
+    fireEvent.click(await screen.findByText('Receipts · Resit'));
+    const tagButtons = await screen.findAllByText('Tag →');
+    fireEvent.click(tagButtons[0]); // klinik.jpg is first
+    await screen.findByText('Tag receipt · Tag resit');
+    fireEvent.change(screen.getByRole('combobox', { name: 'Relief category · Kategori' }), { target: { value: 'parents_med' } });
+    fireEvent.click(screen.getByText('Read receipt · Baca resit'));
+    await screen.findByText(/Read from the photo on this device/);
+    expect((screen.getByRole('combobox', { name: 'Relief category · Kategori' }) as HTMLSelectElement).value).toBe('parents_med');
+    fireEvent.click(screen.getByText('Cancel'));
+    fireEvent.click((await screen.findAllByText('Tag →'))[1]);
+    await screen.findByText('Tag receipt · Tag resit');
+    expect((screen.getByText('Read receipt · Baca resit') as HTMLButtonElement).disabled).toBe(true);
+    await screen.findByText(/Reading works on photos; PDFs are kept as they are/);
+  });
+
+  it('a receipt carrying a MyInvois QR shows the validated e-invoice badge in the vault and the tag dialog', async () => {
+    await completeSetup();
+    cleanup();
+    const d = JSON.parse(localStorage.getItem(KEY)!);
+    d.receipts.unshift({ id: 're', ya: d.ya, cat: null, name: 'einv.jpg', sub: 'Uploaded · untagged', thumb: 'data:image/png;base64,AAA', hasFull: false, proof: 'einvoice', einv: { uuid: 'F9D425P6DS7D8IU', longId: 'abcdefghijklmnop', url: 'https://myinvois.hasil.gov.my/F9D425P6DS7D8IU/share/abcdefghijklmnop' } });
+    localStorage.setItem(KEY, JSON.stringify(d));
+    render(<TrackerApp />);
+    fireEvent.click(await screen.findByText('Receipts · Resit'));
+    const badge = await screen.findByText('e-Invoice ✓');
+    expect((badge as HTMLAnchorElement).href).toBe('https://myinvois.hasil.gov.my/F9D425P6DS7D8IU/share/abcdefghijklmnop');
+    fireEvent.click(screen.getByText('Tag →'));
+    await screen.findByText('Validated e-invoice · e-Invois sah');
+    expect(screen.getByText('Check on MyInvois ↗')).toBeTruthy();
+    expect(screen.getByText('F9D425P6DS7D8IU')).toBeTruthy();
   });
 
   it('PCB auto-estimates from salary + bonus, and a typed figure overrides it', async () => {

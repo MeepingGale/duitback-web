@@ -2,6 +2,8 @@
 // Navigations: network-first so deploys show up immediately, cached shell as
 // the offline fallback. Hashed build assets: cache-first (immutable).
 const VERSION = 'duitback-v2';
+// OCR engine + language packs: cache-first in a cache that survives deploys (the files are versioned by path)
+const OCR = 'duitback-ocr-1';
 const BASE = '/duitback-web';
 const SHELL = [BASE + '/app/', BASE + '/', BASE + '/reliefs/', BASE + '/pcb/'];
 
@@ -14,7 +16,7 @@ self.addEventListener('install', (e) => {
 self.addEventListener('activate', (e) => {
   e.waitUntil(
     caches.keys()
-      .then((keys) => Promise.all(keys.filter((k) => k !== VERSION).map((k) => caches.delete(k))))
+      .then((keys) => Promise.all(keys.filter((k) => k !== VERSION && k !== OCR).map((k) => caches.delete(k))))
       .then(() => self.clients.claim())
   );
 });
@@ -36,6 +38,15 @@ self.addEventListener('fetch', (e) => {
         .catch(() =>
           caches.match(req).then((hit) => hit || caches.match(BASE + '/app/'))
         )
+    );
+    return;
+  }
+
+  if (url.pathname.startsWith(BASE + '/ocr/')) {
+    e.respondWith(
+      caches.open(OCR).then((c) =>
+        c.match(req).then((hit) => hit || fetch(req).then((res) => { if (res.ok) c.put(req, res.clone()); return res; }))
+      )
     );
     return;
   }

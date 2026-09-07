@@ -3,7 +3,7 @@ import { CATS, uid } from '@/lib/tax';
 import { delFile, exportJson, getFile, putFile, readFiles } from '@/lib/data';
 import { Api } from './App';
 import { YaTabs, pagepad, heading800 } from './bits';
-import { yearsOf } from './derive';
+import { markEInvoice, yearsOf } from './derive';
 import type { TagState, ViewerState } from './dialogs';
 
 export function Receipts({ api, setTag, setViewer }: { api: Api; setTag: (t: TagState) => void; setViewer: (v: ViewerState) => void }) {
@@ -28,6 +28,7 @@ export function Receipts({ api, setTag, setViewer }: { api: Api; setTag: (t: Tag
     const id = uid();
     if (full) putFile(id, full);
     mut((dd) => { dd.receipts.unshift({ id, ya: dd.ya, cat: null, name, sub: 'Uploaded · untagged', thumb, hasFull: !!full }); });
+    markEInvoice(mut, id, full);
   };
 
   const openViewer = (r: (typeof recAll)[number]) => {
@@ -97,6 +98,7 @@ export function Receipts({ api, setTag, setViewer }: { api: Api; setTag: (t: Tag
                   <div style={{ fontSize: 11.5 }} className="text-muted">{r.sub}</div>
                   <div style={{ display: 'flex', gap: 6, marginTop: 8, alignItems: 'center', flexWrap: 'wrap' }}>
                     <span className={'tag ' + (r.cat ? 'tag-accent' : 'tag-outline')}>{ct ? ct.en.split(' — ')[0].split(' &')[0] : 'Needs tags · Perlu tag'}</span>
+                    {r.einv && <a className="tag tag-accent-2" href={r.einv.url} target="_blank" rel="noopener noreferrer" title="Validated e-invoice — open on MyInvois · e-Invois sah">e-Invoice ✓</a>}
                     {!r.cat && (
                       <button className="navlink linkbtn" style={{ fontSize: 12, marginLeft: 'auto' }} onClick={() => { setTag({ rid: r.id, cat: 'lifestyle', merchant: '', amount: '', makeClaim: true }); setDlg('tag'); }}>Tag →</button>
                     )}

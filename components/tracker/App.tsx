@@ -189,7 +189,13 @@ export default function TrackerApp() {
     if (link && strip && strip.scrollWidth > strip.clientWidth) strip.scrollTo({ left: link.offsetLeft - (strip.clientWidth - link.offsetWidth) / 2 });
   }, [screen]);
 
+  // `latest` always holds the newest data, even before React re-renders: a mutation that runs after an
+  // async gap (a file read, a QR scan) or twice in one tick must build on the previous one, not on the
+  // snapshot its closure captured — otherwise the later save silently discards the earlier change.
+  const latest = useRef<Data | null>(data);
+  latest.current = data;
   const save = (d: Data, msg?: string) => {
+    latest.current = d;
     setData(d);
     const err = persist(d);
     bumpChanges();
@@ -197,7 +203,9 @@ export default function TrackerApp() {
     setDataMsg(err || msg || '');
   };
   const mut = (fn: (d: Data) => void) => {
-    const d = JSON.parse(JSON.stringify(data)) as Data;
+    const base = latest.current;
+    if (!base) return;
+    const d = JSON.parse(JSON.stringify(base)) as Data;
     fn(d);
     save(d);
   };
