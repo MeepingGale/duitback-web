@@ -98,11 +98,11 @@ export function calcFor(d: Data, ya: string): CalcResult {
 /** After a photo lands in the vault, look for a MyInvois QR in the background and mark the receipt as a
  *  validated e-invoice. Runs off the main thread of the person's attention: nothing waits on it. */
 export function markEInvoice(mut: (fn: (d: Data) => void) => void, id: string, full: string | null | undefined): void {
-  if (!full || !full.startsWith('data:image/')) return;
-  import('@/lib/qr')
-    .then(({ scanForEInvoice }) => scanForEInvoice(full))
+  if (!full || !(full.startsWith('data:image/') || full.startsWith('data:application/pdf'))) return;
+  Promise.all([import('@/lib/qr'), import('@/lib/pdf')])
+    .then(async ([{ scanForEInvoice }, { receiptImage }]) => { const img = await receiptImage(full); return img ? scanForEInvoice(img) : null; })
     .then((s) => {
-      if (!s.einv) return;
+      if (!s || !s.einv) return;
       mut((dd) => { const r = dd.receipts.find((x) => x.id === id); if (r) { r.einv = s.einv; r.proof = 'einvoice'; } });
     })
     .catch(() => {});

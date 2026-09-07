@@ -271,9 +271,33 @@ export function readFiles(files: FileList | File[], cb: (name: string, thumb: st
       rd.readAsDataURL(f);
     } else {
       const rd = new FileReader();
-      rd.onload = () => cb(f.name, null, rd.result as string);
+      rd.onload = async () => {
+        const full = rd.result as string;
+        let thumb: string | null = null;
+        if (full.startsWith('data:application/pdf')) {
+          // the first page as the card's thumbnail — a picture of the document rather than a generic icon
+          try { const { renderPdfPage } = await import('./pdf'); thumb = await toJpeg(await renderPdfPage(full, 320), 0.7); } catch { thumb = null; }
+        }
+        cb(f.name, thumb, full);
+      };
       rd.readAsDataURL(f);
     }
+  });
+}
+
+function toJpeg(pngDataUrl: string, q: number): Promise<string> {
+  return new Promise((res, rej) => {
+    const img = new Image();
+    img.onload = () => {
+      const cv = document.createElement('canvas');
+      cv.width = img.width; cv.height = img.height;
+      const g = cv.getContext('2d')!;
+      g.fillStyle = '#fff'; g.fillRect(0, 0, cv.width, cv.height); // PDF pages render transparent where blank
+      g.drawImage(img, 0, 0);
+      res(cv.toDataURL('image/jpeg', q));
+    };
+    img.onerror = () => rej(new Error('thumb'));
+    img.src = pngDataUrl;
   });
 }
 

@@ -108,6 +108,34 @@ test.describe('receipt reading on the device', () => {
     await expect(dlg).toContainText('F9D425P6DS7D8IU');
   });
 
+  test('a PDF e-invoice is scanned for its QR and read like a photo', async ({ page }) => {
+    test.setTimeout(180_000);
+    const QRCode = await import('qrcode');
+    const qr = await QRCode.toDataURL(EINV, { width: 260, margin: 2 });
+    // print a small HTML e-invoice to a real PDF with Chromium (the only engine that can print), whichever project runs the test
+    const { chromium } = await import('@playwright/test');
+    const printer = await chromium.launch();
+    const sheet = await printer.newPage();
+    await sheet.setContent(`<body style="font:20px/1.6 Menlo,monospace;padding:40px;color:#000"><h1 style="font:bold 30px Arial,sans-serif;margin:0 0 8px">KLINIK MEDIVIRON SDN BHD</h1><p>e-Invoice<br>Date: 14/05/2026</p><img src="${qr}" width="200" height="200"><p>Consultation 60.00<br>Medicine 60.00</p><p><b>Total Payable Amount (RM) 120.00</b></p></body>`);
+    const buffer = await sheet.pdf({ format: 'A4', printBackground: true });
+    await printer.close();
+
+    await page.goto('app/?demo=1#receipts');
+    await page.locator('input[type="file"]').first().setInputFiles({ name: 'einvoice.pdf', mimeType: 'application/pdf', buffer });
+    const card = page.getByText('einvoice.pdf', { exact: true }).locator('xpath=ancestor::div[.//button[contains(., "Tag →")]][1]');
+    await expect(card).toBeVisible({ timeout: 30_000 });
+    await expect(card.getByRole('link', { name: 'e-Invoice ✓' })).toBeVisible({ timeout: 30_000 }); // the QR was found inside the PDF
+    await expect(page.locator('img[alt="einvoice.pdf"]')).toBeVisible(); // first page as the card's thumbnail
+    await card.getByRole('button', { name: 'Tag →' }).click();
+    const dlg = page.getByRole('dialog', { name: 'Tag receipt · Tag resit' });
+    await expect(dlg).toContainText('Validated e-invoice');
+    await dlg.getByRole('button', { name: 'Read receipt · Baca resit' }).click();
+    await expect(dlg).toContainText('Read from the PDF on this device', { timeout: 150_000 });
+    await expect(dlg.getByLabel('Amount · Jumlah (RM)')).toHaveValue('120.00');
+    await expect(dlg.getByLabel('Date · Tarikh')).toHaveValue('2026-05-14');
+    await expect(dlg.getByLabel('Relief category · Kategori')).toHaveValue('medical');
+  });
+
   test('several photos picked at once all land in the vault', async ({ page, context }) => {
     const sheet = await context.newPage();
     const shot = async (label: string) => { await sheet.setContent(`<body style="margin:0;background:#fff"><pre style="font:32px monospace;padding:30px">${label}</pre></body>`); return sheet.locator('pre').screenshot({ type: 'png' }); };

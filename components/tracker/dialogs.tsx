@@ -283,7 +283,9 @@ export function TagDialog({ api, tag, setTag }: { api: Api; tag: TagState; setTa
   const { d, ya, mut, setDlg } = api;
   const yaNum = +ya.slice(2);
   const rec = d.receipts.find((r) => r.id === tag.rid);
-  const isImage = !!rec && (!!rec.thumb || /\.(jpe?g|png|webp|gif|bmp|heic)$/i.test(rec.name));
+  const isPdf = !!rec && /\.pdf$/i.test(rec.name);
+  const isImage = !!rec && !isPdf && (!!rec.thumb || /\.(jpe?g|png|webp|gif|bmp|heic)$/i.test(rec.name));
+  const canRead = isImage || isPdf;
   const [reading, setReading] = useState<OcrProgress | null>(null);
   const [readErr, setReadErr] = useState('');
   const latest = useRef(tag);
@@ -300,8 +302,10 @@ export function TagDialog({ api, tag, setTag }: { api: Api; tag: TagState; setTa
     setReading({ status: 'starting', progress: 0 });
     try {
       const full = rec.hasFull ? await getFile(rec.id) : null;
-      const src = full || rec.thumb;
-      if (!src || !src.startsWith('data:image/')) throw new Error('not-image');
+      if (isPdf && full) setReading({ status: 'rendering pdf', progress: 0 });
+      const { receiptImage } = await import('@/lib/pdf');
+      const src = (await receiptImage(full)) || (rec.thumb && rec.thumb.startsWith('data:image/') ? rec.thumb : null);
+      if (!src) throw new Error('no-file');
       const [{ readReceiptImage }, { parseReceiptText }] = await Promise.all([import('@/lib/ocr'), import('@/lib/receiptRead')]);
       const res = await readReceiptImage(src, setReading);
       const read = parseReceiptText(res.text, { einvoice: !!rec.einv });
@@ -317,8 +321,8 @@ export function TagDialog({ api, tag, setTag }: { api: Api; tag: TagState; setTa
       });
       if (read.amount === undefined && !read.merchant) setReadErr('Could not make out this photo — try a sharper, straight-on shot in good light. · Foto tidak dapat dibaca — cuba foto yang lebih jelas.');
     } catch (e) {
-      setReadErr((e as Error).message === 'not-image'
-        ? 'Reading works on photos; this file is not one. · Hanya foto boleh dibaca.'
+      setReadErr((e as Error).message === 'no-file'
+        ? 'No stored file to read — demo receipts are placeholders; your own uploads can be read. · Tiada fail tersimpan untuk dibaca.'
         : 'The reader could not start — check your connection for the one-time download, then try again. · Pembaca gagal dimuatkan.');
     } finally { setReading(null); }
   };
@@ -337,7 +341,7 @@ export function TagDialog({ api, tag, setTag }: { api: Api; tag: TagState; setTa
   };
 
   const pct = reading ? Math.round((reading.progress || 0) * 100) : 0;
-  const readingLabel = !reading ? '' : /recognizing/.test(reading.status) ? `Reading… ${pct}% · Membaca` : /load|download|initializ/.test(reading.status) ? 'Loading the reader (one-time download) · Memuatkan pembaca…' : 'Preparing photo… · Menyediakan foto';
+  const readingLabel = !reading ? '' : /recognizing/.test(reading.status) ? `Reading… ${pct}% · Membaca` : /rendering/.test(reading.status) ? 'Rendering the PDF page… · Melukis halaman PDF' : /load|download|initializ/.test(reading.status) ? 'Loading the reader (one-time download) · Memuatkan pembaca…' : 'Preparing photo… · Menyediakan foto';
   const catLabel = (id?: string) => CATS.find((c) => c.id === id)?.en.split(' — ')[0] || id || '';
 
   return (
@@ -362,16 +366,16 @@ export function TagDialog({ api, tag, setTag }: { api: Api; tag: TagState; setTa
           <div className="field"><label>Amount · Jumlah (RM)</label><MoneyInput ariaLabel="Amount · Jumlah (RM)" value={tag.amount} onChange={(v) => setTag({ ...tag, amount: v })} /></div>
           <div className="field"><label>Date · Tarikh</label><input className="input" type="date" aria-label="Date · Tarikh" value={tag.date || today()} onChange={(e) => setTag({ ...tag, date: e.target.value })} /></div>
           <div className="field" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'flex-end' }}>
-            <button type="button" className="btn btn-secondary" onClick={readReceipt} disabled={!isImage || !!reading} aria-busy={!!reading} title={isImage ? 'Read merchant, date and total from the photo, on this device' : 'Reading works on photos, not PDFs'}>
+            <button type="button" className="btn btn-secondary" onClick={readReceipt} disabled={!canRead || !!reading} aria-busy={!!reading} title={canRead ? 'Read merchant, date and total from the ' + (isPdf ? 'PDF' : 'photo') + ', on this device' : 'Reading works on photos and PDFs'}>
               {reading ? readingLabel : 'Read receipt · Baca resit'}
             </button>
           </div>
         </div>
-        {!isImage && rec && <div className="text-muted" style={{ fontSize: 12 }}>Reading works on photos; PDFs are kept as they are. · Hanya foto boleh dibaca.</div>}
+        {!canRead && rec && <div className="text-muted" style={{ fontSize: 12 }}>Reading works on photos and PDFs; this file is neither. · Hanya foto dan PDF boleh dibaca.</div>}
         {readErr && <div style={{ fontSize: 12, color: 'var(--color-accent-700)' }}>{readErr}</div>}
         {tag.read && !readErr && (
           <div className="text-muted read-line" style={{ fontSize: 12 }}>
-            Read from the photo on this device · Dibaca dari foto: {tag.read.merchant || '—'} · {tag.read.date || 'no date'} · {tag.read.amount !== undefined ? fmt(tag.read.amount) : 'no total found'}
+            Read from the {isPdf ? 'PDF' : 'photo'} on this device · Dibaca dari {isPdf ? 'PDF' : 'foto'}: {tag.read.merchant || '—'} · {tag.read.date || 'no date'} · {tag.read.amount !== undefined ? fmt(tag.read.amount) : 'no total found'}
             {tag.read.cat ? ` · ${catLabel(tag.read.cat)} (from “${tag.read.catWhy}”)` : ''} · {Math.round(tag.read.confidence)}% sure. Check before saving. · Semak dahulu.
           </div>
         )}

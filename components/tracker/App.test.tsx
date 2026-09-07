@@ -341,7 +341,7 @@ describe('TrackerApp smoke', () => {
     expect(saved.claims[0]).toMatchObject({ cat: 'medical', desc: 'Klinik Mediviron Sdn Bhd', amount: 126, date: '2026-05-14', receipt: 'klinik.jpg' });
   });
 
-  it('the reader never overrides a category the person picked, and PDFs cannot be read', async () => {
+  it('the reader never overrides a category the person picked, and a placeholder without a stored file says so', async () => {
     await completeSetup();
     cleanup();
     const d = JSON.parse(localStorage.getItem(KEY)!);
@@ -362,8 +362,24 @@ describe('TrackerApp smoke', () => {
     fireEvent.click(screen.getByText('Cancel'));
     fireEvent.click((await screen.findAllByText('Tag →'))[1]);
     await screen.findByText('Tag receipt · Tag resit');
-    expect((screen.getByText('Read receipt · Baca resit') as HTMLButtonElement).disabled).toBe(true);
-    await screen.findByText(/Reading works on photos; PDFs are kept as they are/);
+    expect((screen.getByText('Read receipt · Baca resit') as HTMLButtonElement).disabled).toBe(false); // PDFs can be read…
+    fireEvent.click(screen.getByText('Read receipt · Baca resit'));
+    await screen.findByText(/No stored file to read/); // …when a file is actually stored; this placeholder has none
+  });
+
+  it('a PDF with a rendered first page is read like a photo', async () => {
+    await completeSetup();
+    cleanup();
+    const d = JSON.parse(localStorage.getItem(KEY)!);
+    d.receipts.unshift({ id: 'pdf2', ya: d.ya, cat: null, name: 'einvoice.pdf', sub: 'Uploaded · untagged', thumb: 'data:image/jpeg;base64,AAA', hasFull: false });
+    localStorage.setItem(KEY, JSON.stringify(d));
+    render(<TrackerApp />);
+    fireEvent.click(await screen.findByText('Receipts · Resit'));
+    fireEvent.click(await screen.findByText('Tag →'));
+    await screen.findByText('Tag receipt · Tag resit');
+    fireEvent.click(screen.getByText('Read receipt · Baca resit'));
+    await screen.findByText(/Read from the PDF on this device/);
+    expect((screen.getByLabelText('Amount · Jumlah (RM)') as HTMLInputElement).value).toBe('120.00');
   });
 
   it('a receipt carrying a MyInvois QR shows the validated e-invoice badge in the vault and the tag dialog', async () => {

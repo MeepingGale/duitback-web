@@ -86,7 +86,7 @@ export function Receipts({ api, setTag, setViewer }: { api: Api; setTag: (t: Tag
                 <button type="button" style={{ height: 110, width: '100%', padding: 0, border: 0, font: 'inherit', color: 'inherit', background: 'var(--color-neutral-200)', display: 'grid', placeItems: 'center', overflow: 'hidden', cursor: 'pointer' }} className="text-muted" aria-label={'Open ' + r.name + ' · Buka'} onClick={() => openViewer(r)}>
                   {r.thumb ? (
                     // eslint-disable-next-line @next/next/no-img-element
-                    <img src={r.thumb} alt={r.name} className="grayscale" style={{ width: '100%', height: 110, objectFit: 'cover' }} />
+                    <img src={r.thumb} alt={r.name} className="grayscale" style={{ width: '100%', height: 110, objectFit: 'cover', objectPosition: 'top' }} />
                   ) : (
                     <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
                       <path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z" /><path d="M14 2v4a2 2 0 0 0 2 2h4" /><path d="M16 13H8" /><path d="M16 17H8" />

@@ -9,3 +9,4 @@ e2e-srv/
 
 # tesseract worker + cores are copied from node_modules by scripts/ocr-assets.mjs
 public/ocr/engine-*/
+public/ocr/pdfjs-*/
