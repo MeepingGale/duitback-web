@@ -65,7 +65,7 @@ export function Receipts({ api, setTag, setViewer }: { api: Api; setTag: (t: Tag
         </svg>
         <div style={{ flex: 1, minWidth: 240 }}>
           <span style={{ ...heading800, fontSize: 13 }}>Drop receipts here · Seret resit ke sini</span>{' '}
-          <span className="text-muted" style={{ fontSize: 12 }}>— full-size images go to this browser&apos;s IndexedDB; thumbnails stay in the app. Tag them to a relief and they count. <span lang="ms">Tag kepada pelepasan supaya dikira.</span></span>
+          <span className="text-muted" style={{ fontSize: 12 }}>— photos and PDFs are checked for a MyInvois e-invoice QR as they arrive, and <b>Read receipt</b> in the tag dialog fills the merchant, date and total from the file — all on this device, nothing is uploaded. <span lang="ms">Foto dan PDF disemak untuk QR e-Invois; <b>Baca resit</b> mengisi kedai, tarikh dan jumlah — semuanya pada peranti ini.</span></span>
         </div>
         <label className="btn btn-secondary" style={{ cursor: 'pointer' }}>
           Browse files
@@ -100,9 +100,12 @@ export function Receipts({ api, setTag, setViewer }: { api: Api; setTag: (t: Tag
                     <span className={'tag ' + (r.cat ? 'tag-accent' : 'tag-outline')}>{ct ? ct.en.split(' — ')[0].split(' &')[0] : 'Needs tags · Perlu tag'}</span>
                     {r.einv && <a className="tag tag-accent-2" href={r.einv.url} target="_blank" rel="noopener noreferrer" title="Validated e-invoice — open on MyInvois · e-Invois sah">e-Invoice ✓</a>}
                     {!r.cat && (
-                      <button className="navlink linkbtn" style={{ fontSize: 12, marginLeft: 'auto' }} onClick={() => { setTag({ rid: r.id, cat: 'lifestyle', merchant: '', amount: '', makeClaim: true }); setDlg('tag'); }}>Tag →</button>
+                      <button className="navlink linkbtn" style={{ fontSize: 12, marginLeft: 'auto' }} onClick={() => { setTag({ rid: r.id, cat: 'lifestyle', merchant: '', amount: '', makeClaim: true }); setDlg('tag'); }}>Tag · Read →</button>
                     )}
-                    <button className="navlink linkbtn" style={{ fontSize: 11, marginLeft: r.cat ? 'auto' : 0 }} onClick={() => ask('Delete this receipt? · Padam resit ini?', () => { delFile(r.id); mut((dd) => { /* claim lines point at receipts by file name — drop the pointer when the last file of that name goes */ dd.receipts = dd.receipts.filter((q) => q.id !== r.id); const stillNamed = dd.receipts.some((q) => q.ya === r.ya && q.name === r.name); if (!stillNamed) dd.claims.forEach((cl) => { if (cl.ya === r.ya && cl.receipt === r.name) cl.receipt = null; }); }); })}>Delete</button>
+                    {r.cat && (
+                      <button className="navlink linkbtn" style={{ fontSize: 12, marginLeft: 'auto' }} title="Change the tags, or read merchant, date and total from the file" onClick={() => { const parts = (r.sub || '').split(' · '); const amt = parts.find((x) => /^RM\s/.test(x)); setTag({ rid: r.id, cat: r.cat!, merchant: parts[0] && !/^RM\s/.test(parts[0]) && parts[0] !== 'Receipt' ? parts[0] : '', amount: amt ? amt.replace(/[^\d.]/g, '') : '', makeClaim: false }); setDlg('tag'); }}>Edit · Read →</button>
+                    )}
+                    <button className="navlink linkbtn" style={{ fontSize: 11 }} onClick={() => ask('Delete this receipt? · Padam resit ini?', () => { delFile(r.id); mut((dd) => { /* claim lines point at receipts by file name — drop the pointer when the last file of that name goes */ dd.receipts = dd.receipts.filter((q) => q.id !== r.id); const stillNamed = dd.receipts.some((q) => q.ya === r.ya && q.name === r.name); if (!stillNamed) dd.claims.forEach((cl) => { if (cl.ya === r.ya && cl.receipt === r.name) cl.receipt = null; }); }); })}>Delete</button>
                   </div>
                 </div>
               </div>

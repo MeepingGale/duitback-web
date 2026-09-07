@@ -322,7 +322,7 @@ describe('TrackerApp smoke', () => {
     localStorage.setItem(KEY, JSON.stringify(d));
     render(<TrackerApp />);
     fireEvent.click(await screen.findByText('Receipts · Resit'));
-    fireEvent.click(await screen.findByText('Tag →'));
+    fireEvent.click(await screen.findByText('Tag · Read →'));
     await screen.findByText('Tag receipt · Tag resit');
     fireEvent.click(screen.getByText('Read receipt · Baca resit'));
     await screen.findByText(/Read from the photo on this device/);
@@ -352,7 +352,7 @@ describe('TrackerApp smoke', () => {
     localStorage.setItem(KEY, JSON.stringify(d));
     render(<TrackerApp />);
     fireEvent.click(await screen.findByText('Receipts · Resit'));
-    const tagButtons = await screen.findAllByText('Tag →');
+    const tagButtons = await screen.findAllByText('Tag · Read →');
     fireEvent.click(tagButtons[0]); // klinik.jpg is first
     await screen.findByText('Tag receipt · Tag resit');
     fireEvent.change(screen.getByRole('combobox', { name: 'Relief category · Kategori' }), { target: { value: 'parents_med' } });
@@ -360,7 +360,7 @@ describe('TrackerApp smoke', () => {
     await screen.findByText(/Read from the photo on this device/);
     expect((screen.getByRole('combobox', { name: 'Relief category · Kategori' }) as HTMLSelectElement).value).toBe('parents_med');
     fireEvent.click(screen.getByText('Cancel'));
-    fireEvent.click((await screen.findAllByText('Tag →'))[1]);
+    fireEvent.click((await screen.findAllByText('Tag · Read →'))[1]);
     await screen.findByText('Tag receipt · Tag resit');
     expect((screen.getByText('Read receipt · Baca resit') as HTMLButtonElement).disabled).toBe(false); // PDFs can be read…
     fireEvent.click(screen.getByText('Read receipt · Baca resit'));
@@ -375,7 +375,7 @@ describe('TrackerApp smoke', () => {
     localStorage.setItem(KEY, JSON.stringify(d));
     render(<TrackerApp />);
     fireEvent.click(await screen.findByText('Receipts · Resit'));
-    fireEvent.click(await screen.findByText('Tag →'));
+    fireEvent.click(await screen.findByText('Tag · Read →'));
     await screen.findByText('Tag receipt · Tag resit');
     fireEvent.click(screen.getByText('Read receipt · Baca resit'));
     await screen.findByText(/Read from the PDF on this device/);
@@ -392,7 +392,7 @@ describe('TrackerApp smoke', () => {
     fireEvent.click(await screen.findByText('Receipts · Resit'));
     const badge = await screen.findByText('e-Invoice ✓');
     expect((badge as HTMLAnchorElement).href).toBe('https://myinvois.hasil.gov.my/F9D425P6DS7D8IU/share/abcdefghijklmnop');
-    fireEvent.click(screen.getByText('Tag →'));
+    fireEvent.click(screen.getByText('Tag · Read →'));
     await screen.findByText('Validated e-invoice · e-Invois sah');
     expect(screen.getByText('Check on MyInvois ↗')).toBeTruthy();
     expect(screen.getByText('F9D425P6DS7D8IU')).toBeTruthy();

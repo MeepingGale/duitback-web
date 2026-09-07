@@ -101,8 +101,8 @@ test.describe('receipt reading on the device', () => {
     const badge = page.getByRole('link', { name: 'e-Invoice ✓' });
     await expect(badge).toBeVisible({ timeout: 15_000 });
     await expect(badge).toHaveAttribute('href', EINV);
-    const card = page.getByText('einvoice.png', { exact: true }).locator('xpath=ancestor::div[.//button[contains(., "Tag →")]][1]');
-    await card.getByRole('button', { name: 'Tag →' }).click();
+    const card = page.getByText('einvoice.png', { exact: true }).locator('xpath=ancestor::div[.//button[contains(., "Read →")]][1]');
+    await card.getByRole('button', { name: 'Tag · Read →' }).click();
     const dlg = page.getByRole('dialog', { name: 'Tag receipt · Tag resit' });
     await expect(dlg).toContainText('Validated e-invoice');
     await expect(dlg).toContainText('F9D425P6DS7D8IU');
@@ -122,11 +122,11 @@ test.describe('receipt reading on the device', () => {
 
     await page.goto('app/?demo=1#receipts');
     await page.locator('input[type="file"]').first().setInputFiles({ name: 'einvoice.pdf', mimeType: 'application/pdf', buffer });
-    const card = page.getByText('einvoice.pdf', { exact: true }).locator('xpath=ancestor::div[.//button[contains(., "Tag →")]][1]');
+    const card = page.getByText('einvoice.pdf', { exact: true }).locator('xpath=ancestor::div[.//button[contains(., "Read →")]][1]');
     await expect(card).toBeVisible({ timeout: 30_000 });
     await expect(card.getByRole('link', { name: 'e-Invoice ✓' })).toBeVisible({ timeout: 30_000 }); // the QR was found inside the PDF
     await expect(page.locator('img[alt="einvoice.pdf"]')).toBeVisible(); // first page as the card's thumbnail
-    await card.getByRole('button', { name: 'Tag →' }).click();
+    await card.getByRole('button', { name: 'Tag · Read →' }).click();
     const dlg = page.getByRole('dialog', { name: 'Tag receipt · Tag resit' });
     await expect(dlg).toContainText('Validated e-invoice');
     await dlg.getByRole('button', { name: 'Read receipt · Baca resit' }).click();
@@ -174,9 +174,9 @@ Thank you
     await page.goto('app/?demo=1#receipts');
     await page.locator('input[type="file"]').first().setInputFiles({ name: 'klinik.png', mimeType: 'image/png', buffer });
     // the upload decodes and re-encodes the photo first; on a slow runner that takes a moment, so tag *this* card, not the first one
-    const card = page.getByText('klinik.png', { exact: true }).locator('xpath=ancestor::div[.//button[contains(., "Tag →")]][1]');
+    const card = page.getByText('klinik.png', { exact: true }).locator('xpath=ancestor::div[.//button[contains(., "Read →")]][1]');
     await expect(card).toBeVisible({ timeout: 15_000 });
-    await card.getByRole('button', { name: 'Tag →' }).click();
+    await card.getByRole('button', { name: 'Tag · Read →' }).click();
     const dlg = page.getByRole('dialog', { name: 'Tag receipt · Tag resit' });
     await expect(dlg).toContainText('klinik.png');
     await dlg.getByRole('button', { name: 'Read receipt · Baca resit' }).click();
