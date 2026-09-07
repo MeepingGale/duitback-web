@@ -30,7 +30,7 @@ jobs:
       - run: npm test
       - run: npm run build
       - run: npx playwright install --with-deps chromium webkit
-      - run: npx playwright test
+      - run: npx playwright test --reporter=line,github # github reporter: failures become annotations readable from the API
       - uses: actions/upload-artifact@v4
         if: failure()
         with:
