@@ -87,6 +87,13 @@ Total Payable Amount (RM) 150.00`);
     expect(read('ABC STORE\nSubtotal 90.00\nSST 6% 5.40').amount).toBe(90);
   });
 
+  it('accepts a whole-number total when it is prefixed with RM, but not bare integers like quantities', () => {
+    expect(read('KEDAI ABC\nTotal RM120').amount).toBe(120);
+    expect(read('KEDAI ABC\nJumlah RM 1,250').amount).toBe(1250);
+    expect(read('KEDAI ABC\nQty 3 x Item 12.00\nTotal 36.00').amount).toBe(36);
+    expect(read('KEDAI ABC\nInvoice 2026\nItem 12.00').amount).toBe(12);
+  });
+
   it('prefers the date next to a date label over other dates on the receipt', () => {
     const r = read('KEDAI ABC\nExpiry 01/01/2028\nTarikh 14.05.26\nTotal 10.00');
     expect(r.date).toBe('2026-05-14');

@@ -16,7 +16,7 @@ export async function toBitmap(src: string | Blob): Promise<ImageBitmap> {
 }
 
 function pixels(bmp: ImageBitmap, max: number): ImageData {
-  const s = Math.min(1, max / Math.max(bmp.width, bmp.height));
+  const s = Math.min(2, max / Math.max(bmp.width, bmp.height)); // up to 2x: upscaling gives a tiny QR's modules a few pixels each
   const cv = document.createElement('canvas');
   cv.width = Math.max(1, Math.round(bmp.width * s));
   cv.height = Math.max(1, Math.round(bmp.height * s));
@@ -25,12 +25,14 @@ function pixels(bmp: ImageBitmap, max: number): ImageData {
   return g.getImageData(0, 0, cv.width, cv.height);
 }
 
-/** Decode the QR on a receipt photo (data URL or Blob). A few sizes are tried: jsQR is happiest around
- *  700–1600px, a phone photo is 3000+ and a small QR disappears when shrunk too far. Returns the text or null. */
+/** Decode the QR on a receipt photo (data URL or Blob). Several sizes are tried, cheapest first: jsQR is
+ *  happiest around 700–1600px, but a small QR on a full-page printout needs the stored resolution or even a
+ *  modest upscale so each module spans a few pixels. Returns the text or null. */
 export async function decodeQr(src: string | Blob): Promise<string | null> {
   const bmp = await toBitmap(src);
   try {
-    for (const max of [1000, 1600, 700]) {
+    const longest = Math.max(bmp.width, bmp.height);
+    for (const max of [1000, 1600, Math.round(longest * 1.5), 700]) {
       const id = pixels(bmp, max);
       const text = await decodeQrPixels(id.data, id.width, id.height);
       if (text) return text;

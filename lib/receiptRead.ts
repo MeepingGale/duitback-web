@@ -28,7 +28,8 @@ export const CATEGORY_HINTS: { cat: string; words: string[] }[] = [
   { cat: 'lifestyle', words: ['popular', 'mph', 'kinokuniya', 'bookstore', 'book store', 'kedai buku', 'buku', 'books', 'times bookstore', 'unifi', 'maxis', 'celcom', 'digi', 'time dotcom', 'streamyx', 'u mobile', 'umobile', 'yes 5g', 'internet', 'broadband', 'fibre', 'fiber', 'apple', 'machines', 'switch', 'senheng', 'harvey norman', 'courts', 'best denki', 'computer', 'laptop', 'tablet', 'smartphone', 'ipad', 'iphone', 'samsung'] },
 ];
 
-const MONEY = /(?:RM|MYR)?\s*(\d{1,3}(?:[ ,]\d{3})+\.\d{2}|\d+\.\d{2})/g;
+// a figure with two decimals anywhere, or a whole number when it is explicitly prefixed with RM ("Total RM120")
+const MONEY = /(?:RM|MYR)\s*(\d{1,3}(?:[ ,]\d{3})+(?:\.\d{2})?|\d+(?:\.\d{2})?)(?!\d)|(\d{1,3}(?:[ ,]\d{3})+\.\d{2}|\d+\.\d{2})/g;
 const TOTAL_LINE = /\b(grand\s*total|total|jumlah|amount\s*(due|payable|paid)|net\s*(total|amount|payable)|nett|bayaran|payable|amount)\b/i;
 // lines that carry a figure but are never the amount paid
 const NOT_AMOUNT = /change|baki|tunai|cash|tendered|balance|deposit|point|mata|rounding|pembundaran|discount|diskaun|saving/i;
@@ -39,7 +40,7 @@ const SKIP_MERCHANT = /receipt|resit|invoice|invois|cukai|no\.|no:|tel|fax|phone
 function num(s: string): number { return +s.replace(/[ ,]/g, '').replace(/[Oo]/g, '0').replace(/[lI]/g, '1'); }
 
 function pickAmount(lines: string[]): number | undefined {
-  const money = (l: string) => [...l.matchAll(MONEY)].map((m) => num(m[1])).filter((n) => n > 0 && n < 10_000_000);
+  const money = (l: string) => [...l.matchAll(MONEY)].map((m) => num(m[1] || m[2])).filter((n) => n > 0 && n < 10_000_000);
   const totals = lines.filter((l) => TOTAL_LINE.test(l) && !NOT_TOTAL.test(l) && !NOT_AMOUNT.test(l)).map(money).filter((a) => a.length);
   if (totals.length) return totals[totals.length - 1].slice(-1)[0]; // the last total-ish line, its last figure
   const all = lines.filter((l) => !NOT_AMOUNT.test(l)).flatMap(money);

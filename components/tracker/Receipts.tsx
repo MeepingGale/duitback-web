@@ -22,7 +22,7 @@ export function Receipts({ api, setTag, setViewer }: { api: Api; setTag: (t: Tag
   let recs = recAll;
   if (rFilter === 'untagged') recs = recs.filter((r) => !r.cat);
   else if (rFilter !== 'all') recs = recs.filter((r) => r.cat === rFilter);
-  if (rSearch) recs = recs.filter((r) => (r.name + ' ' + (r.sub || '')).toLowerCase().includes(rSearch.toLowerCase()));
+  if (rSearch) recs = recs.filter((r) => (r.name + ' ' + (r.sub || '') + (r.einv ? ' e-invoice e-invois ' + r.einv.uuid : '')).toLowerCase().includes(rSearch.toLowerCase()));
 
   const addReceipt = (name: string, thumb: string | null, full: string) => {
     const id = uid();

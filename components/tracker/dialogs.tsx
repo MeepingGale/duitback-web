@@ -304,7 +304,8 @@ export function TagDialog({ api, tag, setTag }: { api: Api; tag: TagState; setTa
       const full = rec.hasFull ? await getFile(rec.id) : null;
       if (isPdf && full) setReading({ status: 'rendering pdf', progress: 0 });
       const { receiptImage } = await import('@/lib/pdf');
-      const src = (await receiptImage(full)) || (rec.thumb && rec.thumb.startsWith('data:image/') ? rec.thumb : null);
+      const rendered = await receiptImage(full).catch(() => { throw new Error('pdf-render'); });
+      const src = rendered || (rec.thumb && rec.thumb.startsWith('data:image/') ? rec.thumb : null);
       if (!src) throw new Error('no-file');
       const [{ readReceiptImage }, { parseReceiptText }] = await Promise.all([import('@/lib/ocr'), import('@/lib/receiptRead')]);
       const res = await readReceiptImage(src, setReading);
@@ -321,9 +322,12 @@ export function TagDialog({ api, tag, setTag }: { api: Api; tag: TagState; setTa
       });
       if (read.amount === undefined && !read.merchant) setReadErr('Could not make out this photo — try a sharper, straight-on shot in good light. · Foto tidak dapat dibaca — cuba foto yang lebih jelas.');
     } catch (e) {
-      setReadErr((e as Error).message === 'no-file'
+      const why = (e as Error).message;
+      setReadErr(why === 'no-file'
         ? 'No stored file to read — demo receipts are placeholders; your own uploads can be read. · Tiada fail tersimpan untuk dibaca.'
-        : 'The reader could not start — check your connection for the one-time download, then try again. · Pembaca gagal dimuatkan.');
+        : why === 'pdf-render'
+          ? 'Could not open this PDF — it may be damaged or password-protected. · PDF ini tidak dapat dibuka.'
+          : 'The reader could not start — check your connection for the one-time download, then try again. · Pembaca gagal dimuatkan.');
     } finally { setReading(null); }
   };
 
